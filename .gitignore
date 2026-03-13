@@ -1,0 +1,37 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables (Crucial for security)
+.env
+.env.development
+.env.production
+.env.local
+.env.*.local
+
+# IDE / Editor folders
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output
+
+# OS related
+Thumbs.db
+ehthumbs.db
