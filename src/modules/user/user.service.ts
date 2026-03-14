@@ -1,44 +1,35 @@
-import { User } from "../../models/User.model";
+import { User } from "./user.model";
+import bcrypt from 'bcryptjs';
+import { sendEmail } from "../../services/email.service";
 
+export const registerUser = async (data: any) => {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
 
-export const createUserService = async (data: any) => {
-
-    const user = await User.create(data);
+    const user = await User.create({
+        ...data,
+        password: hashedPassword
+    });
+    await sendEmail(
+        user.email,
+        "Welcome to Tawin!",
+        `<h1>Hi ${user.firstName}</h1><p>Your account has been created.</p>`
+    );
 
     return user;
 };
 
-export const getUsersService = async (page: number, limit: number) => {
+export const verifyUserByAdmin = async (id: string) => {
+    return await User.findByIdAndUpdate(id, { isVerified: true }, { new: true });
+};
 
-    const skip = (page - 1) * limit;
+export const updateUserService = async (id: string, updateData: any) => {
+    return await User.findByIdAndUpdate(id, updateData, { new: true });
+};
 
-    const [users, total] = await Promise.all([
-        User.find().skip(skip).limit(limit),
-        User.countDocuments()
-    ]);
-
-    return {
-        users,
-        meta: {
-            page,
-            limit,
-            total,
-            totalPages: Math.ceil(total / limit)
-        }
-    };
+export const getAllUsersService = async () => {
+    return await User.find();
 };
 
 export const getUserService = async (id: string) => {
-
-    return User.findById(id);
-};
-
-export const updateUserService = async (id: string, data: any) => {
-
-    return User.findByIdAndUpdate(id, data, { new: true });
-};
-
-export const deleteUserService = async (id: string) => {
-
-    return User.findByIdAndDelete(id);
+    return await User.findById(id);
 };

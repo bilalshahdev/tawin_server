@@ -1,11 +1,14 @@
-import mongoose from "mongoose";
-import app from "./app";
-import { config } from "./config";
+import app from './app';
+import connectDB from './config/db';
+import { config } from './config/env.config';
 
-mongoose.connect(config.mongoUri).then(() => {
-    console.log("Mongo connected");
+const startServer = async () => {
+    await connectDB();
 
     app.listen(config.port, () => {
-        console.log(`Server running on ${config.port}`);
+        console.log(`🚀 Server running in ${config.env} mode on http://localhost:${config.port}`);
+        console.log(`📑 Docs available at http://localhost:${config.port}/api-docs`);
     });
-});
+};
+
+startServer();

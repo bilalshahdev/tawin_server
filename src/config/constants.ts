@@ -17,10 +17,23 @@ export const AUTH_CONSTANTS = {
     }
 };
 
+export const MAIL_CONSTANTS = {
+    MAIL_MAILER: process.env.MAIL_MAILER || 'smtp',
+    MAIL_HOST: process.env.MAIL_HOST || 'dcodax.com',
+    MAIL_PORT: process.env.MAIL_PORT || 465,
+    MAIL_USERNAME: process.env.MAIL_USERNAME || 'test@dcodax.com',
+    MAIL_PASSWORD: process.env.MAIL_PASSWORD || 'dcodax@1234',
+    MAIL_ENCRYPTION: process.env.MAIL_ENCRYPTION || 'ssl',
+    MAIL_FROM_ADDRESS: process.env.MAIL_FROM_ADDRESS || 'test@dcodax.com',
+};
+
+
+
 // define auth_constants type and export
 
 export type AuthConstants = typeof AUTH_CONSTANTS;
 export type BasketStatus = 'pending' | 'approved' | 'rejected';
+export type MailConstants = typeof MAIL_CONSTANTS;
 
 
 export const PROPERTY_TYPES = ['Freehold', 'Leasehold'] as const;
