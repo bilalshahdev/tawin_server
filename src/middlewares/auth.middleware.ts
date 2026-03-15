@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { AUTH_CONSTANTS } from "../config/constants";
 import { ApiError } from "../utils/apiError";
 
 export const authMiddleware = (
@@ -12,8 +13,9 @@ export const authMiddleware = (
     if (!token) {
         return next(new ApiError(401, "Unauthorized"));
     }
+
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+        const decoded = jwt.verify(token, AUTH_CONSTANTS.JWT_ACCESS_SECRET);
         (req as any).user = decoded;
         next();
     } catch {

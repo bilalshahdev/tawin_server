@@ -6,20 +6,14 @@ import { authMiddleware } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
-// Public Routes
 router.post("/register", validate(schemas.registerSchema), authController.register);
 router.post("/verify-otp", validate(schemas.verifyOtpSchema), authController.verifyOtp);
-router.post("/resend-otp", authController.resendOtp);
 router.post("/login", validate(schemas.loginSchema), authController.login);
 router.post("/forgot-password", validate(schemas.forgotPasswordSchema), authController.forgotPassword);
 router.post("/reset-password", validate(schemas.resetPasswordSchema), authController.resetPassword);
+router.post("/resend-otp", validate(schemas.resendOtpSchema), authController.resendOtp);
 
-// Protected Routes (Require Login)
-router.post(
-    "/change-password",
-    authMiddleware,
-    validate(schemas.changePasswordSchema),
-    authController.changePassword
-);
+// Protected route
+router.post("/change-password", authMiddleware, validate(schemas.changePasswordSchema), authController.changePassword);
 
 export default router;

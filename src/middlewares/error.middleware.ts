@@ -1,6 +1,4 @@
-// src/middlewares/error.middleware.ts
 import { Request, Response, NextFunction } from "express";
-import fs from "fs";
 import { ApiError } from "../utils/apiError";
 
 export const globalErrorHandler = (
@@ -9,27 +7,21 @@ export const globalErrorHandler = (
     res: Response,
     next: NextFunction
 ) => {
+    let { statusCode, message } = err;
 
-    // Delete uploaded files if they exist
-    const uploadedFiles = (req as any).uploadedFiles as string[] | undefined;
-
-    if (uploadedFiles) {
-        uploadedFiles.forEach((filePath) => {
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
-        });
+    // 1. If it's not a custom ApiError, default to 500
+    if (!(err instanceof ApiError)) {
+        statusCode = 500;
+        message = "Internal Server Error";
     }
 
-    if (err instanceof ApiError) {
-        return res.status(err.statusCode).json({
-            success: false,
-            message: err.message,
-        });
-    }
+    // 2. CRITICAL FIX: Translate the message using req.t
+    // If the message contains a dot (like 'errors.user_exists'), it's a key
+    const translatedMessage = req.t ? req.t(message) : message;
 
-    return res.status(500).json({
+    res.status(statusCode).json({
         success: false,
-        message: err.message || "Internal Server Error",
+        message: translatedMessage, // Now it will be "User already exists..."
+        stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
     });
 };

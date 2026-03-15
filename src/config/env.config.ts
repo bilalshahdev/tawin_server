@@ -1,13 +1,23 @@
 import dotenv from 'dotenv';
 import path from 'path';
-import { AUTH_CONSTANTS, MAIL_CONSTANTS } from './constants';
+import { z } from 'zod';
 
 const env = process.env.NODE_ENV || 'development';
 dotenv.config({ path: path.resolve(process.cwd(), `.env.${env}`) });
 
-const { JWT_ACCESS_SECRET, JWT_ACCESS_EXPIRY } = AUTH_CONSTANTS;
-const { MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_ENCRYPTION, MAIL_FROM_ADDRESS } = MAIL_CONSTANTS;
+const envSchema = z.object({
+    PORT: z.string().default('5000'),
+    MONGO_URI: z.string().min(1, "MONGO_URI is required"),
+    JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
+    CORS_ORIGIN: z.string().default('*'),
+});
 
+const parsedEnv = envSchema.safeParse(process.env);
+
+if (!parsedEnv.success) {
+    console.error("❌ Invalid environment variables:", parsedEnv.error.format());
+    process.exit(1);
+}
 export const config = {
     env,
     port: process.env.PORT || 5000,

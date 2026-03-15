@@ -1,4 +1,23 @@
 {
-  "welcome_message": "Welcome to the Tawin API!",
-  "error_not_found": "Resource not found"
+  "auth": {
+    "otp_sent": "A verification code has been sent to your email.",
+    "verification_success": "Account verified successfully.",
+    "login_success": "Logged in successfully.",
+    "reset_token_sent": "Instructions have been sent to your email.",
+    "password_reset_success": "Your password has been reset.",
+    "password_changed_success": "Password updated successfully.",
+    "otp_resend_success": "A new code has been sent."
+  },
+  "errors": {
+    "user_exists": "An account already exists with this email or username.",
+    "user_not_found": "No user found with those details.",
+    "invalid_credentials": "The email or password you entered is incorrect.",
+    "verify_email_first": "Please verify your email before logging in.",
+    "already_verified": "This account is already verified.",
+    "otp_invalid": "The verification code is incorrect.",
+    "otp_expired": "The code has expired. Please request a new one.",
+    "otp_cooldown": "Please wait before requesting another code.",
+    "token_invalid": "The reset token is invalid or has expired.",
+    "old_password_incorrect": "Your current password was entered incorrectly."
+  }
 }

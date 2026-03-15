@@ -47,6 +47,6 @@ export const changePasswordSchema = z.object({
 
 export const resendOtpSchema = z.object({
     body: z.object({
-        email: z.string().email("Invalid email address"),
+        email: z.string().email(),
     })
 });

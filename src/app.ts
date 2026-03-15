@@ -32,5 +32,4 @@ app.get('/health', (req: Request, res: Response) => {
 app.use('/api/v1', rootRouter);
 app.use(globalErrorHandler);
 
-
 export default app;

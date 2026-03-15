@@ -4,9 +4,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "set NODE_ENV=development&& nodemon src/server.ts",
-    "prod": "set NODE_ENV=production&& node dist/server.js",
-    "build": "tsc && xcopy /E /I locales dist\\locales /Y"
+    "dev": "cross-env NODE_ENV=development nodemon --exec ts-node --files src/server.ts",
+    "prod": "cross-env NODE_ENV=production node dist/server.js",
+    "build": "tsc && shx mkdir -p dist/locales && shx cp -r locales/* dist/locales/"
   },
   "keywords": [],
   "author": "",
@@ -40,7 +40,9 @@
     "@types/nodemailer": "^7.0.11",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "cross-env": "^10.1.0",
     "nodemon": "^3.1.14",
+    "shx": "^0.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
