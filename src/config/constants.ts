@@ -27,8 +27,6 @@ export const MAIL_CONSTANTS = {
     MAIL_FROM_ADDRESS: process.env.MAIL_FROM_ADDRESS || 'test@dcodax.com',
 };
 
-
-
 // define auth_constants type and export
 
 export type AuthConstants = typeof AUTH_CONSTANTS;
@@ -43,7 +41,7 @@ export const UPLOAD_PATHS = {
     DOCUMENTS: 'uploads/documents',
 };
 
-export enum HttpCode {
+export enum STATUS_CODE {
     OK = 200,
     CREATED = 201,
     BAD_REQUEST = 400,
@@ -52,3 +50,51 @@ export enum HttpCode {
     NOT_FOUND = 404,
     INTERNAL_SERVER_ERROR = 500,
 }
+
+export const MESSAGE_KEYS = {
+    AUTH: {
+        UNAUTHORIZED: "auth.unauthorized",
+        INVALID_TOKEN: "auth.invalid_token",
+        FORBIDDEN: "auth.forbidden",
+        EMAIL_NOT_VERIFIED: "auth.email_not_verified",
+
+        OTP_SENT: "auth.otp_sent",
+        VERIFICATION_SUCCESS: "auth.verification_success",
+        LOGIN_SUCCESS: "auth.login_success",
+        RESET_TOKEN_SENT: "auth.reset_token_sent",
+        PASSWORD_RESET_SUCCESS: "auth.password_reset_success",
+        PASSWORD_CHANGED_SUCCESS: "auth.password_changed_success",
+        OTP_RESEND_SUCCESS: "auth.otp_resend_success",
+        EMAIL_CHANGED_SUCCESS: "auth.email_changed_success",
+    },
+    USER: {
+        USERS_RETRIEVED: "user.users_retrieved",
+        PROFILE_RETRIEVED: "user.profile_retrieved",
+        PROFILE_UPDATED: "user.profile_updated",
+        USER_VERIFIED: "user.user_verified",
+        ACCOUNT_DELETED: "user.account_deleted",
+        BASKET_APPLIED: "user.basket_applied",
+        BASKET_REQUESTS_RETRIEVED: "user.basket_requests_retrieved",
+        BASKET_REQUEST_STATUS_UPDATED: "user.basket_request_status_updated",
+    },
+    ERRORS: {
+        USER_EXISTS: "errors.user_exists",
+        USER_NOT_FOUND: "errors.user_not_found",
+        INVALID_CREDENTIALS: "errors.invalid_credentials",
+        VERIFY_EMAIL_FIRST: "errors.verify_email_first",
+        ALREADY_VERIFIED: "errors.already_verified",
+        OTP_INVALID: "errors.otp_invalid",
+        OTP_EXPIRED: "errors.otp_expired",
+        OTP_COOLDOWN: "errors.otp_cooldown",
+        TOKEN_INVALID: "errors.token_invalid",
+        OLD_PASSWORD_INCORRECT: "errors.old_password_incorrect",
+    },
+
+    VALIDATION: {
+        FAILED: "validation.failed",
+    },
+
+    GENERAL: {
+        INTERNAL_ERROR: "general.internal_error",
+    },
+} as const;

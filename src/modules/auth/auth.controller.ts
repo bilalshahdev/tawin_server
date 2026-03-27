@@ -28,6 +28,13 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
     res.json(new ApiResponse(req.t('auth.password_reset_success')));
 });
 
+export const changeEmail = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { email } = req.body;
+    await authService.changeEmail(userId, email);
+    res.json(new ApiResponse(req.t('auth.password_changed_success')));
+});
+
 export const changePassword = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const { oldPassword, newPassword } = req.body;

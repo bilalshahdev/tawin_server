@@ -26,7 +26,7 @@ export interface IUser extends Document {
   username: string;
   email: string;
   isVerified: boolean;
-  password: string;
+  password?: string;
   phone: string;
   profileImage: string;
   country: string;
@@ -45,4 +45,12 @@ export interface IUser extends Document {
 
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IUpdateProfileDTO {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  country?: string;
+  profileImage?: string;
 }

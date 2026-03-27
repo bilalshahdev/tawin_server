@@ -14,6 +14,6 @@ router.post("/reset-password", validate(schemas.resetPasswordSchema), authContro
 router.post("/resend-otp", validate(schemas.resendOtpSchema), authController.resendOtp);
 
 // Protected route
+router.post("/change-email", authMiddleware, validate(schemas.changeEmailSchema), authController.changeEmail);
 router.post("/change-password", authMiddleware, validate(schemas.changePasswordSchema), authController.changePassword);
-
 export default router;

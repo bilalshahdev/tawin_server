@@ -50,3 +50,5 @@ export const resendOtpSchema = z.object({
         email: z.string().email(),
     })
 });
+
+export const changeEmailSchema = resendOtpSchema

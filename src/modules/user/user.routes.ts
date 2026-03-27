@@ -1,47 +1,40 @@
 import { Router } from "express";
-import * as userController from "./user.controller";
+import * as C from "./user.controller";
 import { upload } from "../../middlewares/upload.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { authMiddleware, authorize } from "../../middlewares/auth.middleware";
 import * as schemas from "./user.validation";
 
 const router = Router();
-router.post("/register", validate(schemas.registerSchema), userController.register);
 
 router.patch(
-    "/profile",
+    "/",
     authMiddleware,
     upload.fields([{ name: "profileImage", maxCount: 1 }]),
     validate(schemas.updateProfileSchema),
-    userController.updateProfile
+    C.updateUser
 );
 
 router.patch(
     "/profile-picture",
     authMiddleware,
     upload.fields([{ name: "profileImage", maxCount: 1 }]),
-    userController.updateProfilePicOnly
-);
-
-router.patch(
-    "/verify/:id",
-    authMiddleware,
-    authorize("admin"),
-    validate(schemas.adminVerifySchema),
-    userController.adminVerifyUser
+    C.updateUser
 );
 
 router.get(
-    "/",
+    "/me",
     authMiddleware,
-    authorize("admin"),
-    userController.getAllUsers
+    C.getUser
 );
 
-router.get(
-    "/:id",
+// apply for basket
+router.post(
+    "/apply-for-basket",
     authMiddleware,
-    userController.getUser
+    validate(schemas.applyForBasketSchema),
+    C.applyForBasket
 );
+
 
 export default router;

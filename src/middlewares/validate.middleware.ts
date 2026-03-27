@@ -21,7 +21,7 @@ export const validate =
 
           return res.status(400).json({
             status: "error",
-            message: "Validation Failed",
+            message: req.t("validation.failed"),
             errors: errorMessages,
           });
         }

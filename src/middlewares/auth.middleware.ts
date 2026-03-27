@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { AUTH_CONSTANTS } from "../config/constants";
+import { AUTH_CONSTANTS, STATUS_CODE, MESSAGE_KEYS } from "../config/constants";
 import { ApiError } from "../utils/apiError";
 
 export const authMiddleware = (
@@ -11,7 +11,9 @@ export const authMiddleware = (
     const token = req.headers.authorization?.split(" ")[1];
 
     if (!token) {
-        return next(new ApiError(401, "Unauthorized"));
+        return next(
+            new ApiError(STATUS_CODE.UNAUTHORIZED, MESSAGE_KEYS.AUTH.UNAUTHORIZED)
+        );
     }
 
     try {
@@ -19,7 +21,7 @@ export const authMiddleware = (
         (req as any).user = decoded;
         next();
     } catch {
-        next(new ApiError(401, "Invalid token"));
+        next(new ApiError(STATUS_CODE.UNAUTHORIZED, MESSAGE_KEYS.AUTH.INVALID_TOKEN));
     }
 };
 
@@ -28,7 +30,7 @@ export const authorize = (...roles: string[]) => {
         const user = (req as any).user;
 
         if (!user || !roles.includes(user.role)) {
-            return next(new ApiError(403, "Forbidden: You do not have permission"));
+            return next(new ApiError(STATUS_CODE.FORBIDDEN, MESSAGE_KEYS.AUTH.FORBIDDEN));
         }
         next();
     };

@@ -2,52 +2,67 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler";
 import * as userService from "./user.service";
 import { ApiResponse } from "../../utils/apiResponse";
-import { ApiError } from "../../utils/apiError";
 
-export const register = asyncHandler(async (req: Request, res: Response) => {
-    const user = await userService.registerUser(req.body);
-    res.status(201).json(new ApiResponse("Registration successful", user));
+export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
+    const search = req.query?.search as string
+    const page = parseInt(req.query?.page as string) || 1
+    const limit = parseInt(req.query?.limit as string) || 10
+    const users = await userService.getAllUsersService(page, limit, search);
+    res.json(new ApiResponse(req.t('user.users_retrieved'), users));
 });
 
-export const updateProfile = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user.id; // From auth middleware
+export const getUser = asyncHandler(async (req: Request, res: Response) => {
+    const user = await userService.getUser(req.user!.id);
+    res.json(new ApiResponse(req.t('user.profile_retrieved'), user));
+});
+
+export const updateUser = asyncHandler(async (req: Request, res: Response) => {
+    const updateData = { ...req.body };
     const files = req.files as any;
 
-    const updateData = { ...req.body };
+
     if (files?.profileImage) {
         updateData.profileImage = files.profileImage[0].path;
     }
 
-    const updatedUser = await userService.updateUserService(userId, updateData);
-    res.json(new ApiResponse("Profile updated", updatedUser));
+    const updatedUser = await userService.updateUser(req.user!.id, updateData);
+    res.json(new ApiResponse(req.t('user.profile_updated'), updatedUser));
 });
 
-export const updateProfilePicOnly = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user.id;
-    const files = req.files as any;
+// verifyUser controller
 
-    if (!files?.profileImage) throw new ApiError(400, "No image uploaded");
-
-    const updatedUser = await userService.updateUserService(userId, {
-        profileImage: files.profileImage[0].path
-    });
-
-    res.json(new ApiResponse("Profile picture updated", updatedUser));
+export const verifyUser = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.params.id as string;
+    if (!userId) {
+        throw new Error('User ID is required');
+    }
+    const user = await userService.verifyUser(userId);
+    res.json(new ApiResponse(req.t('user.user_verified'), user));
 });
 
-export const adminVerifyUser = asyncHandler(async (req: Request, res: Response) => {
-    const user = await userService.verifyUserByAdmin(req.params.id as string);
-    if (!user) throw new ApiError(404, "User not found");
-    res.json(new ApiResponse("User verified by admin", user));
+
+export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
+    await userService.deleteUser(req.user!.id);
+    res.json(new ApiResponse(req.t('user.account_deleted')));
 });
 
-export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
-    const users = await userService.getAllUsersService();
-    res.json(new ApiResponse("Users retrieved", users));
+// applyForBasket controller
+export const applyForBasket = asyncHandler(async (req: Request, res: Response) => {
+    const basketData = req.body;
+    const user = await userService.applyForBasket(req.user!.id, basketData);
+    res.json(new ApiResponse(req.t('user.basket_applied'), user));
 });
 
-export const getUser = asyncHandler(async (req: Request, res: Response) => {
-    const user = await userService.getUserService(req.params.id as string);
-    if (!user) throw new ApiError(404, "User not found");
-    res.json(new ApiResponse("User retrieved", user));
+export const fetchAllBasketRequests = asyncHandler(async (req: Request, res: Response) => {
+    const basketRequests = await userService.fetchAllBasketRequests();
+    res.json(new ApiResponse(req.t('user.basket_requests_retrieved'), basketRequests));
 });
+
+export const updateBasketRequestStatus = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.params.id as string;
+    const status = req.params.status as string;
+    const basketRequest = await userService.updateBasketRequestStatus(userId, status);
+    res.json(new ApiResponse(req.t('user.basket_request_status_updated'), basketRequest));
+});
+
+

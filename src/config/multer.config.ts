@@ -2,8 +2,8 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { UPLOAD_PATHS } from './constants';
-import ApiError from '../utils/ApiError';
-import { HttpCode } from './constants';
+import { STATUS_CODE } from './constants';
+import { ApiError } from '../utils/apiError';
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -21,7 +21,7 @@ const fileFilter = (req: any, file: any, cb: any) => {
     if (file.mimetype.startsWith('image/')) {
         cb(null, true);
     } else {
-        cb(new ApiError(HttpCode.BAD_REQUEST, 'Only images are allowed'), false);
+        cb(new ApiError(STATUS_CODE.BAD_REQUEST, 'Only images are allowed'), false);
     }
 };
 
