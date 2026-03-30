@@ -1,5 +1,9 @@
 {
   "auth": {
+    "unauthorized": "You must be logged in to access this resource.",
+    "invalid_token": "Your session has expired or the token is invalid.",
+    "forbidden": "You do not have the required permissions.",
+    "email_not_verified": "Please verify your email to perform this action.",
     "otp_sent": "A verification code has been sent to your email.",
     "verification_success": "Account verified successfully.",
     "login_success": "Logged in successfully.",
@@ -9,20 +13,34 @@
     "email_changed_success": "Email updated successfully.",
     "otp_resend_success": "A new verification code has been sent."
   },
+  "user": {
+    "users_retrieved": "Users list retrieved successfully.",
+    "profile_retrieved": "Profile details retrieved successfully.",
+    "profile_updated": "Profile updated successfully.",
+    "user_verified": "User verification status updated successfully.",
+    "account_deleted": "Account deleted successfully.",
+    "basket_applied": "Application for construction basket submitted successfully.",
+    "basket_requests_retrieved": "All basket requests retrieved successfully.",
+    "basket_request_status_updated": "Request status updated successfully."
+  },
   "errors": {
-    "unauthorized": "Unauthorized access.",
-    "forbidden": "You do not have permission to perform this action.",
     "user_exists": "An account already exists with this email or username.",
     "user_not_found": "No user found with those details.",
     "invalid_credentials": "The email or password you entered is incorrect.",
     "verify_email_first": "Please verify your email before logging in.",
     "already_verified": "This account is already verified.",
     "otp_invalid": "The verification code is incorrect.",
-    "otp_expired": "The verification code has expired. Please request a new one.",
-    "otp_cooldown": "Please wait before requesting another verification code.",
+    "otp_expired": "The code has expired. Please request a new one.",
+    "otp_cooldown": "Please wait before requesting another code.",
     "token_invalid": "The reset token is invalid or has expired.",
     "old_password_incorrect": "Your current password was entered incorrectly.",
-    "validation_failed": "The request data is invalid.",
-    "internal_error": "Something went wrong. Please try again later."
+    "email_taken": "This email is already associated with another account.",
+    "already_applied": "You have already applied for the construction basket."
+  },
+  "validation": {
+    "failed": "The data provided is incorrect or missing."
+  },
+  "general": {
+    "internal_error": "An unexpected error occurred. Please try again later."
   }
 }

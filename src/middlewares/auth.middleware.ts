@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { AUTH_CONSTANTS, STATUS_CODE, MESSAGE_KEYS } from "../config/constants";
+import { AUTH_CONSTANTS, STATUS_CODE } from "../config/constants";
 import { ApiError } from "../utils/apiError";
 
 export const authMiddleware = (
@@ -12,7 +12,7 @@ export const authMiddleware = (
 
     if (!token) {
         return next(
-            new ApiError(STATUS_CODE.UNAUTHORIZED, MESSAGE_KEYS.AUTH.UNAUTHORIZED)
+            new ApiError(STATUS_CODE.UNAUTHORIZED, req.t("auth.unauthorized"))
         );
     }
 
@@ -21,7 +21,7 @@ export const authMiddleware = (
         (req as any).user = decoded;
         next();
     } catch {
-        next(new ApiError(STATUS_CODE.UNAUTHORIZED, MESSAGE_KEYS.AUTH.INVALID_TOKEN));
+        next(new ApiError(STATUS_CODE.UNAUTHORIZED, req.t("auth.invalid_token")));
     }
 };
 
@@ -30,7 +30,7 @@ export const authorize = (...roles: string[]) => {
         const user = (req as any).user;
 
         if (!user || !roles.includes(user.role)) {
-            return next(new ApiError(STATUS_CODE.FORBIDDEN, MESSAGE_KEYS.AUTH.FORBIDDEN));
+            return next(new ApiError(STATUS_CODE.FORBIDDEN, req.t("auth.forbidden")));
         }
         next();
     };
