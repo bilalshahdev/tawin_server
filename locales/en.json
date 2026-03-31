@@ -42,5 +42,8 @@
   },
   "general": {
     "internal_error": "An unexpected error occurred. Please try again later."
+  },
+  "health": {
+    "check": "Health check successful."
   }
 }
