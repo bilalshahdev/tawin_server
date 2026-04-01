@@ -11,7 +11,8 @@
     "password_reset_success": "Your password has been reset successfully.",
     "password_changed_success": "Password updated successfully.",
     "email_changed_success": "Email updated successfully.",
-    "otp_resend_success": "A new verification code has been sent."
+    "otp_resend_success": "A new verification code has been sent.",
+    "user_not_found": "No user found with those details."
   },
   "user": {
     "users_retrieved": "Users list retrieved successfully.",
@@ -21,7 +22,33 @@
     "account_deleted": "Account deleted successfully.",
     "basket_applied": "Application for construction basket submitted successfully.",
     "basket_requests_retrieved": "All basket requests retrieved successfully.",
-    "basket_request_status_updated": "Request status updated successfully."
+    "basket_request_status_updated": "Request status updated successfully.",
+    "favorite_toggled": "Wishlist updated successfully.",
+    "favorites_retrieved": "Your favorite products have been loaded."
+  },
+  "category": {
+    "category_created": "Category created successfully.",
+    "category_updated": "Category updated successfully.",
+    "category_deleted": "Category deleted successfully.",
+    "category_retrieved": "Category retrieved successfully.",
+    "categories_retrieved": "Categories retrieved successfully."
+  },
+  "product": {
+    "product_created": "Product created successfully.",
+    "product_updated": "Product updated successfully.",
+    "stock_updated": "Stock updated successfully.",
+    "product_deleted": "Product deleted successfully.",
+    "product_retrieved": "Product retrieved successfully.",
+    "products_retrieved": "Products retrieved successfully.",
+    "reviews_synced": "Product ratings and review counts have been successfully synchronized.",
+    "fetched": "Products fetched successfully."
+  },
+  "review": {
+    "review_created": "Review created successfully.",
+    "review_updated": "Review updated successfully.",
+    "review_deleted": "Review deleted successfully.",
+    "review_retrieved": "Review retrieved successfully.",
+    "reviews_retrieved": "Reviews retrieved successfully."
   },
   "errors": {
     "user_exists": "An account already exists with this email or username.",
@@ -35,7 +62,20 @@
     "token_invalid": "The reset token is invalid or has expired.",
     "old_password_incorrect": "Your current password was entered incorrectly.",
     "email_taken": "This email is already associated with another account.",
-    "already_applied": "You have already applied for the construction basket."
+    "already_applied": "You have already applied for the construction basket.",
+    "category_exists": "A category with this name already exists.",
+    "category_not_found": "The requested category could not be found.",
+    "parent_category_required": "A parent category is required for subcategories.",
+    "already_reviewed": "You have already reviewed this product.",
+    "review_not_found": "Review not found.",
+    "product_not_found": "The requested product could not be found.",
+    "insufficient_stock": "The requested quantity exceeds available stock.",
+    "stock_updated": "Product stock has been updated successfully.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "users_already_seeded": "Dummy users already exist in the database."
+  },
+  "seeder": {
+    "users_seeded": "Successfully populated dummy users into the database."
   },
   "validation": {
     "failed": "The data provided is incorrect or missing."

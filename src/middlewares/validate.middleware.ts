@@ -13,7 +13,6 @@ export const validate =
         return next();
       } catch (error) {
         if (error instanceof ZodError) {
-          // Use .issues for the most accurate error mapping
           const errorMessages = error.issues.map((issue) => ({
             path: issue.path.join("."),
             message: issue.message,

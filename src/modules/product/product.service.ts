@@ -2,6 +2,7 @@ import { Product } from "./product.model";
 import { ApiError } from "../../utils/apiError";
 import { deleteFile } from "../../utils/deleteFile";
 import { STATUS_CODE } from "../../config/constants";
+import { Review } from "../review/review.model";
 
 export const createProduct = async (data: any) => {
     return await Product.create(data);
@@ -18,14 +19,17 @@ export const getAllProducts = async (query: any) => {
         filter.$or = [
             { "title.en": regex },
             { "title.ar": regex },
-            { "category.en": regex }
         ];
     }
 
-    if (query.category) filter["category.en"] = query.category;
+    if (query.category) filter.category = query.category;
 
     const [products, totalDocs] = await Promise.all([
-        Product.find(filter).limit(limit).skip(skip).sort({ createdAt: -1 }),
+        Product.find(filter)
+            .populate({ path: 'category', select: 'name' })
+            .limit(limit)
+            .skip(skip)
+            .sort({ createdAt: -1 }),
         Product.countDocuments(filter)
     ]);
 
@@ -33,15 +37,19 @@ export const getAllProducts = async (query: any) => {
 };
 
 export const getProductById = async (id: string) => {
-    const product = await Product.findById(id);
+    const product = await Product.findById(id).populate('category');
     if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
     return product;
 };
 
 export const getProductBySlug = async (slug: string) => {
-    const product = await Product.findOne({ slug });
+    const product = await Product.findOne({ slug }).populate('category');
     if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
     return product;
+};
+
+export const getProductsByCategoryId = async (categoryId: string, query: any) => {
+    return await getAllProducts({ ...query, category: categoryId });
 };
 
 export const updateProduct = async (id: string, updateData: any) => {
@@ -52,7 +60,20 @@ export const updateProduct = async (id: string, updateData: any) => {
         await deleteFile(product.image);
     }
 
-    return await Product.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+    return await Product.findByIdAndUpdate(id, { $set: updateData }, { new: true }).populate('category');
+};
+
+export const updateStock = async (id: string, quantity: number, isAddition: boolean = false) => {
+    const product = await Product.findById(id);
+    if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
+
+    if (isAddition) {
+        product.remainingPieces = (product.remainingPieces ?? 0) + quantity;
+    } else {
+        product.remainingPieces = quantity;
+    }
+
+    return await product.save();
 };
 
 export const deleteProduct = async (id: string) => {
@@ -61,4 +82,34 @@ export const deleteProduct = async (id: string) => {
 
     await deleteFile(product.image);
     return await Product.findByIdAndDelete(id);
+};
+
+// sync product reviews
+export const syncAllProductReviews = async () => {
+    const stats = await Review.aggregate([
+        {
+            $group: {
+                _id: "$product",
+                reviewCount: { $sum: 1 },
+                avgRating: { $avg: "$rating" }
+            }
+        }
+    ]);
+
+    const updatePromises = stats.map((stat) => {
+        return Product.findByIdAndUpdate(stat._id, {
+            rating: Math.round(stat.avgRating * 10) / 10,
+            reviewCount: stat.reviewCount
+        });
+    });
+
+    const reviewedProductIds = stats.map(s => s._id);
+    const resetPromise = Product.updateMany(
+        { _id: { $nin: reviewedProductIds } },
+        { rating: 0, reviewCount: 0 }
+    );
+
+    await Promise.all([...updatePromises, resetPromise]);
+
+    return stats.length;
 };

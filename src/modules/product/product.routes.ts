@@ -7,8 +7,10 @@ import * as schemas from "./product.validation";
 
 const router = Router();
 
+router.get("/sync-reviews", productController.syncReviews);
 // Public
 router.get("/", productController.list);
+router.get("/category/:categoryId", productController.getByCategory);
 router.get("/slug/:slug", productController.getBySlug);
 router.get("/:id", productController.getOne);
 
@@ -16,5 +18,12 @@ router.get("/:id", productController.getOne);
 router.post("/", authMiddleware, authorize('admin'), upload.single('image'), validate(schemas.createProductSchema), productController.create);
 router.patch("/:id", authMiddleware, authorize('admin'), upload.single('image'), productController.update);
 router.delete("/:id", authMiddleware, authorize('admin'), productController.remove);
+router.patch(
+    "/:id/stock",
+    authMiddleware,
+    authorize("admin"),
+    validate(schemas.updateStockSchema),
+    productController.updateStock
+);
 
 export default router;

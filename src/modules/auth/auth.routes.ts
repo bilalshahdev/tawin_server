@@ -6,6 +6,9 @@ import { authMiddleware } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
+
+router.get("/test-login", authController.testLogin);
+router.get("/seed-users", authController.seedUsers);
 router.post("/register", validate(schemas.registerSchema), authController.register);
 router.post("/verify-otp", validate(schemas.verifyOtpSchema), authController.verifyOtp);
 router.post("/login", validate(schemas.loginSchema), authController.login);

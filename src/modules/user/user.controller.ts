@@ -29,7 +29,6 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     res.json(new ApiResponse(req.t('user.profile_updated'), updatedUser));
 });
 
-// verifyUser controller
 
 export const verifyUser = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.params.id as string;

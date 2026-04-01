@@ -13,8 +13,6 @@ export const trackUploadedFiles = (req: Request, res: Response, next: NextFuncti
             });
         });
     }
-
-    // Attach paths to request object for global error handler
     (req as any).uploadedFiles = paths;
 
     next();

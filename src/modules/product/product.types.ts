@@ -2,7 +2,7 @@ import { Document, Types } from 'mongoose';
 
 export interface LocalizedString {
     en: string;
-    ar?: string; // Optional for the first request
+    ar?: string;
 }
 
 export interface IProduct extends Omit<Document, 'isNew'> {

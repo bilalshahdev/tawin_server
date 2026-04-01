@@ -3,6 +3,7 @@ import { ApiError } from "../../utils/apiError";
 import { deleteFile } from "../../utils/deleteFile";
 import { sendEmail } from "../../services/email.service";
 import { ConstructionBasketStatus } from "./user.types";
+import { STATUS_CODE } from "../../config/constants";
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -21,7 +22,6 @@ export const getAllUsersService = async (page: number = 1, limit: number = 10, s
         };
     }
 
-    // Run count and data fetch in parallel for better performance
     const [users, totalDocs] = await Promise.all([
         User.find(filter)
             .select("-password")
@@ -48,13 +48,13 @@ export const getAllUsersService = async (page: number = 1, limit: number = 10, s
 
 export const getUser = async (id: string) => {
     const user = await User.findById(id);
-    if (!user) throw new ApiError(404, "errors.user_not_found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
     return user;
 };
 
 export const updateUser = async (id: string, updateData: any) => {
     const user = await User.findById(id);
-    if (!user) throw new ApiError(404, "errors.user_not_found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
 
     // 1. Handle Profile Image Cleanup
     if (updateData.profileImage && user.profileImage && user.profileImage !== 'default.png') {
@@ -64,7 +64,7 @@ export const updateUser = async (id: string, updateData: any) => {
     // 2. Handle Email Change Logic
     if (updateData.email && updateData.email !== user.email) {
         const emailExists = await User.findOne({ email: updateData.email });
-        if (emailExists) throw new ApiError(400, "errors.email_taken");
+        if (emailExists) throw new ApiError(STATUS_CODE.BAD_REQUEST, "Email already exists");
 
         const otp = generateOTP();
         updateData.isVerified = false;
@@ -80,14 +80,14 @@ export const updateUser = async (id: string, updateData: any) => {
 // verify user 
 export const verifyUser = async (id: string) => {
     const user = await User.findById(id);
-    if (!user) throw new ApiError(404, "errors.user_not_found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
     user.isVerified = !user.isVerified;
     return await user.save();
 };
 
 export const deleteUser = async (id: string) => {
     const user = await User.findById(id);
-    if (!user) throw new ApiError(404, "errors.user_not_found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
 
     if (user.profileImage && user.profileImage !== 'default.png') {
         await deleteFile(user.profileImage);
@@ -99,10 +99,10 @@ export const deleteUser = async (id: string) => {
 // construction basket
 export const applyForBasket = async (userId: string, basketData: any) => {
     const user = await User.findById(userId);
-    if (!user) throw new ApiError(404, "errors.user_not_found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
 
     if (user.constructionBasket?.isApplied) {
-        throw new ApiError(400, "errors.already_applied");
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "Already applied");
     }
 
     user.constructionBasket = {
@@ -128,18 +128,18 @@ export const fetchAllBasketRequests = async () => {
 
 export const updateBasketRequestStatus = async (userId: string, status: string) => {
     const user = await User.findById(userId);
-    if (!user) throw new ApiError(404, "errors.user_not_found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
 
     if (!user.constructionBasket?.isApplied) {
-        throw new ApiError(400, "errors.not_applied");
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "Not applied");
     }
 
     if (!['pending', 'approved', 'rejected'].includes(status)) {
-        throw new ApiError(400, "errors.invalid_status");
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "Invalid status");
     }
 
     if (user.constructionBasket.status === status) {
-        throw new ApiError(400, "errors.already_same_status");
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "Already same status");
     }
 
     user.constructionBasket.status = status as ConstructionBasketStatus;

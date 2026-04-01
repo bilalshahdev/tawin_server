@@ -10,7 +10,11 @@ const LocalizedSchema = new Schema({
 const productSchema = new Schema<IProduct>({
     title: { type: LocalizedSchema, required: true },
     slug: { type: String, unique: true },
-    category: { type: LocalizedSchema, required: true },
+    category: {
+        type: Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true
+    },
     description: { en: String, ar: String },
     price: { type: Number, required: true },
     originalPrice: { type: Number },
@@ -24,7 +28,6 @@ const productSchema = new Schema<IProduct>({
     reviewCount: { type: Number, default: 0 },
 }, { timestamps: true });
 
-// Auto-generate slug before saving
 productSchema.pre('save', function (next) {
     if (this.isModified('title.en')) {
         this.slug = slugify(this.title.en, { lower: true, strict: true });

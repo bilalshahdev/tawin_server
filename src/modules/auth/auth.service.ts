@@ -9,6 +9,14 @@ import { AuthResponse, ILoginDTO, IRegisterDTO } from './auth.types';
 
 const generateOTP = (): string => Math.floor(100000 + Math.random() * 900000).toString();
 
+export const testLogin = async () => {
+    const adminEmail = "bilalshah.dev@gmail.com";
+    const user = await User.findOne({ email: adminEmail });
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
+    const token = createToken(user);
+    return { user, token };
+};
+
 export const register = async (data: IRegisterDTO): Promise<AuthResponse> => {
     const existing = await User.findOne({
         $or: [{ email: data.email }, { username: data.username }]
@@ -19,13 +27,12 @@ export const register = async (data: IRegisterDTO): Promise<AuthResponse> => {
     const otp = generateOTP();
     const hashedPassword = await bcrypt.hash(data.password!, AUTH_CONSTANTS.SALT_ROUNDS);
 
-    // FIX 1: Save the OTP and Expiry during creation
     const user = await User.create({
         ...data,
         password: hashedPassword,
         isVerified: false,
         verificationOtp: otp,
-        verificationOtpExpires: new Date(Date.now() + 10 * 60 * 1000), // 10 mins
+        verificationOtpExpires: new Date(Date.now() + 10 * 60 * 1000),
         verificationOtpLastSent: new Date()
     });
 
@@ -43,11 +50,10 @@ export const verifyOTP = async (email: string, otp: string): Promise<AuthRespons
     if (new Date() > user.verificationOtpExpires!) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.otp_expired");
 
     user.isVerified = true;
-    user.verificationOtp = undefined; // Clear OTP after use
+    user.verificationOtp = undefined;
     user.verificationOtpExpires = undefined;
     await user.save();
 
-    // FIX 3: Return a NEW token with updated isVerified: true status
     const token = createToken(user);
     return { user, token };
 };

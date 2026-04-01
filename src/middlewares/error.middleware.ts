@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction } from "express";
 import fs from "fs";
 import { ApiError } from "../utils/apiError";
+import { STATUS_CODE } from "../config/constants";
 
 export const globalErrorHandler = (
     err: any,
@@ -22,12 +23,14 @@ export const globalErrorHandler = (
     if (err instanceof ApiError) {
         return res.status(err.statusCode).json({
             success: false,
-            message: err.message,
+            message: req.t(err.message),
         });
     }
 
-    return res.status(500).json({
+    const genericMessage = err.message ? req.t(err.message) : req.t('general.internal_error');
+
+    return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: err.message || req.t('general.internal_error'),
+        message: genericMessage,
     });
-};
+}

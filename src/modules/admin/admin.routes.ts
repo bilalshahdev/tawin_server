@@ -30,7 +30,6 @@ router.get(
     C.verifyUser
 );
 
-//  construction basket requests
 router.get(
     "/construction-basket-requests",
     authMiddleware,

@@ -15,3 +15,22 @@ export const createProductSchema = z.object({
         isNewArrival: z.preprocess((val) => val === 'true', z.boolean()).optional()
     })
 });
+
+
+export const updateStockSchema = z.object({
+    body: z.object({
+        quantity: z.preprocess(
+            (val) => Number(val),
+            z.number().int().nonnegative("Quantity cannot be negative")
+        ),
+        isAddition: z.preprocess(
+            (val) => {
+                if (typeof val === 'boolean') return val;
+                if (val === 'true') return true;
+                if (val === 'false') return false;
+                return val;
+            },
+            z.boolean().optional()
+        )
+    })
+});
