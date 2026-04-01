@@ -8,6 +8,7 @@ import { STATUS_CODE } from "../../config/constants";
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 export const getAllUsersService = async (page: number = 1, limit: number = 10, search?: string) => {
+    // fetch users but not admin
     const skip = (page - 1) * limit;
     let filter = {};
 
@@ -23,12 +24,12 @@ export const getAllUsersService = async (page: number = 1, limit: number = 10, s
     }
 
     const [users, totalDocs] = await Promise.all([
-        User.find(filter)
+        User.find({ ...filter, role: { $ne: 'admin' } })
             .select("-password")
             .limit(limit)
             .skip(skip)
             .sort({ createdAt: -1 }),
-        User.countDocuments(filter)
+        User.countDocuments({ ...filter, role: { $ne: 'admin' } })
     ]);
 
     const totalPages = Math.ceil(totalDocs / limit);
@@ -48,13 +49,13 @@ export const getAllUsersService = async (page: number = 1, limit: number = 10, s
 
 export const getUser = async (id: string) => {
     const user = await User.findById(id);
-    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
     return user;
 };
 
 export const updateUser = async (id: string, updateData: any) => {
     const user = await User.findById(id);
-    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
     // 1. Handle Profile Image Cleanup
     if (updateData.profileImage && user.profileImage && user.profileImage !== 'default.png') {
@@ -64,7 +65,7 @@ export const updateUser = async (id: string, updateData: any) => {
     // 2. Handle Email Change Logic
     if (updateData.email && updateData.email !== user.email) {
         const emailExists = await User.findOne({ email: updateData.email });
-        if (emailExists) throw new ApiError(STATUS_CODE.BAD_REQUEST, "Email already exists");
+        if (emailExists) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.user_exists");
 
         const otp = generateOTP();
         updateData.isVerified = false;
@@ -80,29 +81,31 @@ export const updateUser = async (id: string, updateData: any) => {
 // verify user 
 export const verifyUser = async (id: string) => {
     const user = await User.findById(id);
-    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
     user.isVerified = !user.isVerified;
     return await user.save();
 };
 
-export const deleteUser = async (id: string) => {
-    const user = await User.findById(id);
-    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
+export const deleteUser = async (userId: string) => {
+    const user = await User.findById(userId);
 
-    if (user.profileImage && user.profileImage !== 'default.png') {
-        await deleteFile(user.profileImage);
+    if (!user) {
+        throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
+    }
+    if (user.role === 'admin') {
+        throw new ApiError(STATUS_CODE.FORBIDDEN, "errors.admin_deletion_prohibited");
     }
 
-    return await User.findByIdAndDelete(id);
+    return await User.findByIdAndDelete(userId);
 };
 
 // construction basket
 export const applyForBasket = async (userId: string, basketData: any) => {
     const user = await User.findById(userId);
-    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
     if (user.constructionBasket?.isApplied) {
-        throw new ApiError(STATUS_CODE.BAD_REQUEST, "Already applied");
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.already_applied");
     }
 
     user.constructionBasket = {
@@ -128,18 +131,18 @@ export const fetchAllBasketRequests = async () => {
 
 export const updateBasketRequestStatus = async (userId: string, status: string) => {
     const user = await User.findById(userId);
-    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "User not found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
     if (!user.constructionBasket?.isApplied) {
-        throw new ApiError(STATUS_CODE.BAD_REQUEST, "Not applied");
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.not_applied");
     }
 
     if (!['pending', 'approved', 'rejected'].includes(status)) {
-        throw new ApiError(STATUS_CODE.BAD_REQUEST, "Invalid status");
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.invalid_status");
     }
 
     if (user.constructionBasket.status === status) {
-        throw new ApiError(STATUS_CODE.BAD_REQUEST, "Already same status");
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.already_same_status");
     }
 
     user.constructionBasket.status = status as ConstructionBasketStatus;

@@ -53,10 +53,49 @@ export const resendOtp = asyncHandler(async (req: Request, res: Response) => {
     res.json(new ApiResponse(req.t('auth.otp_resend_success')));
 });
 
+
+export const seedAdmin = asyncHandler(async (req: Request, res: Response) => {
+    const adminEmail = process.env.ADMIN_EMAIL || "admin@tawin.com";
+    const adminPassword = process.env.ADMIN_PASSWORD || "Admin@123";
+
+    // Check if any admin already exists
+    const adminExists = await User.findOne({ role: "admin" });
+    if (adminExists) {
+        return res.status(STATUS_CODE.OK).json({
+            success: true,
+            message: req.t('errors.admin_already_exists'),
+            data: { email: adminExists.email, password: adminPassword, role: adminExists.role }
+        });
+    }
+
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
+    const admin = await User.create({
+        firstName: "System",
+        lastName: "Admin",
+        username: "admin",
+        email: adminEmail,
+        password: hashedPassword,
+        role: "admin",
+        isVerified: true,
+        country: "Pakistan",
+        constructionBasket: {
+            isApplied: false,
+            status: "approved"
+        }
+    });
+
+    res.status(STATUS_CODE.CREATED).json({
+        success: true,
+        message: req.t('auth.admin_created'),
+        data: { email: admin.email, password: adminPassword, role: admin.role }
+    });
+});
+
 // dev mode only
 export const testLogin = asyncHandler(async (req: Request, res: Response) => {
     if (process.env.NODE_ENV !== 'development') {
-        return res.status(STATUS_CODE.NOT_FOUND).json(new ApiResponse(req.t('common.not_found'), null));
+        return res.status(STATUS_CODE.NOT_FOUND).json(new ApiResponse(req.t('general.not_found'), null));
     }
     const result = await authService.testLogin();
     res.json(new ApiResponse(req.t('auth.login_success'), result));
@@ -64,7 +103,7 @@ export const testLogin = asyncHandler(async (req: Request, res: Response) => {
 
 export const seedUsers = asyncHandler(async (req: Request, res: Response) => {
     if (process.env.NODE_ENV !== 'development') {
-        return res.status(STATUS_CODE.NOT_FOUND).json(new ApiResponse(req.t('common.not_found'), null));
+        return res.status(STATUS_CODE.NOT_FOUND).json(new ApiResponse(req.t('general.not_found'), null));
     }
     const userCount = await User.countDocuments({ email: { $regex: /user\d+@example\.com/ } });
     if (userCount > 0) {

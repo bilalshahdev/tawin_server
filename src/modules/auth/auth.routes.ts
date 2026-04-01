@@ -31,6 +31,19 @@ router.get("/test-login", authController.testLogin);
 
 /**
  * @swagger
+ * /auth/seed-admin:
+ *   get:
+ *     summary: Initialize the system admin
+ *     description: Creates a protected admin user if one does not already exist.
+ *     tags: [Auth]
+ *     responses:
+ *       201:
+ *         description: Admin created or already exists
+ */
+router.get("/seed-admin", authController.seedAdmin);
+
+/**
+ * @swagger
  * /auth/seed-users:
  *   get:
  *     summary: Seed dummy users

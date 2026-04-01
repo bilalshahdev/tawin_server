@@ -24,7 +24,9 @@
     "basket_requests_retrieved": "All basket requests retrieved successfully.",
     "basket_request_status_updated": "Request status updated successfully.",
     "favorite_toggled": "Wishlist updated successfully.",
-    "favorites_retrieved": "Your favorite products have been loaded."
+    "favorites_retrieved": "Your favorite products have been loaded.",
+    "not_found": "User not found.",
+    "admin_created": "Protected admin created successfully."
   },
   "category": {
     "category_created": "Category created successfully.",
@@ -72,7 +74,9 @@
     "insufficient_stock": "The requested quantity exceeds available stock.",
     "stock_updated": "Product stock has been updated successfully.",
     "unauthorized": "You are not authorized to perform this action.",
-    "users_already_seeded": "Dummy users already exist in the database."
+    "users_already_seeded": "Dummy users already exist in the database.",
+    "admin_deletion_prohibited": "Admin accounts cannot be deleted.",
+    "admin_already_exists": "Admin already exists."
   },
   "seeder": {
     "users_seeded": "Successfully populated dummy users into the database."
@@ -81,7 +85,8 @@
     "failed": "The data provided is incorrect or missing."
   },
   "general": {
-    "internal_error": "An unexpected error occurred. Please try again later."
+    "internal_error": "An unexpected error occurred. Please try again later.",
+    "not_found": "The requested resource could not be found."
   },
   "health": {
     "check": "Health check successful."
