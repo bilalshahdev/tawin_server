@@ -24,15 +24,29 @@ export const createCategorySchema = z.object({
     }),
 });
 
+const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+
 export const updateCategorySchema = z.object({
-    body: z.object({
-        name: localizedStringSchema.optional(),
-        description: localizedStringSchema.optional(),
-        type: z.nativeEnum(CategoryType).optional(),
-        parentCategory: z.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
-        isActive: z.boolean().optional(),
-    }),
     params: z.object({
-        id: z.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: z.string().regex(objectIdRegex, "errors.invalid_id")
     }),
+    body: z.object({
+        "name[en]": z.string().min(2).optional(),
+        "name[ar]": z.string().min(2).optional(),
+        "description[en]": z.string().optional(),
+        "description[ar]": z.string().optional(),
+        parentCategory: z.preprocess(
+            (val) => (val === "null" || val === "" ? null : val),
+            z.string().regex(objectIdRegex, "errors.invalid_id").optional().nullable()
+        ),
+        isActive: z.preprocess(
+            (val) => {
+                if (typeof val === 'boolean') return val;
+                if (val === 'true') return true;
+                if (val === 'false') return false;
+                return val;
+            },
+            z.boolean().optional()
+        )
+    })
 });

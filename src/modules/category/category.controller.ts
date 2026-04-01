@@ -4,6 +4,16 @@ import { ApiResponse } from "../../utils/apiResponse";
 import * as categoryService from "./category.service";
 import { STATUS_CODE } from "../../config/constants";
 
+export const getCategories = asyncHandler(async (req: Request, res: Response) => {
+    const categories = await categoryService.getAllCategories(req.query);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.categories_retrieved"), categories));
+});
+
+export const getCategory = asyncHandler(async (req: Request, res: Response) => {
+    const category = await categoryService.getCategoryBySlug(req.params.slug as string);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.category_retrieved"), category));
+});
+
 export const createCategory = asyncHandler(async (req: Request, res: Response) => {
     const data = {
         ...req.body,
@@ -14,12 +24,31 @@ export const createCategory = asyncHandler(async (req: Request, res: Response) =
     res.status(STATUS_CODE.CREATED).json(new ApiResponse(req.t("category.category_created"), category));
 });
 
-export const getCategories = asyncHandler(async (req: Request, res: Response) => {
-    const categories = await categoryService.getAllCategories(req.query);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.categories_retrieved"), categories));
+
+export const updateCategory = asyncHandler(async (req: Request, res: Response) => {
+    const updateData: any = { ...req.body };
+
+    // Map flattened names/descriptions back to objects
+    if (req.body['name[en]'] || req.body['name[ar]']) {
+        updateData.name = {
+            en: req.body['name[en]'],
+            ar: req.body['name[ar]']
+        };
+    }
+
+    // Handle uploaded files
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    if (files?.thumbnail) updateData.thumbnail = files.thumbnail[0].path;
+    if (files?.icon) updateData.icon = files.icon[0].path;
+
+    const category = await categoryService.updateCategory(req.params.id as string, updateData);
+    
+    res.status(STATUS_CODE.OK).json(
+        new ApiResponse(req.t("category.category_updated"), category)
+    );
 });
 
-export const getCategory = asyncHandler(async (req: Request, res: Response) => {
-    const category = await categoryService.getCategoryBySlug(req.params.slug as string);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.category_retrieved"), category));
+export const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
+    const category = await categoryService.deleteCategory(req.params.id as string);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.category_deleted"), category));
 });

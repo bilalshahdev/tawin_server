@@ -1,13 +1,22 @@
 import { Router } from "express";
 import { authorize } from "../../middlewares/auth.middleware";
 import * as C from "../user/user.controller";
-
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import * as schemas from "../admin/admin.validation";
 
 const router = Router();
 
+/**
+ * @swagger
+ * /admin:
+ *   get:
+ *     summary: Welcome to Admin API
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: Success message
+ */
 router.get("/", (req, res) => {
     res.status(200).send({
         status: "success",
@@ -15,6 +24,18 @@ router.get("/", (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /admin/users:
+ *   get:
+ *     summary: Get all users (Admin Only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users retrieved successfully
+ */
 router.get(
     "/users",
     authMiddleware,
@@ -22,6 +43,24 @@ router.get(
     C.getAllUsers
 );
 
+/**
+ * @swagger
+ * /admin/users/{id}/verify:
+ *   get:
+ *     summary: Verify a user account (Admin Only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User verification status updated
+ */
 router.get(
     "/users/:id/verify",
     authMiddleware,
@@ -30,6 +69,61 @@ router.get(
     C.verifyUser
 );
 
+/**
+ * @swagger
+ * /admin/construction-basket-requests:
+ *   get:
+ *     summary: Get all construction basket requests (Admin Only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users who have applied for the basket
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/BasketRequest'
+ */
+
+/**
+ * @swagger
+ * /admin/construction-basket-requests/{id}/status:
+ *   patch:
+ *     summary: Update status of a construction basket request (Admin Only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [pending, approved, rejected]
+ *     responses:
+ *       200:
+ *         description: Request status updated successfully
+ */
 router.get(
     "/construction-basket-requests",
     authMiddleware,
@@ -44,6 +138,5 @@ router.patch(
     validate(schemas.updateBasketRequestStatusSchema),
     C.updateBasketRequestStatus
 );
-
 
 export default router;
