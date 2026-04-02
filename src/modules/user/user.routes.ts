@@ -99,38 +99,9 @@ router.get(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - fullRegistrationName
- *               - phoneNumber
- *               - occupation
- *               - unifiedCard
- *               - residenceCard
- *               - propertyArea
- *               - propertyType
- *             properties:
- *               fullRegistrationName:
- *                 type: string
- *               phoneNumber:
- *                 type: string
- *               monthlyIncome:
- *                 type: number
- *               occupation:
- *                 type: string
- *               unifiedCard:
- *                 type: string
- *               residenceCard:
- *                 type: string
- *               propertyArea:
- *                 type: string
- *               propertyType:
- *                 type: string
- *                 enum: [Freehold, Leasehold]
- *               country:
- *                 type: string
+ *             $ref: '#/components/schemas/ConstructionBasket'
  *     responses:
  *       201:
- *         description: Application submitted successfully
  *         content:
  *           application/json:
  *             schema:

@@ -19,6 +19,8 @@ const options: swaggerJsdoc.Options = {
             { name: 'User', description: 'User profile and management' },
             { name: 'Category', description: 'Product category management' },
             { name: 'Product', description: 'Product catalog and stock' },
+            { name: 'Settings', description: 'Application settings and CMS' },
+            { name: 'Admin', description: 'Admin management APIs' }, 
         ],
         components: {
             securitySchemes: {
@@ -29,12 +31,109 @@ const options: swaggerJsdoc.Options = {
                 },
             },
             schemas: {
+
+                ObjectId: {
+                    type: 'string',
+                    example: '64f1c2a9e4b0c123456789ab',
+                },
+
                 ApiResponse: {
                     type: 'object',
                     properties: {
                         success: { type: 'boolean' },
                         message: { type: 'string' },
                         data: { type: 'object' },
+                    },
+                },
+
+                LocalizedString: {
+                    type: 'object',
+                    properties: {
+                        en: { type: 'string' },
+                        ar: { type: 'string' },
+                    },
+                },
+
+                HeaderSection: {
+                    type: 'object',
+                    properties: {
+                        text: { $ref: '#/components/schemas/LocalizedString' },
+                        image: { type: 'string', format: 'binary' },
+                    },
+                },
+
+                // ✅ AUTH SCHEMAS (NEW)
+                AuthRegister: {
+                    type: 'object',
+                    required: ['firstName', 'lastName', 'email', 'username', 'password'],
+                    properties: {
+                        firstName: { type: 'string' },
+                        lastName: { type: 'string' },
+                        email: { type: 'string', format: 'email' },
+                        username: { type: 'string' },
+                        password: { type: 'string', format: 'password' },
+                        country: { type: 'string' },
+                    },
+                },
+
+                AuthLogin: {
+                    type: 'object',
+                    required: ['email', 'password'],
+                    properties: {
+                        email: { type: 'string', format: 'email' },
+                        password: { type: 'string' },
+                    },
+                },
+
+                ResendOtp: {
+                    type: 'object',
+                    required: ['email'],
+                    properties: {
+                        email: { type: 'string', format: 'email' },
+                    },
+                },
+
+                VerifyOtp: {
+                    type: 'object',
+                    required: ['email', 'otp'],
+                    properties: {
+                        email: { type: 'string', format: 'email' },
+                        otp: { type: 'string' },
+                    },
+                },
+
+                ForgotPassword: {
+                    type: 'object',
+                    required: ['email'],
+                    properties: {
+                        email: { type: 'string', format: 'email' },
+                    },
+                },
+
+                ResetPassword: {
+                    type: 'object',
+                    required: ['email', 'token', 'newPassword'],
+                    properties: {
+                        email: { type: 'string', format: 'email' },
+                        token: { type: 'string' },
+                        newPassword: { type: 'string' },
+                    },
+                },
+
+                ChangeEmail: {
+                    type: 'object',
+                    required: ['newEmail'],
+                    properties: {
+                        newEmail: { type: 'string', format: 'email' },
+                    },
+                },
+
+                ChangePassword: {
+                    type: 'object',
+                    required: ['oldPassword', 'newPassword'],
+                    properties: {
+                        oldPassword: { type: 'string' },
+                        newPassword: { type: 'string' },
                     },
                 },
 
@@ -51,79 +150,58 @@ const options: swaggerJsdoc.Options = {
                         residenceCard: { type: 'string' },
                         propertyArea: { type: 'string' },
                         propertyType: { type: 'string', enum: ['Freehold', 'Leasehold'] },
-                        country: { type: 'string' }
-                    }
+                        country: { type: 'string' },
+                    },
                 },
+
                 User: {
                     type: 'object',
                     properties: {
-                        _id: { type: 'string' },
+                        _id: { $ref: '#/components/schemas/ObjectId' },
                         firstName: { type: 'string' },
                         lastName: { type: 'string' },
-                        email: { type: 'string' },
+                        email: { type: 'string', format: 'email' },
                         username: { type: 'string' },
                         profileImage: { type: 'string' },
                         isVerified: { type: 'boolean' },
                         country: { type: 'string' },
-                        constructionBasket: { $ref: '#/components/schemas/ConstructionBasket' }
-                    }
+                        constructionBasket: { $ref: '#/components/schemas/ConstructionBasket' },
+                    },
                 },
+
                 BasketRequest: {
                     type: 'object',
                     properties: {
-                        _id: { type: 'string', description: 'User ID' },
+                        _id: { $ref: '#/components/schemas/ObjectId' },
                         firstName: { type: 'string' },
                         lastName: { type: 'string' },
-                        email: { type: 'string' },
-                        constructionBasket: { $ref: '#/components/schemas/ConstructionBasket' }
-                    }
+                        email: { type: 'string', format: 'email' },
+                        constructionBasket: { $ref: '#/components/schemas/ConstructionBasket' },
+                    },
                 },
+
                 Category: {
                     type: 'object',
                     properties: {
-                        _id: { type: 'string' },
-                        name: {
-                            type: 'object',
-                            properties: {
-                                en: { type: 'string' },
-                                ar: { type: 'string' }
-                            }
-                        },
+                        _id: { $ref: '#/components/schemas/ObjectId' },
+                        name: { $ref: '#/components/schemas/LocalizedString' },
                         slug: { type: 'string' },
                         thumbnail: { type: 'string' },
                         icon: { type: 'string' },
-                        description: {
-                            type: 'object',
-                            properties: {
-                                en: { type: 'string' },
-                                ar: { type: 'string' }
-                            }
-                        },
-                        parent: { type: 'string', description: 'Parent Category ID (ObjectId)' },
-                        isActive: { type: 'boolean' }
+                        description: { $ref: '#/components/schemas/LocalizedString' },
+                        parent: { $ref: '#/components/schemas/ObjectId' },
+                        isActive: { type: 'boolean' },
                     },
                 },
 
                 Product: {
                     type: 'object',
                     properties: {
-                        _id: { type: 'string' },
-                        title: {
-                            type: 'object',
-                            properties: {
-                                en: { type: 'string' },
-                                ar: { type: 'string' }
-                            }
-                        },
+                        _id: { $ref: '#/components/schemas/ObjectId' },
+                        title: { $ref: '#/components/schemas/LocalizedString' },
                         slug: { type: 'string' },
-                        category: { type: 'string', description: 'Category ID' },
-                        description: {
-                            type: 'object',
-                            properties: {
-                                en: { type: 'string' },
-                                ar: { type: 'string' }
-                            }
-                        },
+                        category: { $ref: '#/components/schemas/ObjectId' },
+                        description: { $ref: '#/components/schemas/LocalizedString' },
                         price: { type: 'number' },
                         originalPrice: { type: 'number' },
                         image: { type: 'string' },
@@ -131,21 +209,78 @@ const options: swaggerJsdoc.Options = {
                         remainingPieces: { type: 'number' },
                         isNewArrival: { type: 'boolean' },
                         rating: { type: 'number' },
-                        reviewCount: { type: 'number' }
-                    }
+                        reviewCount: { type: 'number' },
+                    },
                 },
 
                 Review: {
                     type: 'object',
                     properties: {
-                        _id: { type: 'string' },
-                        user: { type: 'string', description: 'User ID' },
-                        product: { type: 'string', description: 'Product ID' },
+                        _id: { $ref: '#/components/schemas/ObjectId' },
+                        user: { $ref: '#/components/schemas/ObjectId' },
+                        product: { $ref: '#/components/schemas/ObjectId' },
                         rating: { type: 'number', minimum: 1, maximum: 5 },
                         comment: { type: 'string' },
-                        createdAt: { type: 'string', format: 'date-time' }
-                    }
-                }
+                        createdAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+
+                Settings: {
+                    type: 'object',
+                    properties: {
+                        enableContactEmail: { type: 'boolean' },
+                        businessName: { $ref: '#/components/schemas/LocalizedString' },
+                        tagline: { $ref: '#/components/schemas/LocalizedString' },
+                        logo: { type: 'string' },
+                        coverImage: { type: 'string' },
+                        header: {
+                            type: 'object',
+                            properties: {
+                                landing_page: { $ref: '#/components/schemas/HeaderSection' },
+                                home: { $ref: '#/components/schemas/HeaderSection' },
+                            },
+                        },
+                        about: { $ref: '#/components/schemas/LocalizedString' },
+                        contactFormImage: { type: 'string' },
+                        bottomSectionImage: { type: 'string' },
+                        pages: { $ref: '#/components/schemas/Pages' },
+                        contactInfo: {
+                            type: 'object',
+                            properties: {
+                                email: { type: 'string', format: 'email' },
+                                phone: { type: 'string' },
+                                address: {
+                                    type: 'object',
+                                    properties: {
+                                        city: { type: 'string' },
+                                        state: { type: 'string' },
+                                        country: { type: 'string' },
+                                    },
+                                },
+                            },
+                        },
+                        socialLinks: { $ref: '#/components/schemas/SocialLinks' },
+                    },
+                },
+
+                SocialLinks: {
+                    type: 'object',
+                    properties: {
+                        facebook: { type: 'string', format: 'uri' },
+                        instagram: { type: 'string', format: 'uri' },
+                        whatsapp: { type: 'string', format: 'uri' },
+                        youtube: { type: 'string', format: 'uri' },
+                    },
+                },
+
+                Pages: {
+                    type: 'object',
+                    properties: {
+                        privacyPolicy: { $ref: '#/components/schemas/LocalizedString' },
+                        termsAndConditions: { $ref: '#/components/schemas/LocalizedString' },
+                        about: { $ref: '#/components/schemas/LocalizedString' },
+                    },
+                },
             },
         },
     },

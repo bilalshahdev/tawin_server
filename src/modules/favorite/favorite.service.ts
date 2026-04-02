@@ -1,0 +1,31 @@
+import { Favorite } from './favorite.model';
+import { Product } from '../product/product.model';
+import { ApiError } from '../../utils/apiError';
+import { STATUS_CODE } from '../../config/constants';
+
+export const toggleFavorite = async (userId: string, productId: string) => {
+    const product = await Product.findById(productId);
+    if (!product) {
+        throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
+    }
+
+    const existing = await Favorite.findOne({ user: userId, product: productId });
+
+    if (existing) {
+        await Favorite.findByIdAndDelete(existing._id);
+        return false; // Removed
+    } else {
+        await Favorite.create({ user: userId, product: productId });
+        return true; // Added
+    }
+};
+
+export const getMyFavorites = async (userId: string) => {
+    return await Favorite.find({ user: userId })
+        .populate('product')
+        .sort({ createdAt: -1 });
+};
+
+export const clearProductFromAllWishlists = async (productId: string) => {
+    await Favorite.deleteMany({ product: productId });
+};

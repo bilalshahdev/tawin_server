@@ -22,7 +22,12 @@ export const config = {
     env,
     port: process.env.PORT || 5000,
     mongoUri: process.env.MONGO_URI || '',
-    corsOrigin: process.env.CORS_ORIGIN || '*',
+    // corsOrigin: process.env.CORS_ORIGIN || '*',
+    corsOrigin: [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002"
+    ],
     jwtSecret: process.env.JWT_SECRET || 'your_secret',
     emailService: process.env.EMAIL_SERVICE || 'false',
     mailUsername: process.env.MAIL_USERNAME || '',

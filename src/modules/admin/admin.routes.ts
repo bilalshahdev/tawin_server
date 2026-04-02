@@ -57,6 +57,7 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
+ *           example: 64f1c2a9e4b0c123456789ab
  *     responses:
  *       200:
  *         description: User verification status updated
@@ -83,16 +84,15 @@ router.get(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/BasketRequest'
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/BasketRequest'
  */
-
 /**
  * @swagger
  * /admin/construction-basket-requests/{id}/status:
@@ -107,6 +107,7 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
+ *           example: 64f1c2a9e4b0c123456789ab
  *         description: The User ID
  *     requestBody:
  *       required: true

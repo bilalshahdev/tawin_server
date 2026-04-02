@@ -39,6 +39,10 @@ router.get("/test-login", authController.testLogin);
  *     responses:
  *       201:
  *         description: Admin created or already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.get("/seed-admin", authController.seedAdmin);
 
@@ -51,6 +55,10 @@ router.get("/seed-admin", authController.seedAdmin);
  *     responses:
  *       201:
  *         description: Users seeded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.get("/seed-users", authController.seedUsers);
 
@@ -65,31 +73,14 @@ router.get("/seed-users", authController.seedUsers);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - firstName
- *               - lastName
- *               - email
- *               - username
- *               - password
- *             properties:
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
- *               email:
- *                 type: string
- *                 format: email
- *               username:
- *                 type: string
- *               password:
- *                 type: string
- *                 format: password
- *               country:
- *                 type: string
+ *             $ref: '#/components/schemas/AuthRegister'
  *     responses:
  *       201:
  *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.post("/register", validate(schemas.registerSchema), authController.register);
 
@@ -104,18 +95,14 @@ router.post("/register", validate(schemas.registerSchema), authController.regist
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - email
- *               - otp
- *             properties:
- *               email:
- *                 type: string
- *               otp:
- *                 type: string
+ *             $ref: '#/components/schemas/VerifyOtp'
  *     responses:
  *       200:
  *         description: Account verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.post("/verify-otp", validate(schemas.verifyOtpSchema), authController.verifyOtp);
 
@@ -130,18 +117,14 @@ router.post("/verify-otp", validate(schemas.verifyOtpSchema), authController.ver
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
+ *             $ref: '#/components/schemas/AuthLogin'
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: User logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.post("/login", validate(schemas.loginSchema), authController.login);
 
@@ -156,15 +139,14 @@ router.post("/login", validate(schemas.loginSchema), authController.login);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
+ *             $ref: '#/components/schemas/ForgotPassword'
  *     responses:
  *       200:
  *         description: Reset instructions sent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.post("/forgot-password", validate(schemas.forgotPasswordSchema), authController.forgotPassword);
 
@@ -179,21 +161,14 @@ router.post("/forgot-password", validate(schemas.forgotPasswordSchema), authCont
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - email
- *               - token
- *               - newPassword
- *             properties:
- *               email:
- *                 type: string
- *               token:
- *                 type: string
- *               newPassword:
- *                 type: string
+ *             $ref: '#/components/schemas/ResetPassword'
  *     responses:
  *       200:
  *         description: Password reset successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.post("/reset-password", validate(schemas.resetPasswordSchema), authController.resetPassword);
 
@@ -208,15 +183,14 @@ router.post("/reset-password", validate(schemas.resetPasswordSchema), authContro
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
+ *             $ref: '#/components/schemas/ResendOtp'
  *     responses:
  *       200:
  *         description: New OTP sent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.post("/resend-otp", validate(schemas.resendOtpSchema), authController.resendOtp);
 
@@ -233,15 +207,14 @@ router.post("/resend-otp", validate(schemas.resendOtpSchema), authController.res
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - newEmail
- *             properties:
- *               newEmail:
- *                 type: string
+ *             $ref: '#/components/schemas/ChangeEmail'
  *     responses:
  *       200:
  *         description: Email updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.post(
     "/change-email",
@@ -263,18 +236,14 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - oldPassword
- *               - newPassword
- *             properties:
- *               oldPassword:
- *                 type: string
- *               newPassword:
- *                 type: string
+ *             $ref: '#/components/schemas/ChangePassword'
  *     responses:
  *       200:
  *         description: Password updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.post(
     "/change-password",

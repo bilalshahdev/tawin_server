@@ -52,6 +52,11 @@
     "review_retrieved": "Review retrieved successfully.",
     "reviews_retrieved": "Reviews retrieved successfully."
   },
+  "favorite": {
+    "added": "Product added to favorites successfully.",
+    "removed": "Product removed from favorites successfully.",
+    "list_fetched": "Favorite products retrieved successfully."
+  },
   "errors": {
     "user_exists": "An account already exists with this email or username.",
     "user_not_found": "No user found with those details.",
@@ -85,6 +90,7 @@
     "failed": "The data provided is incorrect or missing."
   },
   "general": {
+    "welcome": "Welcome to Tawin API",
     "internal_error": "An unexpected error occurred. Please try again later.",
     "not_found": "The requested resource could not be found."
   },
