@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import i18next from 'i18next';
 import middleware from 'i18next-http-middleware';
 import swaggerUi from 'swagger-ui-express';
+import path from 'path';
 
 import { config } from './config/env.config';
 import { corsOptions } from './config/cors';
@@ -25,14 +26,15 @@ app.get('/api-docs.json', (req, res) => {
   res.send(specs);
 });
 app.get('/health', (req: Request, res: Response) => {
-    res.status(200).json({
-        status: 'success',
-        message: req.t('health.check'),
-        environment: config.env
-    });
+  res.status(200).json({
+    status: 'success',
+    message: req.t('health.check'),
+    environment: config.env
+  });
 });
 
 // API Routes
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api', rootRouter)
 
 // Error handler

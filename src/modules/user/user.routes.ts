@@ -9,7 +9,7 @@ const router = Router();
 
 /**
  * @swagger
- * /user:
+ * /users:
  *   patch:
  *     summary: Update current user profile
  *     tags: [User]
@@ -42,7 +42,7 @@ router.patch(
 
 /**
  * @swagger
- * /user/profile-picture:
+ * /users/profile-picture:
  *   patch:
  *     summary: Update profile picture only
  *     tags: [User]
@@ -70,7 +70,7 @@ router.patch(
 
 /**
  * @swagger
- * /user/me:
+ * /users/me:
  *   get:
  *     summary: Get current user profile information
  *     tags: [User]
@@ -88,7 +88,7 @@ router.get(
 
 /**
  * @swagger
- * /user/apply-for-basket:
+ * /users/apply-for-basket:
  *   post:
  *     summary: Apply for the construction basket feature
  *     tags: [User]

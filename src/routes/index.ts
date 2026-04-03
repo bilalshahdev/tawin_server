@@ -9,7 +9,6 @@ import favoriteRoutes from "../modules/favorite/favorite.routes";
 import settingsRoutes from "../modules/settings/settings.routes";
 
 const router = Router();
-router.use("/users", userRoutes);
 
 router.get("/", (req, res) => {
     res.status(200).send({
@@ -19,6 +18,7 @@ router.get("/", (req, res) => {
 });
 
 router.use("/auth", authRoutes);
+router.use("/users", userRoutes);
 router.use("/admin", adminRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/products", productRoutes);
