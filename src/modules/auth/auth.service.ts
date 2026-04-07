@@ -8,14 +8,6 @@ import { User } from '../user/user.model';
 import { AuthResponse, ILoginDTO, IRegisterDTO } from './auth.types';
 import generateOTP from '../../utils/generateOtp';
 
-export const testLogin = async () => {
-    const adminEmail = "bilalshah.dev@gmail.com";
-    const user = await User.findOne({ email: adminEmail });
-    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
-    const token = createToken(user);
-    return { user, token };
-};
-
 export const register = async (data: IRegisterDTO): Promise<AuthResponse> => {
     const existing = await User.findOne({
         $or: [{ email: data.email }, { username: data.username }]
@@ -40,7 +32,7 @@ export const register = async (data: IRegisterDTO): Promise<AuthResponse> => {
     return { user, token };
 };
 
-export const verifyOTP = async (email: string, otp: string): Promise<AuthResponse> => {
+export const verifyOtp = async (email: string, otp: string): Promise<AuthResponse> => {
     const user = await User.findOne({ email }).select('+verificationOtp +verificationOtpExpires');
 
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
@@ -65,7 +57,6 @@ export const login = async (data: ILoginDTO): Promise<AuthResponse> => {
     }
 
     const token = createToken(user);
-
     return { user, token };
 };
 
@@ -98,10 +89,10 @@ export const resetPassword = async (token: string, newPass: string) => {
 
 export const changePassword = async (userId: string, oldPass: string, newPass: string) => {
     const user = await User.findById(userId).select('+password');
-    if (!user) throw new ApiError(404, "errors.user_not_found");
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
     const isMatch = await bcrypt.compare(oldPass, user.password!);
-    if (!isMatch) throw new ApiError(400, "errors.old_password_incorrect");
+    if (!isMatch) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.old_password_incorrect");
 
     user.password = await bcrypt.hash(newPass, AUTH_CONSTANTS.SALT_ROUNDS);
     await user.save();
@@ -110,18 +101,21 @@ export const changePassword = async (userId: string, oldPass: string, newPass: s
 export const changeEmail = async (userId: string, newEmail: string) => {
     const user = await User.findById(userId);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
+
     const existingUser = await User.findOne({ email: newEmail });
     if (existingUser) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.email_exists");
+
     const otp = generateOTP();
     user.verificationOtp = otp;
     user.verificationOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
-    await sendEmail(user.email, "Verify Your Account", `Your OTP is: <b>${otp}</b>`);
+
+    await sendEmail(newEmail, "Verify Your New Email", `Your OTP is: <b>${otp}</b>`);
     const token = createToken(user);
     return { user, token };
 };
 
-export const resendOTP = async (email: string) => {
+export const resendOtp = async (email: string) => {
     const user = await User.findOne({ email }).select('+verificationOtpLastSent +isVerified');
 
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
@@ -131,8 +125,7 @@ export const resendOTP = async (email: string) => {
     const timePassed = Date.now() - (user.verificationOtpLastSent?.getTime() || 0);
 
     if (timePassed < COOLDOWN) {
-        const secondsLeft = Math.ceil((COOLDOWN - timePassed) / 1000);
-        throw new ApiError(STATUS_CODE.BAD_REQUEST, `errors.otp_cooldown`);
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.otp_cooldown");
     }
 
     const newOtp = generateOTP();

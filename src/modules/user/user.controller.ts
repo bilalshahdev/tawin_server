@@ -3,17 +3,35 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import * as userService from "./user.service";
 import { ApiResponse } from "../../utils/apiResponse";
 
+
+/**
+ * @desc    Get all users with pagination
+ * @route   GET /api/users
+ * @access  Private/Admin
+ */
+
 export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
     // No more manual parsing here
     const { data, meta } = await userService.getAllUsersService(req.query);
     res.json(new ApiResponse(req.t('user.users_retrieved'), data, meta));
 });
 
+/**
+ * @desc    Get current logged-in user profile
+ * @route   GET /api/users/profile
+ * @access  Private
+ */
+
 export const getUser = asyncHandler(async (req: Request, res: Response) => {
     const user = await userService.getUser(req.user!.id);
     res.json(new ApiResponse(req.t('user.profile_retrieved'), user));
 });
 
+/**
+ * @desc    Update user profile
+ * @route   PATCH /api/users/profile
+ * @access  Private
+ */
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     const updateData = { ...req.body };
     const files = req.files as any;

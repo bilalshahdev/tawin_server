@@ -4,6 +4,7 @@ import { authMiddleware, authorize } from "../../middlewares/auth.middleware";
 import { upload } from "../../middlewares/upload.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import * as schemas from "./product.validation";
+import { trackUploadedFiles } from "../../middlewares/trackUploadedFiles.middleware";
 
 const router = Router();
 /**
@@ -152,6 +153,7 @@ router.post(
     authMiddleware,
     authorize("admin"),
     upload.single("image"),
+    trackUploadedFiles,
     validate(schemas.createProductSchema),
     productController.create
 );

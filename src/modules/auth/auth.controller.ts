@@ -1,75 +1,112 @@
 import { Request, Response } from "express";
+import bcrypt from "bcryptjs";
 import { asyncHandler } from "../../utils/asyncHandler";
 import * as authService from "./auth.service";
 import { ApiResponse } from "../../utils/apiResponse";
-import { STATUS_CODE } from "../../config/constants";
+import { STATUS_CODE, AUTH_CONSTANTS } from "../../config/constants";
 import { User } from "../user/user.model";
-import bcrypt from "bcryptjs";
-import { AUTH_CONSTANTS } from "../../config/constants";
+import { config } from "../../config/env.config";
+import { ApiError } from "../../utils/apiError";
 
-
-
+/**
+ * @desc    Register a new user
+ * @route   POST /api/auth/register
+ * @access  Public
+ */
 export const register = asyncHandler(async (req: Request, res: Response) => {
     const result = await authService.register(req.body);
     res.status(STATUS_CODE.CREATED).json(new ApiResponse(req.t('auth.otp_sent'), result));
 });
 
+/**
+ * @desc    Verify OTP for account activation
+ * @route   POST /api/auth/verify-otp
+ * @access  Public
+ */
 export const verifyOtp = asyncHandler(async (req: Request, res: Response) => {
-    const user = await authService.verifyOTP(req.body.email, req.body.otp);
-    res.json(new ApiResponse(req.t('auth.verification_success'), user));
+    const result = await authService.verifyOtp(req.body.email, req.body.otp);
+    res.json(new ApiResponse(req.t('auth.verification_success'), result));
 });
 
+/**
+ * @desc    Login user and return token
+ * @route   POST /api/auth/login
+ * @access  Public
+ */
 export const login = asyncHandler(async (req: Request, res: Response) => {
     const result = await authService.login(req.body);
     res.json(new ApiResponse(req.t('auth.login_success'), result));
 });
 
+/**
+ * @desc    Request password reset token via email
+ * @route   POST /api/auth/forgot-password
+ * @access  Public
+ */
 export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
     await authService.forgotPassword(req.body.email);
     res.json(new ApiResponse(req.t('auth.reset_token_sent')));
 });
 
+/**
+ * @desc    Reset password using token
+ * @route   POST /api/auth/reset-password
+ * @access  Public
+ */
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
     await authService.resetPassword(req.body.token, req.body.newPassword);
     res.json(new ApiResponse(req.t('auth.password_reset_success')));
 });
 
+/**
+ * @desc    Change user email (requires verification)
+ * @route   PATCH /api/auth/change-email
+ * @access  Private
+ */
 export const changeEmail = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user!.id;
-    const { email } = req.body;
-    await authService.changeEmail(userId, email);
-    res.json(new ApiResponse(req.t('auth.password_changed_success')));
+    const user = await authService.changeEmail(req.user!.id, req.body.email);
+    res.json(new ApiResponse(req.t('auth.email_verification_sent'), user));
 });
 
+/**
+ * @desc    Change user password while logged in
+ * @route   PATCH /api/auth/change-password
+ * @access  Private
+ */
 export const changePassword = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user!.id;
-    const { oldPassword, newPassword } = req.body;
-    await authService.changePassword(userId, oldPassword, newPassword);
+    await authService.changePassword(req.user!.id, req.body.oldPassword, req.body.newPassword);
     res.json(new ApiResponse(req.t('auth.password_changed_success')));
 });
 
+/**
+ * @desc    Resend verification OTP
+ * @route   POST /api/auth/resend-otp
+ * @access  Public
+ */
 export const resendOtp = asyncHandler(async (req: Request, res: Response) => {
-    await authService.resendOTP(req.body.email);
+    await authService.resendOtp(req.body.email);
     res.json(new ApiResponse(req.t('auth.otp_resend_success')));
 });
 
-
+/**
+ * @desc    Seed initial Admin user (Dev/Internal use)
+ * @route   POST /api/auth/seed-admin
+ * @access  Internal
+ */
 export const seedAdmin = asyncHandler(async (req: Request, res: Response) => {
     const adminEmail = process.env.ADMIN_EMAIL || "admin@tawin.com";
     const adminPassword = process.env.ADMIN_PASSWORD || "Admin@123";
 
-    // Check if any admin already exists
     const adminExists = await User.findOne({ role: "admin" });
     if (adminExists) {
         return res.status(STATUS_CODE.OK).json({
             success: true,
             message: req.t('errors.admin_already_exists'),
-            data: { email: adminExists.email, password: adminPassword, role: adminExists.role }
+            data: { email: adminExists.email, role: adminExists.role }
         });
     }
 
-    const hashedPassword = await bcrypt.hash(adminPassword, 10);
-
+    const hashedPassword = await bcrypt.hash(adminPassword, AUTH_CONSTANTS.SALT_ROUNDS);
     const admin = await User.create({
         firstName: "System",
         lastName: "Admin",
@@ -78,96 +115,29 @@ export const seedAdmin = asyncHandler(async (req: Request, res: Response) => {
         password: hashedPassword,
         role: "admin",
         isVerified: true,
-        country: "Pakistan",
-        constructionBasket: {
-            isApplied: false,
-            status: "approved"
-        }
+        country: "Pakistan"
     });
 
     res.status(STATUS_CODE.CREATED).json({
         success: true,
         message: req.t('auth.admin_created'),
-        data: { email: admin.email, password: adminPassword, role: admin.role }
+        data: { email: admin.email, role: admin.role }
     });
 });
 
-// dev mode only
+/**
+ * @desc    Test Login (Development only)
+ * @route   POST /api/auth/test-login
+ * @access  Dev-Only
+ */
 export const testLogin = asyncHandler(async (req: Request, res: Response) => {
-    if (process.env.NODE_ENV !== 'development') {
-        return res.status(STATUS_CODE.NOT_FOUND).json(new ApiResponse(req.t('general.not_found'), null));
+    if (config.env !== 'development') {
+        throw new ApiError(STATUS_CODE.NOT_FOUND, "general.not_found");
     }
-    const result = await authService.testLogin();
-    res.json(new ApiResponse(req.t('auth.login_success'), result));
-});
+    // We removed the service, so we handle a simple test login directly for devs
+    const user = await User.findOne({ role: 'admin' });
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
-export const seedUsers = asyncHandler(async (req: Request, res: Response) => {
-    if (process.env.NODE_ENV !== 'development') {
-        return res.status(STATUS_CODE.NOT_FOUND).json(new ApiResponse(req.t('general.not_found'), null));
-    }
-    const userCount = await User.countDocuments({ email: { $regex: /user\d+@example\.com/ } });
-    if (userCount > 0) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(
-            new ApiResponse(req.t("errors.users_already_seeded"), null)
-        );
-    }
-
-    const hashedPassword = await bcrypt.hash("12345678", AUTH_CONSTANTS.SALT_ROUNDS);
-
-    const dummyUsers = [
-        {
-            firstName: "John",
-            lastName: "Doe",
-            username: "user1",
-            email: "user1@example.com",
-            password: hashedPassword,
-            isVerified: true,
-            country: "Pakistan",
-            role: "customer"
-        },
-        {
-            firstName: "Jane",
-            lastName: "Smith",
-            username: "user2",
-            email: "user2@example.com",
-            password: hashedPassword,
-            isVerified: true,
-            country: "Pakistan",
-            role: "customer"
-        },
-        {
-            firstName: "Ahmed",
-            lastName: "Ali",
-            username: "user3",
-            email: "user3@example.com",
-            password: hashedPassword,
-            isVerified: true,
-            country: "Pakistan",
-            role: "customer"
-        },
-        {
-            firstName: "Unverified",
-            lastName: "User",
-            username: "user4",
-            email: "user4@example.com",
-            password: hashedPassword,
-            isVerified: false,
-            country: "Pakistan",
-            role: "customer",
-            verificationOtp: "123456",
-            verificationOtpExpires: new Date(Date.now() + 24 * 60 * 60 * 1000)
-        }
-    ];
-
-    try {
-        await User.insertMany(dummyUsers);
-    } catch (error) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(
-            new ApiResponse(req.t("errors.users_already_seeded"), null)
-        );
-    }
-
-    res.status(STATUS_CODE.CREATED).json(
-        new ApiResponse(req.t("messages.users_seeded"), dummyUsers.length)
-    );
+    const token = await authService.login({ email: user.email, password: "Admin@123" }); // Assuming dev password
+    res.json(new ApiResponse(req.t('auth.login_success'), token));
 });

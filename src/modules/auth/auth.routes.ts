@@ -3,6 +3,7 @@ import * as authController from "./auth.controller";
 import { validate } from "../../middlewares/validate.middleware";
 import * as schemas from "./auth.validation";
 import { authMiddleware } from "../../middlewares/auth.middleware";
+import { authRateLimiter } from "../../middlewares/rateLimiter.middleware";
 
 const router = Router();
 
@@ -48,22 +49,6 @@ router.get("/seed-admin", authController.seedAdmin);
 
 /**
  * @swagger
- * /auth/seed-users:
- *   get:
- *     summary: Seed dummy users
- *     tags: [Auth]
- *     responses:
- *       201:
- *         description: Users seeded successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiResponse'
- */
-router.get("/seed-users", authController.seedUsers);
-
-/**
- * @swagger
  * /auth/register:
  *   post:
  *     summary: Register a new user
@@ -82,7 +67,7 @@ router.get("/seed-users", authController.seedUsers);
  *             schema:
  *               $ref: '#/components/schemas/ApiResponse'
  */
-router.post("/register", validate(schemas.registerSchema), authController.register);
+router.post("/register", authRateLimiter, validate(schemas.registerSchema), authController.register);
 
 /**
  * @swagger
@@ -104,7 +89,7 @@ router.post("/register", validate(schemas.registerSchema), authController.regist
  *             schema:
  *               $ref: '#/components/schemas/ApiResponse'
  */
-router.post("/verify-otp", validate(schemas.verifyOtpSchema), authController.verifyOtp);
+router.post("/verify-otp", authRateLimiter, validate(schemas.verifyOtpSchema), authController.verifyOtp);
 
 /**
  * @swagger
@@ -126,7 +111,7 @@ router.post("/verify-otp", validate(schemas.verifyOtpSchema), authController.ver
  *             schema:
  *               $ref: '#/components/schemas/ApiResponse'
  */
-router.post("/login", validate(schemas.loginSchema), authController.login);
+router.post("/login", authRateLimiter, validate(schemas.loginSchema), authController.login);
 
 /**
  * @swagger
@@ -192,7 +177,7 @@ router.post("/reset-password", validate(schemas.resetPasswordSchema), authContro
  *             schema:
  *               $ref: '#/components/schemas/ApiResponse'
  */
-router.post("/resend-otp", validate(schemas.resendOtpSchema), authController.resendOtp);
+router.post("/resend-otp", authRateLimiter, validate(schemas.resendOtpSchema), authController.resendOtp);
 
 /**
  * @swagger
