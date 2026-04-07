@@ -12,6 +12,7 @@ import { specs } from './config/swagger';
 import './config/i18n';
 import rootRouter from './routes';
 import { globalErrorHandler } from './middlewares/error.middleware';
+import { apiRateLimiter } from './middlewares/rateLimiter.middleware';
 
 const app: Application = express();
 
@@ -35,11 +36,10 @@ app.get('/health', (req: Request, res: Response) => {
 
 // API Routes
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-app.use('/api', rootRouter)
+app.use(apiRateLimiter);
+app.use('/api', rootRouter);
 
 // Error handler
 app.use(globalErrorHandler)
-
-
 
 export default app;

@@ -6,8 +6,7 @@ import { createToken } from '../../services/jwt.service';
 import { ApiError } from '../../utils/apiError';
 import { User } from '../user/user.model';
 import { AuthResponse, ILoginDTO, IRegisterDTO } from './auth.types';
-
-const generateOTP = (): string => Math.floor(100000 + Math.random() * 900000).toString();
+import generateOTP from '../../utils/generateOtp';
 
 export const testLogin = async () => {
     const adminEmail = "bilalshah.dev@gmail.com";

@@ -1,9 +1,9 @@
 import { Router } from "express";
 import * as C from "./user.controller";
-import { upload } from "../../middlewares/upload.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import * as schemas from "./user.validation";
+import { upload } from "../../config/multer.config";
 
 const router = Router();
 

@@ -11,14 +11,20 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
     res.status(201).json(new ApiResponse(req.t('product.product_created'), product));
 });
 
+/**
+ * @desc    Get all products with pagination and filtering
+ * @route   GET /api/products
+ * @access  Public
+ */
+
 export const list = asyncHandler(async (req: Request, res: Response) => {
-    const result = await productService.getAllProducts(req.query);
-    res.json(new ApiResponse(req.t('product.products_retrieved'), result.products, result.meta));
+    const { data, meta } = await productService.getAllProducts(req.query);
+    res.json(new ApiResponse(req.t('product.products_retrieved'), data, meta));
 });
 
 export const getByCategory = asyncHandler(async (req: Request, res: Response) => {
-    const result = await productService.getProductsByCategoryId(req.params.categoryId as string, req.query);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t('product.fetched'), result.products, result.meta));
+    const { data, meta } = await productService.getProductsByCategoryId(req.params.categoryId as string, req.query);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t('product.fetched'), data, meta));
 });
 
 export const getOne = asyncHandler(async (req: Request, res: Response) => {

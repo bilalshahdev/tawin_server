@@ -57,6 +57,11 @@
     "removed": "Product removed from favorites successfully.",
     "list_fetched": "Favorite products retrieved successfully."
   },
+  "database": {
+    "connected": "Database connected",
+    "error": "Database error",
+    "connection_failed": "Database connection failed"
+  },
   "errors": {
     "user_exists": "An account already exists with this email or username.",
     "user_not_found": "No user found with those details.",
@@ -81,7 +86,11 @@
     "unauthorized": "You are not authorized to perform this action.",
     "users_already_seeded": "Dummy users already exist in the database.",
     "admin_deletion_prohibited": "Admin accounts cannot be deleted.",
-    "admin_already_exists": "Admin already exists."
+    "admin_already_exists": "Admin already exists.",
+    "too_many_requests": "Too many requests from this IP, please try again later.",
+    "only_pdf": "Only PDF documents are allowed",
+    "invalid_image": "Invalid file type. Only JPEGs, PNGs, and WebPs are allowed.",
+    "internal_error": "A server error occurred"
   },
   "seeder": {
     "users_seeded": "Successfully populated dummy users into the database."

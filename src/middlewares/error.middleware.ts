@@ -1,8 +1,9 @@
-// src/middlewares/error.middleware.ts
 import { Request, Response, NextFunction } from "express";
-import fs from "fs";
 import { ApiError } from "../utils/apiError";
 import { STATUS_CODE } from "../config/constants";
+import { logger } from "../config/logger";
+import { config } from "../config/env.config";
+import { deleteFile } from "../utils/deleteFile";
 
 export const globalErrorHandler = (
     err: any,
@@ -11,26 +12,24 @@ export const globalErrorHandler = (
     next: NextFunction
 ) => {
     const uploadedFiles = (req as any).uploadedFiles as string[] | undefined;
-
     if (uploadedFiles) {
-        uploadedFiles.forEach((filePath) => {
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
-        });
+        uploadedFiles.forEach((filePath) => deleteFile(filePath));
     }
 
-    if (err instanceof ApiError) {
-        return res.status(err.statusCode).json({
-            success: false,
-            message: req.t(err.message),
-        });
+    logger.error(`${req.method} ${req.url} - ${err.message}`);
+    if (config.env === 'development') {
+        logger.debug(err.stack);
     }
 
-    const genericMessage = err.message ? req.t(err.message) : req.t('general.internal_error');
+    const statusCode = err.statusCode || STATUS_CODE.INTERNAL_SERVER_ERROR;
+    let message = err.message;
+    if (!(err instanceof ApiError) && config.env === 'production') {
+        message = 'general.internal_error';
+    }
 
-    return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+    return res.status(statusCode).json({
         success: false,
-        message: genericMessage,
+        message: req.t(message),
+        ...(config.env === 'development' && { stack: err.stack }),
     });
-}
+};

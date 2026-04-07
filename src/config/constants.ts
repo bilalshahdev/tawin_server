@@ -39,7 +39,10 @@ export const PROPERTY_TYPES = ['Freehold', 'Leasehold'] as const;
 export const UPLOAD_PATHS = {
     PROFILE_PICS: 'uploads/profiles',
     DOCUMENTS: 'uploads/documents',
-};
+    PRODUCTS: 'uploads/images',
+    RESUMES: 'uploads/resumes',
+    OTHERS: 'uploads/others',
+} as const;
 
 export enum STATUS_CODE {
     OK = 200,
@@ -48,5 +51,6 @@ export enum STATUS_CODE {
     UNAUTHORIZED = 401,
     FORBIDDEN = 403,
     NOT_FOUND = 404,
+    TOO_MANY_REQUESTS = 429,
     INTERNAL_SERVER_ERROR = 500,
 }

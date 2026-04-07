@@ -4,12 +4,12 @@ import { deleteFile } from "../../utils/deleteFile";
 import { sendEmail } from "../../services/email.service";
 import { ConstructionBasketStatus } from "./user.types";
 import { STATUS_CODE } from "../../config/constants";
+import generateOTP from "../../utils/generateOtp";
+import { getPaginationOptions } from "../../utils/pagination";
 
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
-
-export const getAllUsersService = async (page: number = 1, limit: number = 10, search?: string) => {
-    // fetch users but not admin
-    const skip = (page - 1) * limit;
+export const getAllUsersService = async (query: any) => {
+    const { page, limit, skip } = getPaginationOptions(query);
+    const { search } = query;
     let filter = {};
 
     if (search) {
@@ -35,7 +35,7 @@ export const getAllUsersService = async (page: number = 1, limit: number = 10, s
     const totalPages = Math.ceil(totalDocs / limit);
 
     return {
-        users,
+        data: users,
         meta: {
             page,
             limit,

@@ -3,15 +3,14 @@ import { ApiError } from "../../utils/apiError";
 import { deleteFile } from "../../utils/deleteFile";
 import { STATUS_CODE } from "../../config/constants";
 import { Review } from "../review/review.model";
+import { getPaginationOptions } from "../../utils/pagination";
 
 export const createProduct = async (data: any) => {
     return await Product.create(data);
 };
 
 export const getAllProducts = async (query: any) => {
-    const page = Number(query.page) || 1;
-    const limit = Number(query.limit) || 10;
-    const skip = (page - 1) * limit;
+    const { page, limit, skip } = getPaginationOptions(query);
 
     const filter: any = {};
     if (query.search) {
@@ -33,7 +32,7 @@ export const getAllProducts = async (query: any) => {
         Product.countDocuments(filter)
     ]);
 
-    return { products, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
+    return { data: products, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };
 
 export const getProductById = async (id: string) => {

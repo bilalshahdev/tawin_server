@@ -4,11 +4,9 @@ import * as userService from "./user.service";
 import { ApiResponse } from "../../utils/apiResponse";
 
 export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
-    const search = req.query?.search as string
-    const page = parseInt(req.query?.page as string) || 1
-    const limit = parseInt(req.query?.limit as string) || 10
-    const users = await userService.getAllUsersService(page, limit, search);
-    res.json(new ApiResponse(req.t('user.users_retrieved'), users));
+    // No more manual parsing here
+    const { data, meta } = await userService.getAllUsersService(req.query);
+    res.json(new ApiResponse(req.t('user.users_retrieved'), data, meta));
 });
 
 export const getUser = asyncHandler(async (req: Request, res: Response) => {
