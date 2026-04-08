@@ -8,6 +8,7 @@ import reviewRoutes from "../modules/review/review.routes";
 import favoriteRoutes from "../modules/favorite/favorite.routes";
 import settingsRoutes from "../modules/settings/settings.routes";
 import addressRoutes from "../modules/address/address.routes";
+import cartRoutes from "../modules/cart/cart.routes";
 
 const router = Router();
 
@@ -26,6 +27,7 @@ router.use("/categories", categoryRoutes);
 router.use("/products", productRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/favorite", favoriteRoutes);
+router.use("/cart", cartRoutes);
 
 router.use("/settings", settingsRoutes);
 

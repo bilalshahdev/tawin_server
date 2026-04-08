@@ -65,6 +65,14 @@
     "removed": "Product removed from favorites successfully.",
     "list_fetched": "Favorite products retrieved successfully."
   },
+  "cart": {
+    "item_added": "Item added to cart successfully.",
+    "item_removed": "Item removed from cart successfully.",
+    "item_updated": "Item quantity updated successfully.",
+    "cart_cleared": "Cart cleared successfully.",
+    "carts_retrieved": "Carts retrieved successfully.",
+    "cart_retrieved": "Cart retrieved successfully."
+  },
   "database": {
     "connected": "Database connected",
     "error": "Database error",
@@ -100,6 +108,7 @@
     "only_pdf": "Only PDF documents are allowed",
     "invalid_image": "Invalid file type. Only JPEGs, PNGs, and WebPs are allowed.",
     "internal_error": "A server error occurred"
+
   },
   "seeder": {
     "users_seeded": "Successfully populated dummy users into the database."

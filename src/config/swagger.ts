@@ -265,6 +265,25 @@ const options: swaggerJsdoc.Options = {
                     },
                 },
 
+                Cart: {
+                    type: 'object',
+                    properties: {
+                        user: { $ref: '#/components/schemas/ObjectId' },
+                        items: {
+                            type: 'array',
+                            items: { $ref: '#/components/schemas/CartItem' }
+                        }
+                    }
+                },
+                CartItem: {
+                    type: 'object',
+                    properties: {
+                        productId: { type: 'string' },
+                        quantity: { type: 'integer' },
+                        attributes: { type: 'object', additionalProperties: { type: 'string' } }
+                    }
+                },
+
                 Settings: {
                     type: 'object',
                     properties: {

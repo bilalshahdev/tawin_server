@@ -35,4 +35,14 @@ productSchema.pre('save', function (next) {
     next();
 });
 
+productSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
+    const productId = this._id;
+    // Remove this product from all carts
+    await model('Cart').updateMany(
+        { "items.product": productId },
+        { $pull: { items: { product: productId } } }
+    );
+    next();
+});
+
 export const Product = model<IProduct>('Product', productSchema);
