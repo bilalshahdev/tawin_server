@@ -141,9 +141,11 @@ router.get("/:id", productController.getOne);
  *                 type: number
  *               remainingPieces:
  *                 type: number
- *               image:
- *                 type: string
- *                 format: binary
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
  *     responses:
  *       201:
  *         description: Product created successfully
@@ -152,7 +154,7 @@ router.post(
     "/",
     authMiddleware,
     authorize("admin"),
-    upload.single("image"),
+    upload.array("images", 10),
     trackUploadedFiles,
     validate(schemas.createProductSchema),
     productController.create
@@ -182,9 +184,11 @@ router.post(
  *                 type: string
  *               price:
  *                 type: number
- *               image:
- *                 type: string
- *                 format: binary
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
  *     responses:
  *       200:
  *         description: Product updated
@@ -193,7 +197,7 @@ router.patch(
     "/:id",
     authMiddleware,
     authorize("admin"),
-    upload.single("image"),
+    upload.array("images", 10),
     productController.update
 );
 

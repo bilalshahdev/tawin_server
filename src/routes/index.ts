@@ -7,6 +7,7 @@ import categoryRoutes from "../modules/category/category.routes";
 import reviewRoutes from "../modules/review/review.routes";
 import favoriteRoutes from "../modules/favorite/favorite.routes";
 import settingsRoutes from "../modules/settings/settings.routes";
+import addressRoutes from "../modules/address/address.routes";
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.get("/", (req, res) => {
 });
 
 router.use("/auth", authRoutes);
+router.use("/addresses", addressRoutes);
 router.use("/users", userRoutes);
 router.use("/admin", adminRoutes);
 router.use("/categories", categoryRoutes);

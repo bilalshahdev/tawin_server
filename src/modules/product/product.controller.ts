@@ -13,7 +13,9 @@ import { STATUS_CODE } from "../../config/constants";
 
 export const create = asyncHandler(async (req: Request, res: Response) => {
     const data = { ...req.body };
-    if (req.file) data.image = req.file.path;
+    if (req.files && Array.isArray(req.files)) {
+        data.images = req.files.map(file => file.path);
+    }
     const product = await productService.createProduct(data);
     res.status(201).json(new ApiResponse(req.t('product.product_created'), product));
 });
@@ -57,7 +59,11 @@ export const getBySlug = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const update = asyncHandler(async (req: Request, res: Response) => {
-    const product = await productService.updateProduct(req.params.id as string, req.body);
+    const data = { ...req.body };
+    if (req.files && Array.isArray(req.files)) {
+        data.images = req.files.map(file => file.path);
+    }
+    const product = await productService.updateProduct(req.params.id as string, data);
     res.json(new ApiResponse(req.t('product.product_updated'), product));
 });
 

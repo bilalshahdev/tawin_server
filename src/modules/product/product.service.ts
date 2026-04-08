@@ -56,8 +56,10 @@ export const updateProduct = async (id: string, updateData: any) => {
     const product = await Product.findById(id);
     if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
 
-    if (updateData.image && product.image) {
-        await deleteFile(product.image);
+    if (updateData.images && product.images) {
+        for (const image of product.images) {
+            await deleteFile(image);
+        }
     }
 
     return await Product.findByIdAndUpdate(id, { $set: updateData }, { new: true }).populate('category');
@@ -80,7 +82,9 @@ export const deleteProduct = async (id: string) => {
     const product = await Product.findById(id);
     if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
 
-    await deleteFile(product.image);
+    for (const image of product.images) {
+        await deleteFile(image);
+    }
     return await Product.findByIdAndDelete(id);
 };
 

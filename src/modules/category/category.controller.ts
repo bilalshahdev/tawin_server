@@ -15,7 +15,6 @@ export const getCategory = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getCategoryById = asyncHandler(async (req: Request, res: Response) => {
-    console.log({ id: req.params.id })
     const category = await categoryService.getCategoryById(req.params.id as string);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.category_retrieved"), category));
 });

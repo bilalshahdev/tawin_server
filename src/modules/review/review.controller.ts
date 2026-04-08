@@ -14,6 +14,28 @@ export const getProductReviews = asyncHandler(async (req: Request, res: Response
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.reviews_retrieved"), reviews));
 });
 
+/**
+ * @desc    Get all reviews for moderation (Admin only)
+ * @route   GET /api/reviews
+ */
+export const getAllReviews = asyncHandler(async (req: Request, res: Response) => {
+    const result = await reviewService.getAllReviews(req.query);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.reviews_retrieved"), result.data, result.meta));
+});
+
+/**
+ * @desc    Toggle review visibility (Hide/Show)
+ * @route   PATCH /api/reviews/:id/visibility
+ */
+export const toggleVisibility = asyncHandler(async (req: Request, res: Response) => {
+    const review = await reviewService.toggleVisibility(req.params.id as string);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.visibility_updated"), review));
+});
+
+/**
+ * @desc    Delete review (User or Admin)
+ * @route   DELETE /api/reviews/:id
+ */
 export const removeReview = asyncHandler(async (req: Request, res: Response) => {
     await reviewService.deleteReview(
         req.params.id as string,
