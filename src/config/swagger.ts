@@ -20,7 +20,7 @@ const options: swaggerJsdoc.Options = {
             { name: 'Category', description: 'Product category management' },
             { name: 'Product', description: 'Product catalog and stock' },
             { name: 'Settings', description: 'Application settings and CMS' },
-            { name: 'Admin', description: 'Admin management APIs' }, 
+            { name: 'Admin', description: 'Admin management APIs' },
         ],
         components: {
             securitySchemes: {
@@ -29,6 +29,19 @@ const options: swaggerJsdoc.Options = {
                     scheme: 'bearer',
                     bearerFormat: 'JWT',
                 },
+            },
+            parameters: {
+                acceptLanguage: {
+                    in: 'header',
+                    name: 'Accept-Language',
+                    required: false,
+                    schema: {
+                        type: 'string',
+                        enum: ['en', 'ar'],
+                        default: 'en'
+                    },
+                    description: 'Language preference for the response (en for English, ar for Arabic)'
+                }
             },
             schemas: {
 
@@ -287,4 +300,21 @@ const options: swaggerJsdoc.Options = {
     apis: ['./src/modules/**/*.routes.ts', './src/routes/index.ts'],
 };
 
-export const specs = swaggerJsdoc(options);
+const specs = swaggerJsdoc(options) as any;
+
+if (specs.paths) {
+    Object.values(specs.paths).forEach((path: any) => {
+        // Loop through all methods (get, post, patch, etc.) in this path
+        Object.values(path).forEach((operation: any) => {
+            // Initialize parameters array if it doesn't exist
+            if (!operation.parameters) operation.parameters = [];
+
+            // Push the reference to our global language parameter
+            operation.parameters.push({
+                $ref: '#/components/parameters/acceptLanguage'
+            });
+        });
+    });
+}
+
+export { specs };

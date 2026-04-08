@@ -14,7 +14,8 @@ export const addReview = async (userId: string, data: any) => {
 export const getReviewsByProduct = async (productId: string) => {
     return await Review.find({ product: productId })
         .populate('user', 'firstName lastName avatar')
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .lean();
 };
 
 export const deleteReview = async (reviewId: string, userId: string, isAdmin: boolean) => {

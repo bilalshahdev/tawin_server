@@ -13,6 +13,7 @@ import './config/i18n';
 import rootRouter from './routes';
 import { globalErrorHandler } from './middlewares/error.middleware';
 import { apiRateLimiter } from './middlewares/rateLimiter.middleware';
+import { requestContext } from './utils/context';
 
 const app: Application = express();
 
@@ -20,6 +21,15 @@ app.use(helmet());
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(middleware.handle(i18next));
+app.use((req, res, next) => {
+  const store = new Map();
+  // Capture the language i18next detected
+  store.set('lang', req.language || 'en');
+
+  requestContext.run(store, () => {
+    next();
+  });
+});
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.get('/api-docs.json', (req, res) => {

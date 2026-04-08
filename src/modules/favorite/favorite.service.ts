@@ -23,7 +23,8 @@ export const toggleFavorite = async (userId: string, productId: string) => {
 export const getMyFavorites = async (userId: string) => {
     return await Favorite.find({ user: userId })
         .populate('product')
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .lean();
 };
 
 export const clearProductFromAllWishlists = async (productId: string) => {

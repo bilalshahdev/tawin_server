@@ -1,18 +1,19 @@
-export class ApiResponse<T> {
+import { localizeData } from './localize';
+import { getLang } from './context';
+
+export class ApiResponse {
     success: boolean;
     message: string;
-    data?: T;
-    meta?: {
-        page: number;
-        limit: number;
-        totalDocs: number;
-        totalPages: number;
-    };
+    data: any;
+    meta?: any;
 
-    constructor(message: string, data?: T, meta?: any) {
+    constructor(message: string, data: any = null, meta: any = null) {
         this.success = true;
         this.message = message;
-        this.data = data;
+        const currentLang = getLang();
+        // this.data = data ? localizeData(data, currentLang) : null;
+        this.data = data
+
         if (meta) this.meta = meta;
     }
 }

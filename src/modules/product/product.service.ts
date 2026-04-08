@@ -28,7 +28,8 @@ export const getAllProducts = async (query: any) => {
             .populate({ path: 'category', select: 'name' })
             .limit(limit)
             .skip(skip)
-            .sort({ createdAt: -1 }),
+            .sort({ createdAt: -1 })
+            .lean(),
         Product.countDocuments(filter)
     ]);
 

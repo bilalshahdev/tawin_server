@@ -28,7 +28,8 @@ export const getAllUsersService = async (query: any) => {
             .select("-password")
             .limit(limit)
             .skip(skip)
-            .sort({ createdAt: -1 }),
+            .sort({ createdAt: -1 })
+            .lean(),
         User.countDocuments({ ...filter, role: { $ne: 'admin' } })
     ]);
 
@@ -126,7 +127,8 @@ export const applyForBasket = async (userId: string, basketData: any) => {
 
 export const fetchAllBasketRequests = async () => {
     return await User.find({ "constructionBasket.isApplied": true })
-        .select("firstName lastName email profileImage constructionBasket");
+        .select("firstName lastName email profileImage constructionBasket")
+        .lean();
 };
 
 export const updateBasketRequestStatus = async (userId: string, status: string) => {
