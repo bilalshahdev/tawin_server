@@ -22,10 +22,14 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
+        // 1. Add 'unsafe-inline' and the CDN for scripts
         scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+        // 2. Add 'unsafe-inline' for styles (Swagger UI needs this)
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         imgSrc: ["'self'", "data:", "https://validator.swagger.io"],
-        connectSrc: ["'self'", "http://104.128.190.131:3520", "http://localhost:3520"],
+        connectSrc: ["'self'", "http://104.128.190.131:3520", "http://192.168.18.43:3520", "http://localhost:3520"],
+        // 3. CRITICAL: Disable the automatic HTTPS upgrade
+        upgradeInsecureRequests: null,
       },
     },
   })
