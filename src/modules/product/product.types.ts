@@ -14,10 +14,12 @@ export interface IProduct extends Omit<Document, 'isNew'> {
     originalPrice?: number;
     images: string[];
     measurements?: string;
-    colors?: string[];
     remainingPieces?: number;
     isNewArrival?: boolean;
     discount?: number;
+    colors?: string[]; // Array of Hex Codes
+    sizes?: string[]; // Array of sizes
+    weights?: { unit: string; value: string }[];
     rating?: number;
     reviewCount: number;
 }

@@ -236,21 +236,36 @@ const options: swaggerJsdoc.Options = {
 
                 Product: {
                     type: 'object',
+                    required: ['title', 'category', 'price'],
                     properties: {
-                        _id: { $ref: '#/components/schemas/ObjectId' },
+                        _id: { $ref: '#/components/schemas/ObjectId', readOnly: true },
                         title: { $ref: '#/components/schemas/LocalizedString' },
-                        slug: { type: 'string' },
-                        category: { $ref: '#/components/schemas/ObjectId' },
-                        description: { $ref: '#/components/schemas/LocalizedString' },
-                        price: { type: 'number' },
-                        originalPrice: { type: 'number' },
-                        images: { type: 'array', items: { type: 'string' } },
-                        measurements: { type: 'string' },
-                        remainingPieces: { type: 'number' },
-                        isNewArrival: { type: 'boolean' },
-                        rating: { type: 'number' },
-                        reviewCount: { type: 'number' },
-                    },
+                        category: { $ref: '#/components/schemas/ObjectId', description: 'Reference to Category ID' },
+                        price: { type: 'number', minimum: 0 },
+                        remainingPieces: { type: 'integer', minimum: 0, default: 0 },
+                        isNewArrival: { type: 'boolean', default: true },
+                        colors: {
+                            type: 'array',
+                            items: { type: 'string', example: '#FF0000' },
+                            description: 'Array of hex color codes'
+                        },
+                        sizes: {
+                            type: 'array',
+                            items: { type: 'string', enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
+                        },
+                        weights: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    unit: { type: 'string', enum: ['g', 'kg', 'ml', 'l'] },
+                                    value: { type: 'string', example: '50' }
+                                }
+                            }
+                        },
+                        rating: { type: 'number', readOnly: true },
+                        reviewCount: { type: 'integer', readOnly: true }
+                    }
                 },
 
                 Review: {
@@ -268,20 +283,57 @@ const options: swaggerJsdoc.Options = {
                 Cart: {
                     type: 'object',
                     properties: {
-                        user: { $ref: '#/components/schemas/ObjectId' },
+                        _id: { $ref: '#/components/schemas/ObjectId', readOnly: true },
+                        user: { $ref: '#/components/schemas/ObjectId', readOnly: true },
                         items: {
                             type: 'array',
-                            items: { $ref: '#/components/schemas/CartItem' }
-                        }
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    product: { $ref: '#/components/schemas/Product' },
+                                    quantity: { type: 'integer' },
+                                    attributes: { $ref: '#/components/schemas/CartAttributes' }
+                                }
+                            }
+                        },
+                        createdAt: { type: 'string', format: 'date-time', readOnly: true },
+                        updatedAt: { type: 'string', format: 'date-time', readOnly: true }
                     }
                 },
+
                 CartItem: {
                     type: 'object',
+                    required: ['productId', 'quantity'],
                     properties: {
-                        productId: { type: 'string' },
-                        quantity: { type: 'integer' },
-                        attributes: { type: 'object', additionalProperties: { type: 'string' } }
+                        productId: { type: 'string', example: '660d1a2b3c4d5e6f7g8h9002' },
+                        quantity: { type: 'integer', minimum: 1 },
+                        attributes: { $ref: '#/components/schemas/CartAttributes' }
                     }
+                },
+
+                RemoveCartItem: {
+                    type: 'object',
+                    required: ['productId', 'attributes'],
+                    properties: {
+                        productId: { type: 'string', example: '660d1a2b3c4d5e6f7g8h9002' },
+                        attributes: { $ref: '#/components/schemas/CartAttributes' }
+                    }
+                },
+
+                CartAttributes: {
+                    type: 'object',
+                    properties: {
+                        color: { type: 'string', example: '#808080', description: 'Hex code' },
+                        size: { type: 'string', enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] },
+                        weight: {
+                            type: 'object',
+                            properties: {
+                                unit: { type: 'string', enum: ['g', 'kg', 'ml', 'l'] },
+                                value: { type: 'string', example: '50' }
+                            }
+                        }
+                    },
+                    description: 'Specific variant selections'
                 },
 
                 Settings: {

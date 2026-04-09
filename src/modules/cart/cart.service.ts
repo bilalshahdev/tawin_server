@@ -10,12 +10,18 @@ import { getPaginationOptions } from "../../utils/pagination";
  * by sorting keys before stringifying.
  */
 const getNormalizedAttributes = (attr: any) => {
-    if (!attr) return JSON.stringify({});
-    const sortedObj = Object.keys(attr).sort().reduce((obj: any, key) => {
-        obj[key] = attr[key];
-        return obj;
-    }, {});
-    return JSON.stringify(sortedObj);
+    if (!attr || Object.keys(attr).length === 0) return JSON.stringify({});
+
+    const sortObject = (obj: any): any => {
+        if (typeof obj !== 'object' || obj === null) return obj;
+        if (Array.isArray(obj)) return obj.map(sortObject);
+        return Object.keys(obj).sort().reduce((acc: any, key) => {
+            acc[key] = sortObject(obj[key]);
+            return acc;
+        }, {});
+    };
+
+    return JSON.stringify(sortObject(attr));
 };
 
 export const getAllCarts = async (query: any) => {
@@ -66,13 +72,32 @@ export const getMyCart = async (userId: string) => {
 
 export const addToCart = async (userId: string, productId: string, quantity: number, attributes: any) => {
     const product = await Product.findById(productId);
-    if (!product) {
-        throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_available");
-    }
+    if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_available");
 
     const stock = product.remainingPieces || 0;
-    if (stock <= 0) {
-        throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.out_of_stock");
+    if (stock <= 0) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.out_of_stock");
+
+    // --- STRICT ATTRIBUTE VALIDATION ---
+    if (attributes && Object.keys(attributes).length > 0) {
+        for (const [key, value] of Object.entries(attributes)) {
+            if (key === 'color') {
+                if (!product.colors?.includes(value as string)) {
+                    throw new ApiError(STATUS_CODE.BAD_REQUEST, `Invalid color: ${value}`);
+                }
+            } else if (key === 'size') {
+                if (!product.sizes?.includes(value as string)) {
+                    throw new ApiError(STATUS_CODE.BAD_REQUEST, `Invalid size: ${value}`);
+                }
+            } else if (key === 'weight') {
+                const reqW = value as { unit: string; value: string };
+                const isValid = product.weights?.some(w => w.unit === reqW.unit && w.value === reqW.value);
+                if (!isValid) {
+                    throw new ApiError(STATUS_CODE.BAD_REQUEST, `Invalid weight: ${reqW.value}${reqW.unit}`);
+                }
+            } else {
+                throw new ApiError(STATUS_CODE.BAD_REQUEST, `Attribute '${key}' is not allowed`);
+            }
+        }
     }
 
     let cart = await Cart.findOne({ user: userId });
@@ -81,20 +106,17 @@ export const addToCart = async (userId: string, productId: string, quantity: num
     const targetAttrString = getNormalizedAttributes(attributes);
 
     const itemIndex = cart.items.findIndex(item => {
-        const itemAttrString = getNormalizedAttributes(Object.fromEntries(item.attributes));
-        return item.product.toString() === productId && itemAttrString === targetAttrString;
+        // Mongoose Map must be converted to an object for normalization
+        const itemAttrObj = item.attributes instanceof Map ? Object.fromEntries(item.attributes) : item.attributes;
+        return item.product.toString() === productId && getNormalizedAttributes(itemAttrObj) === targetAttrString;
     });
 
     if (itemIndex > -1) {
         const newTotal = cart.items[itemIndex].quantity + quantity;
-        if (newTotal > stock) {
-            throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.insufficient_stock");
-        }
+        if (newTotal > stock) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.insufficient_stock");
         cart.items[itemIndex].quantity = newTotal;
     } else {
-        if (quantity > stock) {
-            throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.insufficient_stock");
-        }
+        if (quantity > stock) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.insufficient_stock");
         cart.items.push({ product: new Types.ObjectId(productId), quantity, attributes });
     }
 
@@ -102,6 +124,7 @@ export const addToCart = async (userId: string, productId: string, quantity: num
 };
 
 export const updateQuantity = async (userId: string, productId: string, quantity: number, attributes: any) => {
+    // 1. Fetch cart and product in parallel for performance
     const [cart, product] = await Promise.all([
         Cart.findOne({ user: userId }),
         Product.findById(productId)
@@ -110,15 +133,19 @@ export const updateQuantity = async (userId: string, productId: string, quantity
     if (!cart) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.cart_not_found");
     if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
 
+    // 2. Strict Stock Check
     const stock = product.remainingPieces || 0;
     if (quantity > stock) {
         throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.insufficient_stock");
     }
 
+    // 3. Normalize incoming attributes for comparison
     const targetAttrString = getNormalizedAttributes(attributes);
 
+    // 4. Find the specific variant in the cart
     const itemIndex = cart.items.findIndex(item => {
-        const itemAttrString = getNormalizedAttributes(Object.fromEntries(item.attributes));
+        const itemAttrObj = item.attributes instanceof Map ? Object.fromEntries(item.attributes) : item.attributes;
+        const itemAttrString = getNormalizedAttributes(itemAttrObj);
         return item.product.toString() === productId && itemAttrString === targetAttrString;
     });
 
@@ -126,6 +153,7 @@ export const updateQuantity = async (userId: string, productId: string, quantity
         throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.item_not_in_cart");
     }
 
+    // 5. Update and save
     cart.items[itemIndex].quantity = quantity;
     return await cart.save();
 };
@@ -134,14 +162,26 @@ export const removeFromCart = async (userId: string, productId: string, attribut
     const cart = await Cart.findOne({ user: userId });
     if (!cart) return;
 
+    // 1. Normalize incoming attributes
     const targetAttrString = getNormalizedAttributes(attributes);
 
+    // 2. Filter out the specific variant
+    const initialLength = cart.items.length;
     cart.items = cart.items.filter(item => {
-        const itemAttrString = getNormalizedAttributes(Object.fromEntries(item.attributes));
-        return !(item.product.toString() === productId && itemAttrString === targetAttrString);
+        const itemAttrObj = item.attributes instanceof Map ? Object.fromEntries(item.attributes) : item.attributes;
+        const itemAttrString = getNormalizedAttributes(itemAttrObj);
+
+        // Keep the item if it's NOT the one we want to remove
+        const isTarget = item.product.toString() === productId && itemAttrString === targetAttrString;
+        return !isTarget;
     }) as any;
 
-    return await cart.save();
+    // 3. Only save if an item was actually removed
+    if (cart.items.length !== initialLength) {
+        return await cart.save();
+    }
+
+    return cart;
 };
 
 export const clearCart = async (userId: string) => {

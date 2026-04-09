@@ -6,27 +6,26 @@ import { cartItemSchema } from "./cart.validation";
 
 const router = Router();
 
-// All cart routes require authentication
 router.use(authMiddleware);
 
 /**
  * @swagger
  * tags:
  *   name: Cart
- *   description: Shopping cart management for users
+ *   description: Shopping cart management
  */
 
 /**
  * @swagger
  * /cart/all:
  *   get:
- *     summary: Get all carts in the system (Admin Only)
+ *     summary: Get all carts (Admin Only)
  *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of all user carts
+ *         description: Success
  */
 router.get("/all", authorize("admin"), cartController.getAllCarts);
 
@@ -34,19 +33,18 @@ router.get("/all", authorize("admin"), cartController.getAllCarts);
  * @swagger
  * /cart:
  *   get:
- *     summary: View my shopping cart
+ *     summary: View my cart
  *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Cart retrieved successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/Cart"
  *   post:
- *     summary: Add an item to the cart (or increment quantity if exists)
+ *     summary: Add item to cart
  *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
@@ -58,7 +56,7 @@ router.get("/all", authorize("admin"), cartController.getAllCarts);
  *             $ref: "#/components/schemas/CartItem"
  *     responses:
  *       200:
- *         description: Item added successfully
+ *         description: Added
  */
 router.get("/", cartController.getCart);
 router.post("/", validate(cartItemSchema), cartController.addItem);
@@ -67,7 +65,7 @@ router.post("/", validate(cartItemSchema), cartController.addItem);
  * @swagger
  * /cart/quantity:
  *   patch:
- *     summary: Update the specific quantity of an item
+ *     summary: Update quantity
  *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
@@ -79,7 +77,7 @@ router.post("/", validate(cartItemSchema), cartController.addItem);
  *             $ref: "#/components/schemas/CartItem"
  *     responses:
  *       200:
- *         description: Quantity updated
+ *         description: Updated
  */
 router.patch(
     "/quantity",
@@ -91,7 +89,7 @@ router.patch(
  * @swagger
  * /cart/remove:
  *   delete:
- *     summary: Remove a specific item/variant from the cart
+ *     summary: Remove specific variant
  *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
@@ -100,15 +98,10 @@ router.patch(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               productId:
- *                 type: string
- *               attributes:
- *                 type: object
+ *             $ref: "#/components/schemas/RemoveCartItem"
  *     responses:
  *       200:
- *         description: Item removed
+ *         description: Removed
  */
 router.delete("/remove", cartController.removeItem);
 
@@ -116,13 +109,13 @@ router.delete("/remove", cartController.removeItem);
  * @swagger
  * /cart/clear:
  *   delete:
- *     summary: Empty the entire cart
+ *     summary: Clear cart
  *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Cart cleared
+ *         description: Cleared
  */
 router.delete("/clear", cartController.clearCart);
 

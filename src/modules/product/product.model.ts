@@ -7,6 +7,11 @@ const LocalizedSchema = new Schema({
     ar: { type: String, default: "" }
 }, { _id: false });
 
+const weightSchema = new Schema({
+    unit: { type: String, enum: ['g', 'kg', 'ml', 'l'], required: true },
+    value: { type: String, required: true }
+}, { _id: false });
+
 const productSchema = new Schema<IProduct>({
     title: { type: LocalizedSchema, required: true },
     slug: { type: String, unique: true },
@@ -20,10 +25,12 @@ const productSchema = new Schema<IProduct>({
     originalPrice: { type: Number },
     images: [{ type: String, required: true }],
     measurements: { type: String },
-    colors: [{ type: String }],
     remainingPieces: { type: Number, default: 0 },
     isNewArrival: { type: Boolean, default: true },
     discount: { type: Number, default: 0 },
+    colors: [{ type: String }],
+    sizes: [{ type: String, enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }],
+    weights: [weightSchema],
     rating: { type: Number, default: 0, min: 0, max: 5 },
     reviewCount: { type: Number, default: 0 },
 }, { timestamps: true });
@@ -37,7 +44,6 @@ productSchema.pre('save', function (next) {
 
 productSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
     const productId = this._id;
-    // Remove this product from all carts
     await model('Cart').updateMany(
         { "items.product": productId },
         { $pull: { items: { product: productId } } }

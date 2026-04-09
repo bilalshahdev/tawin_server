@@ -7,6 +7,14 @@ import * as schemas from "./product.validation";
 import { trackUploadedFiles } from "../../middlewares/trackUploadedFiles.middleware";
 
 const router = Router();
+
+/**
+ * @swagger
+ * tags:
+ *   name: Product
+ *   description: Product management and catalog
+ */
+
 /**
  * @swagger
  * /products/sync-reviews:
@@ -137,10 +145,32 @@ router.get("/:id", productController.getOne);
  *                 type: string
  *               category:
  *                 type: string
+ *                 description: Category ID
  *               price:
  *                 type: number
+ *               description[en]:
+ *                 type: string
+ *               description[ar]:
+ *                 type: string
  *               remainingPieces:
  *                 type: number
+ *               isNewArrival:
+ *                 type: boolean
+ *               colors:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of hex codes (e.g., #FF5733)
+ *               sizes:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [XS, S, M, L, XL, XXL]
+ *               weights[0][unit]:
+ *                 type: string
+ *                 enum: [g, kg, ml, l]
+ *               weights[0][value]:
+ *                 type: string
  *               images:
  *                 type: array
  *                 items:
@@ -184,6 +214,17 @@ router.post(
  *                 type: string
  *               price:
  *                 type: number
+ *               remainingPieces:
+ *                 type: number
+ *               colors:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               sizes:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [XS, S, M, L, XL, XXL]
  *               images:
  *                 type: array
  *                 items:
@@ -198,6 +239,7 @@ router.patch(
     authMiddleware,
     authorize("admin"),
     upload.array("images", 10),
+    validate(schemas.updateProductSchema),
     productController.update
 );
 
