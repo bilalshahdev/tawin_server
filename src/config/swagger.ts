@@ -12,7 +12,15 @@ const options: swaggerJsdoc.Options = {
         servers: [
             {
                 url: 'http://localhost:3520/api',
-                description: 'Development server',
+                description: 'Local Development (Your PC)',
+            },
+            {
+                url: 'http://104.128.190.131:3520/api',
+                description: 'Staging/Testing Server (Hosted)',
+            },
+            {
+                url: '/api',
+                description: 'Dynamic (Uses current browser URL)',
             },
         ],
         tags: [
