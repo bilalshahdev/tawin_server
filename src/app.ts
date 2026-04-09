@@ -17,7 +17,19 @@ import { requestContext } from './utils/context';
 
 const app: Application = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        imgSrc: ["'self'", "data:", "https://validator.swagger.io"],
+        connectSrc: ["'self'", "http://104.128.190.131:3520", "http://localhost:3520"],
+      },
+    },
+  })
+);
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(middleware.handle(i18next));
