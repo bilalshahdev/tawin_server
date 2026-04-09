@@ -14,6 +14,7 @@ import rootRouter from './routes';
 import { globalErrorHandler } from './middlewares/error.middleware';
 import { apiRateLimiter } from './middlewares/rateLimiter.middleware';
 import { requestContext } from './utils/context';
+import { now } from 'lodash';
 
 const app: Application = express();
 
@@ -34,7 +35,8 @@ app.use(
     },
   })
 );
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(cors({ origin: '*' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(middleware.handle(i18next));
 app.use((req, res, next) => {
