@@ -2,53 +2,53 @@ import { z } from "zod";
 
 export const registerSchema = z.object({
     body: z.object({
-        firstName: z.string().min(1),
-        lastName: z.string().min(1),
-        username: z.string().min(3),
-        email: z.string().email(),
-        password: z.string().min(8),
-        country: z.string().min(1),
+        firstName: z.string().min(1, { message: "errors.validations.common.required" }),
+        lastName: z.string().min(1, { message: "errors.validations.common.required" }),
+        username: z.string().min(3, "errors.validations.auth.username_short"),
+        email: z.string().email("errors.validations.common.invalid_email"),
+        password: z.string().min(8, "errors.validations.auth.password_too_weak"),
+        country: z.string().min(1, { message: "errors.validations.common.required" }),
     })
 });
 
 export const verifyOtpSchema = z.object({
     body: z.object({
-        email: z.string().email(),
-        otp: z.string().length(6),
+        email: z.string().email("errors.validations.common.invalid_email"),
+        otp: z.string().length(6, "errors.validations.auth.otp_length"),
     })
 });
 
 export const loginSchema = z.object({
     body: z.object({
-        email: z.string().email(),
-        password: z.string(),
+        email: z.string().email("errors.validations.common.invalid_email"),
+        password: z.string().min(1, { message: "errors.validations.common.required" }),
     })
 });
 
 export const forgotPasswordSchema = z.object({
     body: z.object({
-        email: z.string().email(),
+        email: z.string().email("errors.validations.common.invalid_email"),
     })
 });
 
 export const resetPasswordSchema = z.object({
     body: z.object({
-        token: z.string(),
-        newPassword: z.string().min(8),
+        token: z.string().min(1, { message: "errors.validations.common.required" }),
+        newPassword: z.string().min(8, "errors.validations.auth.password_too_weak"),
     })
 });
 
 export const changePasswordSchema = z.object({
     body: z.object({
-        oldPassword: z.string(),
-        newPassword: z.string().min(8),
+        oldPassword: z.string().min(1, { message: "errors.validations.common.required" }),
+        newPassword: z.string().min(8, "errors.validations.auth.password_too_weak"),
     })
 });
 
 export const resendOtpSchema = z.object({
     body: z.object({
-        email: z.string().email(),
+        email: z.string().email("errors.validations.common.invalid_email"),
     })
 });
 
-export const changeEmailSchema = resendOtpSchema
+export const changeEmailSchema = resendOtpSchema;

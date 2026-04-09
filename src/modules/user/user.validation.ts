@@ -2,27 +2,28 @@ import { z } from "zod";
 
 export const updateProfileSchema = z.object({
   body: z.object({
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    username: z.string().optional(),
-    phone: z.string().optional(),
-    country: z.string().optional(),
+    firstName: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
+    lastName: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
+    username: z.string().min(3, { message: "errors.validations.auth.username_short" }).optional(),
+    phone: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
+    country: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
   })
 });
 
 export const applyForBasketSchema = z.object({
   body: z.object({
-    fullRegistrationName: z.string().min(1, "Full registration name is required"),
-    phoneNumber: z.string().min(1, "Phone number is required"),
-    monthlyIncome: z.number().optional(),
-    occupation: z.string().min(1, "Occupation is required"),
-    unifiedCard: z.string().min(1, "Unified card is required"),
-    residenceCard: z.string().min(1, "Residence card is required"),
-    propertyArea: z.string().min(1, "Property area is required"),
+    fullRegistrationName: z.string().min(1, { message: "errors.validations.common.required" }),
+    phoneNumber: z.string().min(1, { message: "errors.validations.common.required" }),
+    monthlyIncome: z.number({
+      message: "errors.validations.common.positive"
+    }).positive({ message: "errors.validations.common.positive" }).optional(),
+    occupation: z.string().min(1, { message: "errors.validations.common.required" }),
+    unifiedCard: z.string().min(1, { message: "errors.validations.common.required" }),
+    residenceCard: z.string().min(1, { message: "errors.validations.common.required" }),
+    propertyArea: z.string().min(1, { message: "errors.validations.common.required" }),
     propertyType: z.enum(['Freehold', 'Leasehold'], {
-      message: 'Property type must be either Freehold or Leasehold'
+      message: "errors.validations.common.required"
     }),
-    country: z.string().optional(),
+    country: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
   })
 });
-

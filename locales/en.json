@@ -107,8 +107,23 @@
     "too_many_requests": "Too many requests from this IP, please try again later.",
     "only_pdf": "Only PDF documents are allowed",
     "invalid_image": "Invalid file type. Only JPEGs, PNGs, and WebPs are allowed.",
-    "internal_error": "A server error occurred"
-
+    "internal_error": "A server error occurred",
+    "validations": {
+      "common": {
+        "required": "This field is required.",
+        "invalid_email": "Please enter a valid email address.",
+        "min_length": "Must be at least {{min}} characters.",
+        "max_length": "Cannot exceed {{max}} characters.",
+        "invalid_id": "Invalid ID format.",
+        "positive": "Must be a positive number.",
+        "empty_update": "At least one field must be provided for update."
+      },
+      "auth": {
+        "password_too_weak": "Password must be at least 8 characters long.",
+        "username_short": "Username must be at least 3 characters.",
+        "otp_length": "Verification code must be exactly 6 characters."
+      }
+    }
   },
   "seeder": {
     "users_seeded": "Successfully populated dummy users into the database."
