@@ -125,10 +125,39 @@ export const applyForBasket = async (userId: string, basketData: any) => {
     return await user.save();
 };
 
-export const fetchAllBasketRequests = async () => {
-    return await User.find({ "constructionBasket.isApplied": true })
-        .select("firstName lastName email profileImage constructionBasket")
-        .lean();
+export const fetchAllBasketRequests = async (query: any) => {
+    const { page, limit, skip } = getPaginationOptions(query);
+    const { search } = query;
+    let filter = {};
+    if (search) {
+        filter = {
+            $or: [
+                { "constructionBasket.fullRegistrationName": { $regex: search, $options: 'i' } },
+                { "constructionBasket.phoneNumber": { $regex: search, $options: 'i' } },
+                { "constructionBasket.email": { $regex: search, $options: 'i' } }
+            ]
+        };
+    }
+    const [basketRequests, totalDocs] = await Promise.all([
+        User.find({ "constructionBasket.isApplied": true, ...filter })
+            .select("firstName lastName email profileImage constructionBasket")
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        User.countDocuments({ "constructionBasket.isApplied": true, ...filter })
+    ]);
+    const totalPages = Math.ceil(totalDocs / limit);
+    return {
+        data: basketRequests,
+        meta: {
+            page,
+            limit,
+            totalDocs,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1
+        }
+    };
 };
 
 export const updateBasketRequestStatus = async (userId: string, status: string) => {

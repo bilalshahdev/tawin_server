@@ -91,6 +91,8 @@ router.patch(
 // CONSTRUCTION BASKET MANAGEMENT
 // ==========================================
 
+
+// add query params: page, limit, search
 /**
  * @swagger
  * /admin/construction-basket-requests:
@@ -99,6 +101,22 @@ router.patch(
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Number of items per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search query
  *     responses:
  *       200:
  *         description: List of basket applications

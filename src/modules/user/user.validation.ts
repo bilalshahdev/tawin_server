@@ -12,7 +12,7 @@ export const updateProfileSchema = z.object({
 
 export const applyForBasketSchema = z.object({
   body: z.object({
-    fullRegistrationName: z.string().min(1, { message: "errors.validations.common.required" }),
+    fullRegistrationName: z.string().min(1, "errors.validations.common.required" ),
     phoneNumber: z.string().min(1, { message: "errors.validations.common.required" }),
     monthlyIncome: z.number({
       message: "errors.validations.common.positive"

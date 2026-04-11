@@ -69,7 +69,7 @@ export const applyForBasket = asyncHandler(async (req: Request, res: Response) =
 });
 
 export const fetchAllBasketRequests = asyncHandler(async (req: Request, res: Response) => {
-    const basketRequests = await userService.fetchAllBasketRequests();
+    const basketRequests = await userService.fetchAllBasketRequests(req.query);
     res.json(new ApiResponse(req.t('user.basket_requests_retrieved'), basketRequests));
 });
 

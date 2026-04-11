@@ -10,7 +10,6 @@ const userSchema = new Schema<IUser>({
     password: { type: String, required: true, select: false },
     phone: { type: String }, // Made optional for registration
     profileImage: { type: String, default: 'default-avatar.png' },
-    country: { type: String, required: true },
     role: { type: String, enum: ['admin', 'customer'], default: 'customer' },
     lastLogout: { type: Date },
 

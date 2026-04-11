@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { z, ZodError } from "zod";
+import { ZodError, z } from "zod";
+import { normalizeZodError, translateError } from "../utils/normalizeZodError";
 
 export const validate =
   (schema: z.ZodTypeAny) =>
@@ -10,20 +11,23 @@ export const validate =
           query: req.query,
           params: req.params,
         });
+
         return next();
       } catch (error) {
         if (error instanceof ZodError) {
-          const errorMessages = error.issues.map((issue) => ({
-            path: issue.path.join("."),
-            message: issue.message,
-          }));
+          const normalized = normalizeZodError(error.issues);
+
+          const errors = normalized.map((err) =>
+            translateError(req, err)
+          );
 
           return res.status(400).json({
             status: "error",
-            message: req.t("validation.failed"),
-            errors: errorMessages,
+            message: req.t("errors.validations.failed"),
+            errors,
           });
         }
+
         next(error);
       }
     };
