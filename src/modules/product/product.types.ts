@@ -12,6 +12,7 @@ export interface IProduct extends Omit<Document, 'isNew'> {
     description?: LocalizedString;
     price: number;
     originalPrice?: number;
+    photo?: string;
     images: string[];
     measurements?: string;
     remainingPieces?: number;

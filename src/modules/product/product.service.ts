@@ -56,14 +56,15 @@ export const updateProduct = async (id: string, updateData: any) => {
     const product = await Product.findById(id);
     if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
 
-    if (updateData.images && product.images) {
-        for (const image of product.images) {
-            await deleteFile(image);
-        }
+    // If a new photo is provided, delete the old one from storage
+    if (updateData.photo && product.photo) {
+        deleteFile(product.photo);
     }
 
-    return await Product.findByIdAndUpdate(id, { $set: updateData }, { new: true }).populate('category');
+    return await Product.findByIdAndUpdate(id, updateData, { new: true });
 };
+
+
 
 export const updateStock = async (id: string, quantity: number, isAddition: boolean = false) => {
     const product = await Product.findById(id);
@@ -82,10 +83,11 @@ export const deleteProduct = async (id: string) => {
     const product = await Product.findById(id);
     if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
 
-    for (const image of product.images) {
-        await deleteFile(image);
-    }
-    return await Product.findByIdAndDelete(id);
+    // Cleanup all files when product is deleted
+    if (product.photo) deleteFile(product.photo);
+    if (product.images) product.images.forEach(img => deleteFile(img));
+
+    return await product.deleteOne();
 };
 
 // sync product reviews

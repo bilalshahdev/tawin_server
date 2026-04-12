@@ -53,6 +53,9 @@ export const createProductSchema = z.object({
         originalPrice: toNumber.pipe(z.number().positive("positive")).optional(),
         discount: toNumber.pipe(z.number().min(0, "non_negative")).optional(),
 
+        photo: z.string().optional(), // Becomes optional here because Multer adds it later
+        images: toArray.pipe(z.array(z.string())).optional(),
+
         remainingPieces: toNumber.pipe(
             z.number().int("invalid_format").min(0, "non_negative")
         ).optional(),
@@ -81,6 +84,7 @@ export const updateProductSchema = z.object({
         originalPrice: toNumber.pipe(z.number().positive("positive")).optional(),
         discount: toNumber.pipe(z.number().min(0, "non_negative")).optional(),
 
+        photo: z.string().optional(),
         images: toArray.pipe(z.array(z.string())).optional(),
 
         remainingPieces: toNumber.pipe(

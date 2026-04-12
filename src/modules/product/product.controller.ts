@@ -12,12 +12,16 @@ import { STATUS_CODE } from "../../config/constants";
  */
 
 export const create = asyncHandler(async (req: Request, res: Response) => {
-    const data = { ...req.body };
-    if (req.files && Array.isArray(req.files)) {
-        data.images = req.files.map(file => file.path);
-    }
-    const product = await productService.createProduct(data);
-    res.status(201).json(new ApiResponse(req.t('product.product_created'), product));
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    const productData = {
+        ...req.body,
+        thumbnail: files?.thumbnail ? files.thumbnail[0].path : undefined, //
+        images: files?.images ? files.images.map(file => file.path) : [],
+    };
+
+    const product = await productService.createProduct(productData);
+    res.status(STATUS_CODE.CREATED).json(new ApiResponse(req.t("product.created"), product));
 });
 
 /**
@@ -60,8 +64,12 @@ export const getBySlug = asyncHandler(async (req: Request, res: Response) => {
 
 export const update = asyncHandler(async (req: Request, res: Response) => {
     const data = { ...req.body };
-    if (req.files && Array.isArray(req.files)) {
-        data.images = req.files.map(file => file.path);
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    if (files && files.images) {
+        data.images = files.images.map(file => file.path);
+    }
+    if (files && files.photo) {
+        data.photo = files.photo[0].path;
     }
     const product = await productService.updateProduct(req.params.id as string, data);
     res.json(new ApiResponse(req.t('product.product_updated'), product));

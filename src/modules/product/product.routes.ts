@@ -171,6 +171,9 @@ router.get("/:id", productController.getOne);
  *                 enum: [g, kg, ml, l]
  *               weights[0][value]:
  *                 type: string
+ *               photo:
+ *                 type: string
+ *                 format: binary
  *               images:
  *                 type: array
  *                 items:
@@ -184,7 +187,7 @@ router.post(
     "/",
     authMiddleware,
     authorize("admin"),
-    upload.array("images", 10),
+    upload.fields([{ name: "images", maxCount: 10 }, { name: "photo", maxCount: 1 }]),
     trackUploadedFiles,
     validate(schemas.createProductSchema),
     productController.create
@@ -225,6 +228,9 @@ router.post(
  *                 items:
  *                   type: string
  *                   enum: [XS, S, M, L, XL, XXL]
+ *               photo:
+ *                 type: string
+ *                 format: binary
  *               images:
  *                 type: array
  *                 items:
@@ -238,7 +244,7 @@ router.patch(
     "/:id",
     authMiddleware,
     authorize("admin"),
-    upload.array("images", 10),
+    upload.fields([{ name: "images", maxCount: 10 }, { name: "photo", maxCount: 1 }]),
     validate(schemas.updateProductSchema),
     productController.update
 );
