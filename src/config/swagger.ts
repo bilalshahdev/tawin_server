@@ -235,10 +235,8 @@ const options: swaggerJsdoc.Options = {
                         name: { $ref: '#/components/schemas/LocalizedString' },
                         slug: { type: 'string' },
                         thumbnail: { type: 'string' },
-                        icon: { type: 'string' },
                         description: { $ref: '#/components/schemas/LocalizedString' },
-                        parent: { $ref: '#/components/schemas/ObjectId' },
-                        isActive: { type: 'boolean' },
+                        parentCategory: { $ref: '#/components/schemas/ObjectId' },
                     },
                 },
 

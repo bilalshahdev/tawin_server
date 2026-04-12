@@ -14,9 +14,9 @@ export interface ICategory extends Document {
     name: LocalizedString;
     slug: string;
     thumbnail?: string;
-    icon?: string;
     description?: LocalizedString;
     type: CategoryType;
-    parentCategory?: Types.ObjectId;
-    isActive: boolean;
+    parentCategory?: Types.ObjectId | null;
+    createdAt: Date;
+    updatedAt: Date;
 }

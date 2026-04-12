@@ -11,20 +11,22 @@ const categorySchema = new Schema<ICategory>({
     name: { type: LocalizedSchema, required: true },
     slug: { type: String, unique: true },
     thumbnail: { type: String },
-    icon: { type: String },
     description: { type: LocalizedSchema },
-    type: { 
-        type: String, 
-        enum: Object.values(CategoryType), 
-        default: CategoryType.CATEGORY 
+    type: {
+        type: String,
+        enum: Object.values(CategoryType),
+        default: CategoryType.CATEGORY
     },
-    parentCategory: { 
-        type: Schema.Types.ObjectId, 
+    parentCategory: {
+        type: Schema.Types.ObjectId,
         ref: 'Category',
-        default: null 
+        default: null,
+        index: true
     },
-    isActive: { type: Boolean, default: true },
-}, { timestamps: true });
+}, {
+    timestamps: true, toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+});
 
 categorySchema.pre('save', function (next) {
     if (this.isModified('name.en')) {

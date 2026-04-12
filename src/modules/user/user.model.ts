@@ -8,7 +8,7 @@ const userSchema = new Schema<IUser>({
     email: { type: String, required: true, unique: true, index: true },
     isVerified: { type: Boolean, default: false },
     password: { type: String, required: true, select: false },
-    phone: { type: String }, // Made optional for registration
+    phone: { type: String },
     profileImage: { type: String, default: 'default-avatar.png' },
     role: { type: String, enum: ['admin', 'customer'], default: 'customer' },
     lastLogout: { type: Date },

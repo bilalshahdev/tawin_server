@@ -1,52 +1,66 @@
 import { z } from 'zod';
 import { CategoryType } from './category.types';
 
+const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+
 const localizedStringSchema = z.object({
-    en: z.string().min(1, { message: "validation.failed" }),
+    en: z.string().min(1, { message: "errors.validations.required" }),
     ar: z.string().optional(),
 });
+
+/**
+ * Reusable helper to handle empty strings from multipart/form-data
+ */
+const parentCategorySchema = z.preprocess(
+    (val) => (val === "" || val === "null" || val === undefined ? undefined : val),
+    z.string().regex(objectIdRegex, "errors.validations.invalid_id").optional()
+);
 
 export const createCategorySchema = z.object({
     body: z.object({
         name: localizedStringSchema,
         description: localizedStringSchema.optional(),
-        type: z.nativeEnum(CategoryType),
-        parentCategory: z.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
-        isActive: z.boolean().optional(),
+        type: z.nativeEnum(CategoryType, { message: "errors.validations.invalid_enum" }),
+        parentCategory: parentCategorySchema,
+        thumbnail: z.string().optional(),
     }).refine((data) => {
+        // If type is category, parentCategory must be empty/undefined
+        if (data.type === CategoryType.CATEGORY) {
+            return !data.parentCategory;
+        }
+        // If type is subCategory, parentCategory must be a valid ID
+        if (data.type === CategoryType.SUB_CATEGORY) {
+            return !!data.parentCategory;
+        }
+        return true;
+    }, {
+        message: "errors.validations.category.invalid_hierarchy",
+        path: ["parentCategory"],
+    }),
+});
+
+export const updateCategorySchema = z.object({
+    params: z.object({
+        id: z.string().regex(objectIdRegex, "errors.validations.invalid_id")
+    }),
+    body: z.object({
+        "name[en]": z.string().min(2, "errors.validations.too_short").optional(),
+        "name[ar]": z.string().min(2, "errors.validations.too_short").optional(),
+        "description[en]": z.string().optional(),
+        "description[ar]": z.string().optional(),
+        type: z.nativeEnum(CategoryType).optional(),
+        parentCategory: parentCategorySchema,
+    }).refine((data) => {
+        // Validation for type switching or partial updates
+        if (data.type === CategoryType.CATEGORY && data.parentCategory) {
+            return false;
+        }
         if (data.type === CategoryType.SUB_CATEGORY && !data.parentCategory) {
             return false;
         }
         return true;
     }, {
-        message: "errors.parent_category_required",
+        message: "errors.validations.category.invalid_hierarchy",
         path: ["parentCategory"],
     }),
-});
-
-const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-
-export const updateCategorySchema = z.object({
-    params: z.object({
-        id: z.string().regex(objectIdRegex, "errors.invalid_id")
-    }),
-    body: z.object({
-        "name[en]": z.string().min(2).optional(),
-        "name[ar]": z.string().min(2).optional(),
-        "description[en]": z.string().optional(),
-        "description[ar]": z.string().optional(),
-        parentCategory: z.preprocess(
-            (val) => (val === "null" || val === "" ? null : val),
-            z.string().regex(objectIdRegex, "errors.invalid_id").optional().nullable()
-        ),
-        isActive: z.preprocess(
-            (val) => {
-                if (typeof val === 'boolean') return val;
-                if (val === 'true') return true;
-                if (val === 'false') return false;
-                return val;
-            },
-            z.boolean().optional()
-        )
-    })
 });

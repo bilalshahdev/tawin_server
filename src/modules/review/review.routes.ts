@@ -30,31 +30,6 @@ router.get(
 
 /**
  * @swagger
- * /reviews/{id}/visibility:
- *   patch:
- *     summary: Toggle review visibility (Hide/Show) (Admin Only)
- *     tags: [Review]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Visibility toggled successfully
- */
-router.patch(
-    "/:id/visibility",
-    authMiddleware,
-    authorize("admin"),
-    reviewController.toggleVisibility
-);
-
-/**
- * @swagger
  * /reviews/product/{productId}:
  *   get:
  *     summary: Get all reviews for a specific product

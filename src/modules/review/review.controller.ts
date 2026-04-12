@@ -24,15 +24,6 @@ export const getAllReviews = asyncHandler(async (req: Request, res: Response) =>
 });
 
 /**
- * @desc    Toggle review visibility (Hide/Show)
- * @route   PATCH /api/reviews/:id/visibility
- */
-export const toggleVisibility = asyncHandler(async (req: Request, res: Response) => {
-    const review = await reviewService.toggleVisibility(req.params.id as string);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.visibility_updated"), review));
-});
-
-/**
  * @desc    Delete review (User or Admin)
  * @route   DELETE /api/reviews/:id
  */

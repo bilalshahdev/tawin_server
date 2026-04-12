@@ -5,26 +5,32 @@ import * as categoryService from "./category.service";
 import { STATUS_CODE } from "../../config/constants";
 
 export const getCategories = asyncHandler(async (req: Request, res: Response) => {
-    const categories = await categoryService.getAllCategories(req.query);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.categories_retrieved"), categories));
+    const data = await categoryService.getAllCategories(req.query);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.categories_retrieved"), data));
 });
 
 export const getCategory = asyncHandler(async (req: Request, res: Response) => {
-    const category = await categoryService.getCategoryBySlug(req.params.slug as string);
+    const isAdmin = req.query.admin === 'true';
+    const category = await categoryService.getCategoryBySlug(req.params.slug as string, isAdmin);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.category_retrieved"), category));
 });
 
 export const getCategoryById = asyncHandler(async (req: Request, res: Response) => {
-    const category = await categoryService.getCategoryById(req.params.id as string);
+    const isAdmin = req.query.admin === 'true';
+    const category = await categoryService.getCategoryById(req.params.id as string, isAdmin);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.category_retrieved"), category));
 });
 
 
 export const createCategory = asyncHandler(async (req: Request, res: Response) => {
+    console.log({ body: req.body })
+    const { parentCategory = "" } = req.body || {}
     const data = {
         ...req.body,
+        parentCategory: (parentCategory === "" || parentCategory === "null")
+            ? undefined
+            : parentCategory,
         thumbnail: req.files && (req.files as any).thumbnail ? (req.files as any).thumbnail[0].path : undefined,
-        icon: req.files && (req.files as any).icon ? (req.files as any).icon[0].path : undefined,
     };
     const category = await categoryService.createCategory(data);
     res.status(STATUS_CODE.CREATED).json(new ApiResponse(req.t("category.category_created"), category));
@@ -45,7 +51,6 @@ export const updateCategory = asyncHandler(async (req: Request, res: Response) =
     // Handle uploaded files
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     if (files?.thumbnail) updateData.thumbnail = files.thumbnail[0].path;
-    if (files?.icon) updateData.icon = files.icon[0].path;
 
     const category = await categoryService.updateCategory(req.params.id as string, updateData);
 

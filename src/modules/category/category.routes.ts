@@ -34,15 +34,12 @@ const router = Router();
  *                 type: string
  *               description[ar]:
  *                 type: string
+ *               type:
+ *                 type: string
+ *                 enum: [category, subCategory]
  *               parentCategory:
  *                 type: string
- *               isActive:
- *                 type: string
- *                 enum: ["true", "false"]
  *               thumbnail:
- *                 type: string
- *                 format: binary
- *               icon:
  *                 type: string
  *                 format: binary
  *     responses:
@@ -55,27 +52,40 @@ router.post(
     authorize("admin"),
     upload.fields([
         { name: "thumbnail", maxCount: 1 },
-        { name: "icon", maxCount: 1 },
     ]),
     trackUploadedFiles,
     validate(createCategorySchema),
     categoryController.createCategory
 );
 
+// indentation fix
 /**
  * @swagger
  * /categories:
  *   get:
- *     summary: Get all categories (Tree Structure)
+ *     summary: Get categories (Tree for Users, Flat/Paginated for Admin)
  *     tags: [Category]
  *     parameters:
  *       - in: query
+ *         name: admin
+ *         schema: { type: boolean }
+ *         description: Set to true for flat paginated list
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *         description: Search by English or Arabic name
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *       - in: query
  *         name: type
- *         schema:
- *           type: string
+ *         schema: { type: string }
  *     responses:
  *       200:
- *         description: List of categories retrieved successfully
+ *         description: List of categories retrieved
  */
 router.get("/", categoryController.getCategories);
 
@@ -89,8 +99,11 @@ router.get("/", categoryController.getCategories);
  *       - in: path
  *         name: slug
  *         required: true
- *         schema:
- *           type: string
+ *         schema: { type: string }
+ *       - in: query
+ *         name: admin
+ *         schema: { type: boolean }
+ *         description: Set to true for flat doc (Admin view)
  *     responses:
  *       200:
  *         description: Category details retrieved
@@ -107,11 +120,14 @@ router.get("/slug/:slug", categoryController.getCategory);
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Category details retrieved
+ *         schema: { type: string }
+ *       - in: query
+ *         name: admin
+ *         schema: { type: boolean }
+ *         description: Set to true for flat doc (Admin view)
+ * responses:
+ *   200:
+ *     description: Category details retrieved
  */
 router.get("/id/:id", categoryController.getCategoryById);
 
@@ -140,9 +156,6 @@ router.get("/id/:id", categoryController.getCategoryById);
  *               thumbnail:
  *                 type: string
  *                 format: binary
- *               icon:
- *                 type: string
- *                 format: binary
  *     responses:
  *       200:
  *         description: Category updated successfully
@@ -153,7 +166,6 @@ router.patch(
     authorize("admin"),
     upload.fields([
         { name: "thumbnail", maxCount: 1 },
-        { name: "icon", maxCount: 1 },
     ]),
     trackUploadedFiles,
     validate(updateCategorySchema),
