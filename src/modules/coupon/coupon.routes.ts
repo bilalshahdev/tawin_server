@@ -175,4 +175,72 @@ router.post(
     couponController.userCheckCoupon,
 );
 
+/**
+ * @swagger
+ * /coupon/admin/{id}:
+ *   patch:
+ *     summary: Update coupon details (Admin)
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon updated successfully
+ *       404:
+ *         description: Coupon not found
+ *   delete:
+ *     summary: Delete a coupon (Admin)
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon deleted successfully
+ *       404:
+ *         description: Coupon not found
+ */
+router
+    .route('/admin/:id')
+    .patch(authMiddleware, authorize('admin'), couponController.updateCoupon)
+    .delete(authMiddleware, authorize('admin'), couponController.deleteCoupon);
+
+/**
+ * @swagger
+ * /coupon/admin/toggle-status/{id}:
+ *   patch:
+ *     summary: Toggle coupon active/inactive status (Admin)
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon status toggled successfully
+ *       404:
+ *         description: Coupon not found
+ */
+router.patch(
+    '/admin/toggle-status/:id',
+    authMiddleware,
+    authorize('admin'),
+    couponController.toggleStatus,
+);
+
 export default router;
