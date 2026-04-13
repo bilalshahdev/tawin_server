@@ -9,6 +9,7 @@ import favoriteRoutes from "../modules/favorite/favorite.routes";
 import settingsRoutes from "../modules/settings/settings.routes";
 import addressRoutes from "../modules/address/address.routes";
 import cartRoutes from "../modules/cart/cart.routes";
+import contactRoutes from "../modules/contact/contact.routes";
 
 const router = Router();
 
@@ -30,5 +31,6 @@ router.use("/favorite", favoriteRoutes);
 router.use("/cart", cartRoutes);
 
 router.use("/settings", settingsRoutes);
+router.use("/contact", contactRoutes);
 
 export default router;

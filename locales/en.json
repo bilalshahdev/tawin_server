@@ -65,6 +65,14 @@
     "removed": "Product removed from favorites successfully.",
     "list_fetched": "Favorite products retrieved successfully."
   },
+  "emails": {
+    "contact": {
+      "admin_subject": "New Contact Form",
+      "admin_body": "You have a new message from {{name}} ({{email}}):",
+      "customer_subject": "We received your message",
+      "customer_body": "Hi {{name}}, thank you for reaching out to us. We have received your message and will get back to you soon."
+    }
+  },
   "cart": {
     "item_added": "Item added to cart successfully.",
     "item_removed": "Item removed from cart successfully.",
