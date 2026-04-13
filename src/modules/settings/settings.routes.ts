@@ -4,6 +4,7 @@ import { authMiddleware, authorize } from '../../middlewares/auth.middleware';
 import { upload } from '../../middlewares/upload.middleware';
 import { validate } from '../../middlewares/validate.middleware';
 import { updateSettingsSchema } from './settings.validation';
+import { trackUploadedFiles } from '../../middlewares/trackUploadedFiles.middleware';
 
 const router = Router();
 
@@ -104,7 +105,7 @@ const settingUploads = upload.fields([
  *       200:
  *         description: Updated
  */
-router.patch('/', settingUploads, validate(updateSettingsSchema), C.updateAppConfig);
+router.patch('/', settingUploads, validate(updateSettingsSchema), trackUploadedFiles, C.updateAppConfig);
 
 /**
  * @swagger
