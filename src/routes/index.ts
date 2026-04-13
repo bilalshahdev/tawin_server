@@ -10,6 +10,7 @@ import settingsRoutes from "../modules/settings/settings.routes";
 import addressRoutes from "../modules/address/address.routes";
 import cartRoutes from "../modules/cart/cart.routes";
 import contactRoutes from "../modules/contact/contact.routes";
+import couponRoutes from "../modules/coupon/coupon.routes";
 
 const router = Router();
 
@@ -29,6 +30,7 @@ router.use("/products", productRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/favorite", favoriteRoutes);
 router.use("/cart", cartRoutes);
+router.use("/coupons", couponRoutes);
 
 router.use("/settings", settingsRoutes);
 router.use("/contact", contactRoutes);

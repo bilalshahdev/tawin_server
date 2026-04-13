@@ -20,7 +20,7 @@ const router = Router();
 
 /**
  * @swagger
- * /coupon/admin:
+ * /coupons/admin:
  *   get:
  *     summary: Get all coupons (Admin)
  *     description: Retrieve a paginated list of coupons with optional search by code.
@@ -99,7 +99,7 @@ router
 
 /**
  * @swagger
- * /coupon/admin/stats:
+ * /coupons/admin/stats:
  *   get:
  *     summary: Get coupon statistics (Admin)
  *     tags: [Coupon]
@@ -129,7 +129,7 @@ router.get(
 
 /**
  * @swagger
- * /coupon/validate:
+ * /coupons/validate:
  *   post:
  *     summary: Validate coupon and calculate discount (User)
  *     tags: [Coupon]
