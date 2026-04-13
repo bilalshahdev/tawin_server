@@ -10,6 +10,7 @@ const envSchema = z.object({
     MONGO_URI: z.string().min(1, "MONGO_URI is required"),
     JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
     CORS_ORIGIN: z.string().default('*'),
+    LOW_STOCK_THRESHOLD: z.string().default('10')
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -33,5 +34,6 @@ export const config = {
     mailUsername: process.env.MAIL_USERNAME || '',
     mailPassword: process.env.MAIL_PASSWORD || '',
     mailFromAddress: process.env.MAIL_FROM_ADDRESS || '',
+    lowStockThreshold: Number(process.env.LOW_STOCK_THRESHOLD) || 10,
 };
 

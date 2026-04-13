@@ -4,6 +4,8 @@ import { deleteFile } from "../../utils/deleteFile";
 import { STATUS_CODE } from "../../config/constants";
 import { Review } from "../review/review.model";
 import { getPaginationOptions } from "../../utils/pagination";
+import { config } from "../../config/env.config";
+
 
 export const createProduct = async (data: any) => {
     return await Product.create(data);
@@ -65,6 +67,22 @@ export const updateProduct = async (id: string, updateData: any) => {
 };
 
 
+export const getLowStockProducts = async () => {
+    return await Product.find({
+        remainingPieces: { $lte: config.lowStockThreshold }
+    }).sort({ remainingPieces: 1 });
+};
+
+// Update only the remainingPieces field for a specific product
+export const updateProductStock = async (productId: string, quantity: number) => {
+    return await Product.findByIdAndUpdate(
+        productId,
+        { remainingPieces: quantity },
+        { new: true, runValidators: true }
+    );
+};
+
+
 
 export const updateStock = async (id: string, quantity: number, isAddition: boolean = false) => {
     const product = await Product.findById(id);
@@ -78,6 +96,8 @@ export const updateStock = async (id: string, quantity: number, isAddition: bool
 
     return await product.save();
 };
+
+
 
 export const deleteProduct = async (id: string) => {
     const product = await Product.findById(id);

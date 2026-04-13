@@ -251,6 +251,25 @@ router.patch(
 
 /**
  * @swagger
+ * /products/low-stock:
+ *   get:
+ *     summary: Get products with low stock (Admin Only)
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Low stock products retrieved successfully
+ */
+router.get(
+    "/low-stock",
+    authMiddleware,
+    authorize("admin"),
+    productController.getLowStock
+);
+
+/**
+ * @swagger
  * /products/{id}/stock:
  *   patch:
  *     summary: Manage product stock (Admin Only)

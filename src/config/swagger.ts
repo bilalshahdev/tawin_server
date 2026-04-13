@@ -342,6 +342,40 @@ const options: swaggerJsdoc.Options = {
                     description: 'Specific variant selections'
                 },
 
+                Coupon: {
+                    type: 'object',
+                    required: ['code', 'value', 'expiryDate', 'usageLimit'],
+                    properties: {
+                        _id: { $ref: '#/components/schemas/ObjectId' },
+                        code: { type: 'string', example: 'SAVE20' },
+                        value: { type: 'number', description: 'Percentage value (e.g., 20 for 20%)', example: 20 },
+                        minOrderAmount: { type: 'number', example: 100 },
+                        expiryDate: { type: 'string', format: 'date-time', example: '2026-12-31T23:59:59Z' },
+                        usageLimit: { type: 'number', example: 500 },
+                        usedCount: { type: 'number', example: 0 },
+                        userIds: { type: 'array', items: { type: 'string' }, example: ['660d1a2b3c4d5e6f7g8h9001'] },
+                        isActive: { type: 'boolean', example: true },
+                        createdAt: { type: 'string', format: 'date-time' }
+                    }
+                },
+                CouponStats: {
+                    type: 'object',
+                    properties: {
+                        totalCoupons: { type: 'number' },
+                        activeCoupons: { type: 'number' },
+                        expiredCoupons: { type: 'number' },
+                        totalUsageCount: { type: 'number' }
+                    }
+                },
+
+                CouponValidationResponse: {
+                    type: 'object',
+                    properties: {
+                        coupon: { $ref: '#/components/schemas/Coupon' },
+                        discountAmount: { type: 'number', example: 25.5 }
+                    }
+                },
+
                 Settings: {
                     type: 'object',
                     properties: {
