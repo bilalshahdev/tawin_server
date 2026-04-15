@@ -6,11 +6,24 @@ import { validateCoupon } from '../coupon/coupon.service';
 import { ApiError } from '../../utils/apiError';
 import { getPaginationOptions } from '../../utils/pagination';
 import mongoose, { FilterQuery } from 'mongoose';
+import { Address } from '../address/address.model';
 
 export const placeOrder = async (userId: string, orderData: any) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
+        const userAddress = await Address.findOne({ _id: orderData.addressId });
+        if (!userAddress) throw new ApiError(404, "Address not found or unauthorized");
+
+
+        const addressSnapshot = {
+            label: userAddress.label,
+            street: userAddress.street,
+            city: userAddress.city,
+            state: userAddress.state,
+            zipCode: userAddress.zipCode,
+            country: userAddress.country
+        };
         const cart = await Cart.findOne({ user: userId }).populate('items.product');
         if (!cart || cart.items.length === 0) throw new ApiError(400, "Cart is empty");
 
@@ -41,8 +54,9 @@ export const placeOrder = async (userId: string, orderData: any) => {
             totalAmount,
             discountAmount,
             finalAmount: totalAmount - discountAmount,
-            shippingAddress: orderData.shippingAddress,
+            shippingAddress: addressSnapshot,
             phone: orderData.phone,
+            paymentMethod: orderData.paymentMethod || 'COD',
             couponCode: orderData.couponCode
         }], { session });
 

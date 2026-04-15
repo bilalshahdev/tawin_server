@@ -10,7 +10,14 @@ export interface IOrder extends Document {
     totalAmount: number;
     discountAmount: number;
     finalAmount: number;
-    shippingAddress: string;
+    shippingAddress: {
+        label: string;
+        street: string;
+        city: string;
+        state: string;
+        zipCode?: string;
+        country: string;
+    };
     phone: string;
     paymentMethod: 'COD';
     status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
@@ -27,7 +34,14 @@ const orderSchema = new Schema<IOrder>({
     totalAmount: { type: Number, required: true },
     discountAmount: { type: Number, default: 0 },
     finalAmount: { type: Number, required: true },
-    shippingAddress: { type: String, required: true },
+    shippingAddress: {
+        label: { type: String, required: true },
+        street: { type: String, required: true },
+        city: { type: String, required: true },
+        state: { type: String, required: true },
+        zipCode: { type: String },
+        country: { type: String, required: true }
+    },
     phone: { type: String, required: true },
     paymentMethod: { type: String, enum: ['COD'], default: 'COD' },
     status: { type: String, enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'pending' },
