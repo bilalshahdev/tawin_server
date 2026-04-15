@@ -376,6 +376,34 @@ const options: swaggerJsdoc.Options = {
                     }
                 },
 
+                // Add to components -> schemas
+                Order: {
+                    type: 'object',
+                    properties: {
+                        _id: { $ref: '#/components/schemas/ObjectId' },
+                        user: { $ref: '#/components/schemas/ObjectId' },
+                        items: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    product: { $ref: '#/components/schemas/ObjectId' },
+                                    quantity: { type: 'number' },
+                                    price: { type: 'number' }
+                                }
+                            }
+                        },
+                        totalAmount: { type: 'number' },
+                        discountAmount: { type: 'number' },
+                        finalAmount: { type: 'number' },
+                        shippingAddress: { type: 'string' },
+                        phone: { type: 'string' },
+                        status: { type: 'string', enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'] },
+                        paymentMethod: { type: 'string', example: 'COD' },
+                        createdAt: { type: 'string', format: 'date-time' }
+                    }
+                },
+
                 Settings: {
                     type: 'object',
                     properties: {

@@ -16,7 +16,7 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
 
     const productData = {
         ...req.body,
-        thumbnail: files?.thumbnail ? files.thumbnail[0].path : undefined, //
+        photo: files?.photo ? files.photo[0].path : undefined, //
         images: files?.images ? files.images.map(file => file.path) : [],
     };
 
