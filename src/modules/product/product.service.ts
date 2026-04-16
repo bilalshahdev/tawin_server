@@ -25,6 +25,21 @@ export const getAllProducts = async (query: any) => {
 
     if (query.category) filter.category = query.category;
 
+    if (query.isNewArrival !== undefined) filter.isNewArrival = query.isNewArrival === 'true';
+    if (query.isFeatured !== undefined) filter.isFeatured = query.isFeatured === 'true';
+    if (query.reduced !== undefined) filter.reduced = query.reduced === 'true';
+
+    // 4. Stock Filter
+    if (query.outOfStock !== undefined) {
+        filter.remainingPieces = query.outOfStock === 'true' ? { $lte: 0 } : { $gt: 0 };
+    }
+
+    if (query.minPrice || query.maxPrice) {
+        filter.price = {};
+        if (query.minPrice) filter.price.$gte = Number(query.minPrice);
+        if (query.maxPrice) filter.price.$lte = Number(query.maxPrice);
+    }
+
     const [products, totalDocs] = await Promise.all([
         Product.find(filter)
             .populate({ path: 'category', select: 'name' })
@@ -110,6 +125,17 @@ export const deleteProduct = async (id: string) => {
     return await product.deleteOne();
 };
 
+/**
+ * Export all products (Admin Only)
+ * Fetches everything without pagination for CSV/JSON export
+ */
+export const exportAllProducts = async () => {
+    return await Product.find()
+        .populate({ path: 'category', select: 'name' })
+        .sort({ createdAt: -1 })
+        .lean();
+};
+
 // sync product reviews
 export const syncAllProductReviews = async () => {
     const stats = await Review.aggregate([
@@ -139,3 +165,4 @@ export const syncAllProductReviews = async () => {
 
     return stats.length;
 };
+

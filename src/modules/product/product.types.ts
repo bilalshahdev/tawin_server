@@ -17,6 +17,7 @@ export interface IProduct extends Omit<Document, 'isNew'> {
     measurements?: string;
     remainingPieces?: number;
     isNewArrival?: boolean;
+    isFeatured?: boolean;
     discount?: number;
     colors?: string[]; // Array of Hex Codes
     sizes?: string[]; // Array of sizes

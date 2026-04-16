@@ -28,6 +28,7 @@ const productSchema = new Schema<IProduct>({
     measurements: { type: String },
     remainingPieces: { type: Number, default: 0 },
     isNewArrival: { type: Boolean, default: true },
+    isFeatured: { type: Boolean, default: false },
     discount: { type: Number, default: 0 },
     colors: [{ type: String }],
     sizes: [{ type: String, enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }],

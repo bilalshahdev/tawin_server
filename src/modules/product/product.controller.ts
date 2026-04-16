@@ -90,6 +90,12 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
     res.json(new ApiResponse(req.t('product.product_deleted')));
 });
 
+export const exportProducts = asyncHandler(async (req: Request, res: Response) => {
+    const products = await productService.exportAllProducts();
+    // Sending back with message first, then data as per your ApiResponse standard
+    return res.status(200).json(new ApiResponse(req.t("product.exported"), products));
+});
+
 
 // sync product reviews
 export const syncReviews = asyncHandler(async (req: Request, res: Response) => {

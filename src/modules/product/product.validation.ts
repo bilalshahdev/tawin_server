@@ -5,11 +5,6 @@ const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 const units = ["g", "kg", "ml", "l"] as const;
 const sizes = ["XS", "S", "M", "L", "XL", "XXL"] as const;
 
-/**
- * Reusable Helpers
- */
-
-// Simplified to avoid overload conflicts. .min(1) handles both empty and missing strings.
 const localizedSchema = () =>
     z.object({
         en: z.string().min(1, "required"),
@@ -61,6 +56,7 @@ export const createProductSchema = z.object({
         ).optional(),
 
         isNewArrival: toBoolean.pipe(z.boolean()).optional(),
+        isFeatured: toBoolean.pipe(z.boolean()).optional(),
 
         colors: toArray.pipe(
             z.array(z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "invalid_format"))

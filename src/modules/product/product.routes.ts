@@ -47,6 +47,26 @@ router.get("/sync-reviews", productController.syncReviews);
  *           type: string
  *         description: Filter by Category ID
  *       - in: query
+ *         name: isNewArrival
+ *         schema:
+ *           type: boolean
+ *         description: Filter by new arrival status
+ *       - in: query
+ *         name: isFeatured
+ *         schema:
+ *           type: boolean
+ *         description: Filter by featured status
+ *       - in: query
+ *         name: reduced
+ *         schema:
+ *           type: boolean
+ *         description: Filter by reduced status
+ *       - in: query
+ *         name: outOfStock
+ *         schema:
+ *           type: boolean
+ *         description: Filter by out of stock status
+ *       - in: query
  *         name: minPrice
  *         schema:
  *           type: number
@@ -155,6 +175,8 @@ router.get("/:id", productController.getOne);
  *               remainingPieces:
  *                 type: number
  *               isNewArrival:
+ *                 type: boolean
+ *               isFeatured:
  *                 type: boolean
  *               colors:
  *                 type: array
@@ -303,6 +325,25 @@ router.patch(
     authorize("admin"),
     validate(schemas.updateStockSchema),
     productController.updateStock
+);
+
+/**
+ * @swagger
+ * /products/export:
+ *   get:
+ *     summary: Export all products (Admin Only)
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All products retrieved for export
+ */
+router.get(
+    "/export",
+    authMiddleware,
+    authorize("admin"),
+    productController.exportProducts
 );
 
 /**
