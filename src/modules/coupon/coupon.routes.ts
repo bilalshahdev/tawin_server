@@ -177,7 +177,7 @@ router.post(
 
 /**
  * @swagger
- * /coupon/admin/{id}:
+ * /coupons/admin/{id}:
  *   patch:
  *     summary: Update coupon details (Admin)
  *     tags: [Coupon]
@@ -218,7 +218,7 @@ router
 
 /**
  * @swagger
- * /coupon/admin/toggle-status/{id}:
+ * /coupons/admin/toggle-status/{id}:
  *   patch:
  *     summary: Toggle coupon active/inactive status (Admin)
  *     tags: [Coupon]

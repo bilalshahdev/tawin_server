@@ -13,7 +13,7 @@ const router = Router();
 
 /**
  * @swagger
- * /order:
+ * /orders:
  *   get:
  *     summary: List orders (Admin sees all, Customer sees their own)
  *     tags: [Order]
@@ -55,7 +55,7 @@ const router = Router();
  *
  *   /**
  * @swagger
- * /order:
+ * /orders:
  *   post:
  *     summary: Place a new order (Checkout)
  *     tags: [Order]
@@ -100,7 +100,7 @@ router
 
 /**
  * @swagger
- * /order/{id}:
+ * /orders/{id}:
  *   get:
  *     summary: Get order details
  *     tags: [Order]
