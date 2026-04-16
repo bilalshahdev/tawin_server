@@ -15,15 +15,19 @@ export const updateAppConfig = asyncHandler(async (req: Request, res: Response) 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     const updateData: any = {};
 
+    // 1. Process Text Fields - Only use Dot Notation for nested objects
     Object.keys(rawData).forEach((key) => {
+        // Check if the key is a nested field like header[home][text]
         if (key.includes('[')) {
             const dbPath = key.replace(/\[/g, '.').replace(/\]/g, '');
             updateData[dbPath] = rawData[key];
         } else {
+            // If it's a top-level field (like businessName), just set it
             updateData[key] = rawData[key];
         }
     });
 
+    // 2. Process Files - Use Dot Notation here too
     if (files) {
         Object.keys(files).forEach((key) => {
             const dbPath = key.replace(/\[/g, '.').replace(/\]/g, '');
@@ -31,9 +35,15 @@ export const updateAppConfig = asyncHandler(async (req: Request, res: Response) 
         });
     }
 
+    // IMPORTANT: Check for and remove top-level conflicts
+    // If we have "header.home.text", we must NOT have "header" as a top-level key
+    if (updateData['header.home.text'] || updateData['header.home.image']) {
+        delete updateData['header'];
+    }
+
     const updated = await settingsService.updateSettings(updateData);
 
-    res.status(STATUS_CODE.OK).json(
+    res.status(200).json(
         new ApiResponse(req.t('settings.settings_updated'), updated)
     );
 });
