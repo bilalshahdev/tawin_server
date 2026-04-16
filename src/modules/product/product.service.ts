@@ -23,11 +23,14 @@ export const getAllProducts = async (query: any) => {
         ];
     }
 
+    // remainingPieces: { $lte: config.lowStockThreshold }
     if (query.category) filter.category = query.category;
 
     if (query.isNewArrival !== undefined) filter.isNewArrival = query.isNewArrival === 'true';
     if (query.isFeatured !== undefined) filter.isFeatured = query.isFeatured === 'true';
-    if (query.reduced !== undefined) filter.reduced = query.reduced === 'true';
+    if (query.reduced === 'true') {
+        filter.remainingPieces = { $lte: config.lowStockThreshold };
+    }
 
     // 4. Stock Filter
     if (query.outOfStock !== undefined) {
