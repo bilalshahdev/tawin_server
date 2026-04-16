@@ -11,30 +11,31 @@ export const getAppConfig = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const updateAppConfig = asyncHandler(async (req: Request, res: Response) => {
-    let updateData = { ...req.body };
+    let rawData = { ...req.body };
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const updateData: any = {};
 
-    // 1. Map Files to Nested Paths
-    if (files) {
-        Object.keys(files).forEach((key) => {
-            // Logic: 'header[home][image]' becomes 'header.home.image'
-            const dbPath = key.replace(/\[/g, '.').replace(/\]/g, '');
-            set(updateData, dbPath, files[key][0].path);
-        });
-    }
-
-    // 2. Fix nested objects that come as flat strings from Multipart-form
-    // Example: "businessName[en]" -> { businessName: { en: "..." } }
-    Object.keys(updateData).forEach(key => {
+    Object.keys(rawData).forEach((key) => {
         if (key.includes('[')) {
             const dbPath = key.replace(/\[/g, '.').replace(/\]/g, '');
-            set(updateData, dbPath, updateData[key]);
-            delete updateData[key];
+            updateData[dbPath] = rawData[key];
+        } else {
+            updateData[key] = rawData[key];
         }
     });
 
+    if (files) {
+        Object.keys(files).forEach((key) => {
+            const dbPath = key.replace(/\[/g, '.').replace(/\]/g, '');
+            updateData[dbPath] = files[key][0].path;
+        });
+    }
+
     const updated = await settingsService.updateSettings(updateData);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t('settings.settings_updated'), updated));
+
+    res.status(STATUS_CODE.OK).json(
+        new ApiResponse(req.t('settings.settings_updated'), updated)
+    );
 });
 
 export const updateSocialLinks = asyncHandler(async (req: Request, res: Response) => {

@@ -17,7 +17,8 @@ export const createContactEntry = async (contactData: any, lng: string = 'en') =
         // Send email to Admin
         await sendEmail(
             settings.contactInfo.email,
-            `${translate('emails.contact.admin_subject')}: ${contactData.subject}`,
+            // Changed: Using a generic translation key since 'subject' is removed
+            `${translate('emails.contact.admin_subject')}: ${contactData.name}`,
             `<p>${translate('emails.contact.admin_body', {
                 name: contactData.name,
                 email: contactData.email
