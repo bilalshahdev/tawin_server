@@ -176,7 +176,7 @@ router.get("/:id", productController.getOne);
  *                 type: number
  *               variant:
  *                 type: string
- *               example: "Red, Blue, Green, 5kg, 10kg, small, medium, large"
+ *                 example: "Red, Blue, Green, 5kg, 10kg, small, medium, large"
  *               isNewArrival:
  *                 type: boolean
  *               isFeatured:

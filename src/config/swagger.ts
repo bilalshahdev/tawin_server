@@ -68,6 +68,16 @@ const options: swaggerJsdoc.Options = {
                     },
                 },
 
+                Pagination: {
+                    type: 'object',
+                    properties: {
+                        page: { type: 'integer', example: 1 },
+                        limit: { type: 'integer', example: 10 },
+                        total: { type: 'integer', example: 100 },
+                        pages: { type: 'integer', example: 10 },
+                    }
+                },
+
                 LocalizedString: {
                     type: 'object',
                     properties: {
@@ -463,19 +473,30 @@ const options: swaggerJsdoc.Options = {
 
 const specs = swaggerJsdoc(options) as any;
 
-if (specs.paths) {
-    Object.values(specs.paths).forEach((path: any) => {
-        // Loop through all methods (get, post, patch, etc.) in this path
-        Object.values(path).forEach((operation: any) => {
-            // Initialize parameters array if it doesn't exist
-            if (!operation.parameters) operation.parameters = [];
+const allowedMethods = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'];
 
-            // Push the reference to our global language parameter
-            operation.parameters.push({
-                $ref: '#/components/parameters/acceptLanguage'
-            });
+if (specs.paths) {
+    Object.keys(specs.paths).forEach((pathKey) => {
+        const pathItem = specs.paths[pathKey];
+
+        Object.keys(pathItem).forEach((method) => {
+            if (allowedMethods.includes(method.toLowerCase())) {
+                const operation = pathItem[method];
+
+                if (!operation.parameters) operation.parameters = [];
+
+                // Avoid duplicate injections if you restart the server/hot-reload
+                const hasLang = operation.parameters.some((p: any) =>
+                    p.$ref === '#/components/parameters/acceptLanguage'
+                );
+
+                if (!hasLang) {
+                    operation.parameters.push({
+                        $ref: '#/components/parameters/acceptLanguage'
+                    });
+                }
+            }
         });
     });
 }
-
 export { specs };
