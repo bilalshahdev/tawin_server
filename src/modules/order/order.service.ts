@@ -1,20 +1,19 @@
-import { Order } from './order.model';
-import { Product } from '../product/product.model';
+import mongoose, { FilterQuery } from 'mongoose';
+import { ApiError } from '../../utils/apiError';
+import { getPaginationOptions } from '../../utils/pagination';
+import { Address } from '../address/address.model';
 import { Cart } from '../cart/cart.model';
 import { Coupon } from '../coupon/coupon.model';
 import { validateCoupon } from '../coupon/coupon.service';
-import { ApiError } from '../../utils/apiError';
-import { getPaginationOptions } from '../../utils/pagination';
-import mongoose, { FilterQuery } from 'mongoose';
-import { Address } from '../address/address.model';
+import { Order } from './order.model';
 
 export const placeOrder = async (userId: string, orderData: any) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-        const userAddress = await Address.findOne({ _id: orderData.addressId });
+        // 1. Fetch Address (Ensure it belongs to the user)
+        const userAddress = await Address.findOne({ _id: orderData.addressId, user: userId });
         if (!userAddress) throw new ApiError(404, "Address not found or unauthorized");
-
 
         const addressSnapshot = {
             label: userAddress.label,
@@ -24,30 +23,47 @@ export const placeOrder = async (userId: string, orderData: any) => {
             zipCode: userAddress.zipCode,
             country: userAddress.country
         };
+
+        // 2. Fetch Cart
         const cart = await Cart.findOne({ user: userId }).populate('items.product');
         if (!cart || cart.items.length === 0) throw new ApiError(400, "Cart is empty");
 
         let totalAmount = 0;
         const orderItems = [];
 
+        // 3. Process Items & Update Stock
         for (const item of cart.items) {
             const product = item.product as any;
-            if (product.remainingPieces < item.quantity) throw new ApiError(400, "Insufficient stock");
+            if (!product) throw new ApiError(404, "One of the products in your cart no longer exists");
+
+            if (product.remainingPieces < item.quantity) {
+                throw new ApiError(400, `Insufficient stock for ${product.title.en}`);
+            }
 
             product.remainingPieces -= item.quantity;
             await product.save({ session });
 
             totalAmount += product.price * item.quantity;
-            orderItems.push({ product: product._id, quantity: item.quantity, price: product.price });
+            orderItems.push({
+                product: product._id,
+                quantity: item.quantity,
+                price: product.price
+            });
         }
 
+        // 4. Handle Coupon
         let discountAmount = 0;
         if (orderData.couponCode) {
             const { coupon, discountAmount: disc } = await validateCoupon(orderData.couponCode, totalAmount, userId);
             discountAmount = disc;
-            await Coupon.findByIdAndUpdate(coupon._id, { $inc: { usedCount: 1 }, $push: { usedBy: userId } }, { session });
+            await Coupon.findByIdAndUpdate(
+                coupon._id,
+                { $inc: { usedCount: 1 }, $push: { usedBy: userId } },
+                { session }
+            );
         }
 
+        // 5. Create Order
         const order = await Order.create([{
             user: userId,
             items: orderItems,
@@ -55,18 +71,22 @@ export const placeOrder = async (userId: string, orderData: any) => {
             discountAmount,
             finalAmount: totalAmount - discountAmount,
             shippingAddress: addressSnapshot,
-            phone: orderData.phone,
+            phone: orderData.phone || "",
             paymentMethod: orderData.paymentMethod || 'COD',
             couponCode: orderData.couponCode
         }], { session });
 
+        // 6. Clear Cart
         await Cart.findOneAndUpdate({ user: userId }, { items: [] }, { session });
+
         await session.commitTransaction();
         return order[0];
     } catch (e) {
         await session.abortTransaction();
         throw e;
-    } finally { session.endSession(); }
+    } finally {
+        session.endSession();
+    }
 };
 
 export const getOrders = async (query: any, userId?: string) => {

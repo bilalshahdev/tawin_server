@@ -17,20 +17,20 @@ export const getCart = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const addItem = asyncHandler(async (req: Request, res: Response) => {
-    const { productId, quantity, attributes } = req.body;
-    const cart = await cartService.addToCart(req.user!.id, productId, quantity, attributes);
+    const { productId, quantity } = req.body;
+    const cart = await cartService.addToCart(req.user!.id, productId, quantity);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("cart.item_added"), cart));
 });
 
 export const updateQuantity = asyncHandler(async (req: Request, res: Response) => {
-    const { productId, quantity, attributes } = req.body;
-    const cart = await cartService.updateQuantity(req.user!.id, productId, quantity, attributes);
+    const { productId, quantity } = req.body;
+    const cart = await cartService.updateQuantity(req.user!.id, productId, quantity);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("cart.quantity_updated"), cart));
 });
 
 export const removeItem = asyncHandler(async (req: Request, res: Response) => {
-    const { productId, attributes } = req.body;
-    const cart = await cartService.removeFromCart(req.user!.id, productId, attributes);
+    const { productId } = req.body;
+    const cart = await cartService.removeFromCart(req.user!.id, productId);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("cart.item_removed"), cart));
 });
 

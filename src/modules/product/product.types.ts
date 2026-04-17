@@ -8,30 +8,17 @@ export interface LocalizedString {
 export interface IProduct extends Omit<Document, 'isNew'> {
     title: LocalizedString;
     slug: string;
-    category: LocalizedString;
+    category: Types.ObjectId;
     description?: LocalizedString;
     price: number;
     originalPrice?: number;
     photo?: string;
     images: string[];
-    measurements?: string;
-    remainingPieces?: number;
-    isNewArrival?: boolean;
-    isFeatured?: boolean;
-    discount?: number;
-    colors?: string[]; // Array of Hex Codes
-    sizes?: string[]; // Array of sizes
-    weights?: { unit: string; value: string }[];
-    rating?: number;
-    reviewCount: number;
-}
-
-export interface IReview extends Document {
-    productId: Types.ObjectId;
-    userId: Types.ObjectId;
-    name: LocalizedString;
+    variant?: string;
+    remainingPieces: number;
+    isNewArrival: boolean;
+    isFeatured: boolean;
+    discount: number;
     rating: number;
-    comment: LocalizedString;
-    avatar?: string;
-    date: Date;
+    reviewCount: number;
 }

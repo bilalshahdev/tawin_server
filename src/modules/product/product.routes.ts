@@ -174,25 +174,13 @@ router.get("/:id", productController.getOne);
  *                 type: string
  *               remainingPieces:
  *                 type: number
+ *               variant:
+ *                 type: string
+ *               example: "Red, Blue, Green, 5kg, 10kg, small, medium, large"
  *               isNewArrival:
  *                 type: boolean
  *               isFeatured:
  *                 type: boolean
- *               colors:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: Array of hex codes (e.g., #FF5733)
- *               sizes:
- *                 type: array
- *                 items:
- *                   type: string
- *                   enum: [XS, S, M, L, XL, XXL]
- *               weights[0][unit]:
- *                 type: string
- *                 enum: [g, kg, ml, l]
- *               weights[0][value]:
- *                 type: string
  *               photo:
  *                 type: string
  *                 format: binary
@@ -241,15 +229,9 @@ router.post(
  *                 type: number
  *               remainingPieces:
  *                 type: number
- *               colors:
- *                 type: array
- *                 items:
- *                   type: string
- *               sizes:
- *                 type: array
- *                 items:
- *                   type: string
- *                   enum: [XS, S, M, L, XL, XXL]
+ *               variant:
+ *                 type: string
+ *                 example: "Red, Blue, Green, 5kg, 10kg, small, medium, large"
  *               photo:
  *                 type: string
  *                 format: binary

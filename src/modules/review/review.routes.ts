@@ -73,6 +73,8 @@ router.use(authMiddleware);
  */
 router.post(
     "/",
+    authMiddleware,
+    authorize("user"),
     validate(createReviewSchema),
     reviewController.createReview
 );
@@ -95,6 +97,6 @@ router.post(
  *       200:
  *         description: Review deleted successfully
  */
-router.delete("/:id", reviewController.removeReview);
+router.delete("/:id", authMiddleware, authorize("admin"), reviewController.removeReview);
 
 export default router;

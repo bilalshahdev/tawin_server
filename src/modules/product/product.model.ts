@@ -7,11 +7,6 @@ const LocalizedSchema = new Schema({
     ar: { type: String, default: "" }
 }, { _id: false });
 
-const weightSchema = new Schema({
-    unit: { type: String, enum: ['g', 'kg', 'ml', 'l'], required: true },
-    value: { type: String, required: true }
-}, { _id: false });
-
 const productSchema = new Schema<IProduct>({
     title: { type: LocalizedSchema, required: true },
     slug: { type: String, unique: true },
@@ -25,14 +20,11 @@ const productSchema = new Schema<IProduct>({
     originalPrice: { type: Number },
     photo: { type: String, default: null },
     images: [{ type: String, required: true }],
-    measurements: { type: String },
+    variant: { type: String }, // Replaced measurements
     remainingPieces: { type: Number, default: 0 },
     isNewArrival: { type: Boolean, default: true },
     isFeatured: { type: Boolean, default: false },
     discount: { type: Number, default: 0 },
-    colors: [{ type: String }],
-    sizes: [{ type: String, enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }],
-    weights: [weightSchema],
     rating: { type: Number, default: 0, min: 0, max: 5 },
     reviewCount: { type: Number, default: 0 },
 }, { timestamps: true });

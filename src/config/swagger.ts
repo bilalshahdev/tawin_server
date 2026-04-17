@@ -244,31 +244,14 @@ const options: swaggerJsdoc.Options = {
                     type: 'object',
                     required: ['title', 'category', 'price'],
                     properties: {
-                        _id: { $ref: '#/components/schemas/ObjectId', readOnly: true },
+                        _id: { type: 'string', readOnly: true },
                         title: { $ref: '#/components/schemas/LocalizedString' },
-                        category: { $ref: '#/components/schemas/ObjectId', description: 'Reference to Category ID' },
+                        category: { type: 'string', description: 'Reference to Category ID' },
                         price: { type: 'number', minimum: 0 },
+                        variant: { type: 'string', example: '50kg Bag' }, // Cleaned
                         remainingPieces: { type: 'integer', minimum: 0, default: 0 },
                         isNewArrival: { type: 'boolean', default: true },
-                        colors: {
-                            type: 'array',
-                            items: { type: 'string', example: '#FF0000' },
-                            description: 'Array of hex color codes'
-                        },
-                        sizes: {
-                            type: 'array',
-                            items: { type: 'string', enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
-                        },
-                        weights: {
-                            type: 'array',
-                            items: {
-                                type: 'object',
-                                properties: {
-                                    unit: { type: 'string', enum: ['g', 'kg', 'ml', 'l'] },
-                                    value: { type: 'string', example: '50' }
-                                }
-                            }
-                        },
+                        isFeatured: { type: 'boolean', default: false },
                         rating: { type: 'number', readOnly: true },
                         reviewCount: { type: 'integer', readOnly: true }
                     }
@@ -293,14 +276,7 @@ const options: swaggerJsdoc.Options = {
                         user: { $ref: '#/components/schemas/ObjectId', readOnly: true },
                         items: {
                             type: 'array',
-                            items: {
-                                type: 'object',
-                                properties: {
-                                    product: { $ref: '#/components/schemas/Product' },
-                                    quantity: { type: 'integer' },
-                                    attributes: { $ref: '#/components/schemas/CartAttributes' }
-                                }
-                            }
+                            items: { $ref: '#/components/schemas/CartItem' }
                         },
                         createdAt: { type: 'string', format: 'date-time', readOnly: true },
                         updatedAt: { type: 'string', format: 'date-time', readOnly: true }
@@ -313,7 +289,6 @@ const options: swaggerJsdoc.Options = {
                     properties: {
                         productId: { type: 'string', example: '660d1a2b3c4d5e6f7g8h9002' },
                         quantity: { type: 'integer', minimum: 1 },
-                        attributes: { $ref: '#/components/schemas/CartAttributes' }
                     }
                 },
 
@@ -326,21 +301,6 @@ const options: swaggerJsdoc.Options = {
                     }
                 },
 
-                CartAttributes: {
-                    type: 'object',
-                    properties: {
-                        color: { type: 'string', example: '#808080', description: 'Hex code' },
-                        size: { type: 'string', enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] },
-                        weight: {
-                            type: 'object',
-                            properties: {
-                                unit: { type: 'string', enum: ['g', 'kg', 'ml', 'l'] },
-                                value: { type: 'string', example: '50' }
-                            }
-                        }
-                    },
-                    description: 'Specific variant selections'
-                },
 
                 Coupon: {
                     type: 'object',
@@ -400,6 +360,30 @@ const options: swaggerJsdoc.Options = {
                         phone: { type: 'string' },
                         status: { type: 'string', enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'] },
                         paymentMethod: { type: 'string', example: 'COD' },
+                        createdAt: { type: 'string', format: 'date-time' }
+                    }
+                },
+
+                Supplier: {
+                    type: 'object',
+                    properties: {
+                        _id: { type: 'string', example: '65f1a2b3c4d5e6f7a8b9c0d1' },
+                        name: { type: 'string', example: 'Lucky Cement Ltd' },
+                        code: { type: 'string', example: 'SUP-001' },
+                        phone: { type: 'string', example: '+923001234567' },
+                        isActive: { type: 'boolean' },
+                        suppliedProducts: { type: 'array', items: { type: 'string' } }
+                    }
+                },
+                SupplyLog: {
+                    type: 'object',
+                    properties: {
+                        _id: { type: 'string' },
+                        supplier: { type: 'string' },
+                        product: { type: 'string' },
+                        quantity: { type: 'number' },
+                        unit: { type: 'string', enum: ['piece', 'ton'] },
+                        sacksCount: { type: 'number' },
                         createdAt: { type: 'string', format: 'date-time' }
                     }
                 },
