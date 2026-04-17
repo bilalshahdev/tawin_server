@@ -5,11 +5,11 @@ import { authMiddleware, authorize } from '../../middlewares/auth.middleware';
 const router = Router();
 
 /**
- * @swagger
- * tags:
- *   name: Order
- *   description: Order management and checkout flow
- */
+* @swagger
+* tags:
+*   name: Order
+*   description: Order management and checkout flow
+*/
 
 /**
  * @swagger
@@ -53,9 +53,6 @@ const router = Router();
  *                     meta:
  *                       $ref: '#/components/schemas/Pagination'
  *
- *   /**
- * @swagger
- * /orders:
  *   post:
  *     summary: Place a new order (Checkout)
  *     tags: [Order]
@@ -71,20 +68,16 @@ const router = Router();
  *               addressId:
  *                 type: string
  *                 example: "65f1a2b3c4d5e6f7a8b9c0d1"
- *                 description: The ID of the saved address from the user's address book
  *               paymentMethod:
  *                 type: string
  *                 enum: [COD]
  *                 default: COD
- *                 description: Preferred payment method (Currently only COD supported)
  *               couponCode:
  *                 type: string
  *                 example: "SAVE20"
- *                 description: Optional discount coupon code
  *               phone:
  *                 type: string
  *                 example: "+923001234567"
- *                 description: Optional override for the phone number; defaults to the address phone if blank
  *     responses:
  *       201:
  *         description: Order placed successfully
