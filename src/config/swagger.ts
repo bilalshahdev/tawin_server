@@ -188,13 +188,13 @@ const options: swaggerJsdoc.Options = {
                 User: {
                     type: 'object',
                     properties: {
-                        _id: { $ref: '#/components/schemas/ObjectId' },
+                        _id: { $ref: '#/components/schemas/ObjectId', readonly: true },
                         firstName: { type: 'string' },
                         lastName: { type: 'string' },
                         email: { type: 'string', format: 'email' },
                         username: { type: 'string' },
                         profileImage: { type: 'string' },
-                        isVerified: { type: 'boolean' },
+                        isVerified: { type: 'boolean', readonly: true },
                         country: { type: 'string' },
                         constructionBasket: { $ref: '#/components/schemas/ConstructionBasket' },
                     },
