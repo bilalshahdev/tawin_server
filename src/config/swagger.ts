@@ -304,10 +304,9 @@ const options: swaggerJsdoc.Options = {
 
                 RemoveCartItem: {
                     type: 'object',
-                    required: ['productId', 'attributes'],
+                    required: ['productId'],
                     properties: {
-                        productId: { type: 'string', example: '660d1a2b3c4d5e6f7g8h9002' },
-                        attributes: { $ref: '#/components/schemas/CartAttributes' }
+                        productId: { type: 'string', example: '660d1a2b3c4d5e6f7g8h9002' }
                     }
                 },
 
@@ -316,16 +315,16 @@ const options: swaggerJsdoc.Options = {
                     type: 'object',
                     required: ['code', 'value', 'expiryDate', 'usageLimit'],
                     properties: {
-                        _id: { $ref: '#/components/schemas/ObjectId' },
+                        _id: { $ref: '#/components/schemas/ObjectId', readOnly: true },
                         code: { type: 'string', example: 'SAVE20' },
                         value: { type: 'number', description: 'Percentage value (e.g., 20 for 20%)', example: 20 },
                         minOrderAmount: { type: 'number', example: 100 },
                         expiryDate: { type: 'string', format: 'date-time', example: '2026-12-31T23:59:59Z' },
                         usageLimit: { type: 'number', example: 500 },
-                        usedCount: { type: 'number', example: 0 },
-                        userIds: { type: 'array', items: { type: 'string' }, example: ['660d1a2b3c4d5e6f7g8h9001'] },
+                        usedCount: { type: 'number', example: 0, readOnly: true },
+                        userIds: { type: 'array', items: { type: 'string' }, example: ['660d1a2b3c4d5e6f7g8h9001'], readOnly: true },
                         isActive: { type: 'boolean', example: true },
-                        createdAt: { type: 'string', format: 'date-time' }
+                        createdAt: { type: 'string', format: 'date-time', readOnly: true }
                     }
                 },
                 CouponStats: {

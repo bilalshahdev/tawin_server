@@ -16,9 +16,9 @@ export const adminCreateCoupon = asyncHandler(async (req: Request, res: Response
 });
 
 export const userCheckCoupon = asyncHandler(async (req: Request, res: Response) => {
-    const { code, amount } = req.body;
+    const { code, amount, type } = req.body;
     const userId = req.user?.id;
-    const result = await couponService.validateCoupon(code, amount, userId!);
+    const result = await couponService.validateCoupon(code, type, amount, userId!);
     return res.status(200).json(new ApiResponse(req.t('coupon_applied'), result));
 });
 

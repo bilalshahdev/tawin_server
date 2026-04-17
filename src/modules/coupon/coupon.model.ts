@@ -2,7 +2,8 @@ import { Schema, model, Document } from 'mongoose';
 
 export interface ICoupon extends Document {
     code: string;
-    value: number; // This will always represent %
+    type: 'percentage' | 'fixed';
+    value: number;
     minOrderAmount: number;
     expiryDate: Date;
     usageLimit: number;
@@ -13,7 +14,8 @@ export interface ICoupon extends Document {
 
 const couponSchema = new Schema<ICoupon>({
     code: { type: String, required: true, unique: true, uppercase: true, trim: true },
-    value: { type: Number, required: true }, // The percentage number
+    type: { type: String, enum: ['percentage', 'fixed'], default: 'percentage' },
+    value: { type: Number, required: true },
     minOrderAmount: { type: Number, default: 0 },
     expiryDate: { type: Date, required: true },
     usageLimit: { type: Number, required: true },

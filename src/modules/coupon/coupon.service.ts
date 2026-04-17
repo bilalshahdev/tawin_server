@@ -37,7 +37,7 @@ export const getAllCoupons = async (query: any) => {
     };
 };
 
-export const validateCoupon = async (code: string, orderAmount: number, userId: string) => {
+export const validateCoupon = async (code: string, type: 'percentage' | 'fixed', orderAmount: number, userId: string) => {
     const coupon = await Coupon.findOne({ code: code.toUpperCase(), isActive: true });
 
     if (!coupon) throw new ApiError(404, "Coupon not found or inactive");
@@ -54,7 +54,12 @@ export const validateCoupon = async (code: string, orderAmount: number, userId: 
         throw new ApiError(400, `Minimum order of ${coupon.minOrderAmount} required`);
     }
 
-    const discountAmount = (orderAmount * coupon.value) / 100;
+    let discountAmount = 0;
+    if (type === 'percentage') {
+        discountAmount = (orderAmount * coupon.value) / 100;
+    } else {
+        discountAmount = coupon.value;
+    }
     return { coupon, discountAmount: Math.min(discountAmount, orderAmount) };
 };
 

@@ -6,6 +6,7 @@ import { Cart } from '../cart/cart.model';
 import { Coupon } from '../coupon/coupon.model';
 import { validateCoupon } from '../coupon/coupon.service';
 import { Order } from './order.model';
+import { type } from 'os';
 
 export const placeOrder = async (userId: string, orderData: any) => {
     const session = await mongoose.startSession();
@@ -54,7 +55,7 @@ export const placeOrder = async (userId: string, orderData: any) => {
         // 4. Handle Coupon
         let discountAmount = 0;
         if (orderData.couponCode) {
-            const { coupon, discountAmount: disc } = await validateCoupon(orderData.couponCode, totalAmount, userId);
+            const { coupon, discountAmount: disc } = await validateCoupon(orderData.couponCode, orderData.type as 'fixed' | 'percentage', totalAmount, userId);
             discountAmount = disc;
             await Coupon.findByIdAndUpdate(
                 coupon._id,
@@ -96,8 +97,18 @@ export const getOrders = async (query: any, userId?: string) => {
     if (userId) filter.user = userId;
     if (query.status) filter.status = query.status;
 
+
     const [orders, total] = await Promise.all([
-        Order.find(filter).populate('user', 'firstName lastName').sort({ createdAt: -1 }).skip(skip).limit(limit),
+        Order.find(filter).populate([
+            {
+                path: 'user',
+                select: 'firstName lastName profileImage'
+            },
+            {
+                path: 'items.product',
+                select: 'title photo price'
+            }
+        ]).sort({ createdAt: -1 }).skip(skip).limit(limit),
         Order.countDocuments(filter)
     ]);
 

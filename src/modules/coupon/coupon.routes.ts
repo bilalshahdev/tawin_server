@@ -4,6 +4,7 @@ import { authMiddleware, authorize } from '../../middlewares/auth.middleware';
 import { validate } from '../../middlewares/validate.middleware';
 import {
     createCouponSchema,
+    updateCouponSchema,
     validateCouponSchema,
 } from './coupon.validation';
 
@@ -141,14 +142,18 @@ router.get(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [code, amount]
+ *             required: [code, value, type]
  *             properties:
  *               code:
  *                 type: string
  *                 example: "SAVE20"
- *               amount:
+ *               value:
  *                 type: number
  *                 example: 500
+ *               type:
+ *                 type: string
+ *                 enum: ["percentage", "fixed"]
+ *                 example: "percentage"
  *     responses:
  *       200:
  *         description: Coupon applied successfully
@@ -183,6 +188,12 @@ router.post(
  *     tags: [Coupon]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Coupon'
  *     parameters:
  *       - in: path
  *         name: id
@@ -213,7 +224,12 @@ router.post(
  */
 router
     .route('/admin/:id')
-    .patch(authMiddleware, authorize('admin'), couponController.updateCoupon)
+    .patch(
+        authMiddleware,
+        authorize('admin'),
+        validate(updateCouponSchema),
+        couponController.updateCoupon,
+    )
     .delete(authMiddleware, authorize('admin'), couponController.deleteCoupon);
 
 /**
