@@ -81,6 +81,12 @@
     "carts_retrieved": "Carts retrieved successfully.",
     "cart_retrieved": "Cart retrieved successfully."
   },
+  "brand": {
+    "created": "Brand created successfully",
+    "retrieved": "Brand(s) retrieved successfully",
+    "updated": "Brand updated successfully",
+    "deleted": "Brand deleted successfully"
+  },
   "database": {
     "connected": "Database connected",
     "error": "Database error",
@@ -200,6 +206,8 @@
     "only_pdf": "Only PDF documents are allowed",
     "invalid_image": "Invalid file type. Only JPEGs, PNGs, and WebPs are allowed.",
     "internal_error": "A server error occurred",
+    "brand_exists": "A brand with this name already exists",
+    "brand_not_found": "Brand not found",
     "validations": {
       "required": "{{field}} is required.",
       "invalid_email": "Please enter a valid email address.",

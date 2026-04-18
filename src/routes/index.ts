@@ -13,6 +13,7 @@ import contactRoutes from "../modules/contact/contact.routes";
 import couponRoutes from "../modules/coupon/coupon.routes";
 import orderRoutes from "../modules/order/order.routes";
 import supplierRoutes from "../modules/supplier/supplier.routes";
+import brandRoutes from "../modules/brand/brand.routes";
 
 const router = Router();
 
@@ -38,5 +39,6 @@ router.use("/suppliers", supplierRoutes);
 
 router.use("/settings", settingsRoutes);
 router.use("/contact", contactRoutes);
+router.use("/brands", brandRoutes);
 
 export default router;

@@ -8,15 +8,26 @@ import { User } from '../user/user.model';
 import { AuthResponse, ILoginDTO, IRegisterDTO } from './auth.types';
 import generateOTP from '../../utils/generateOtp';
 
-export const register = async (data: IRegisterDTO): Promise<AuthResponse> => {
+export const register = async (data: IRegisterDTO, isAdminRequest: boolean = false): Promise<AuthResponse> => {
     const existing = await User.findOne({
         $or: [{ email: data.email }, { username: data.username }]
     });
 
     if (existing) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.user_exists");
+    const hashedPassword = await bcrypt.hash(data.password!, AUTH_CONSTANTS.SALT_ROUNDS);
+
+    if (isAdminRequest) {
+        const user = await User.create({
+            ...data,
+            password: hashedPassword,
+            isVerified: true, // Auto-verify
+        });
+
+        const token = createToken(user);
+        return { user, token };
+    }
 
     const otp = generateOTP();
-    const hashedPassword = await bcrypt.hash(data.password!, AUTH_CONSTANTS.SALT_ROUNDS);
 
     const user = await User.create({
         ...data,

@@ -33,6 +33,10 @@ export interface HeaderSection {
         text: LocalizedString;
         image: string;
     };
+    shop: {
+        text: LocalizedString;
+        image: string;
+    };
 }
 
 export interface Pages {

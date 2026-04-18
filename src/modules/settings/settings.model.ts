@@ -3,6 +3,14 @@ import { Schema, model } from 'mongoose';
 // Validator for URL fields
 const urlValidator = (v: string) => /^https?:\/\/.+$/.test(v);
 
+// sectionSchema
+
+const sectionSchema = {
+    text: { en: String, ar: String },
+    image: String,
+    _id: false
+}
+
 const settingsSchema = new Schema({
     enableContactEmail: { type: Boolean, default: false },
 
@@ -20,14 +28,9 @@ const settingsSchema = new Schema({
     coverImage: String,
 
     header: {
-        landing_page: {
-            text: { en: String, ar: String },
-            image: String
-        },
-        home: {
-            text: { en: String, ar: String },
-            image: String
-        }
+        landing_page: sectionSchema,
+        home: sectionSchema,
+        shop: sectionSchema
     },
 
     about: { en: String, ar: String },

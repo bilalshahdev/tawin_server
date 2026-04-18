@@ -14,7 +14,8 @@ import { ApiError } from "../../utils/apiError";
  * @access  Public
  */
 export const register = asyncHandler(async (req: Request, res: Response) => {
-    const result = await authService.register(req.body);
+    const isAdmin = req.user?.role === 'admin';
+    const result = await authService.register(req.body, isAdmin);
     res.status(STATUS_CODE.CREATED).json(new ApiResponse(req.t('auth.otp_sent'), result));
 });
 

@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
+import { STATUS_CODE } from '../../config/constants';
+import { ApiResponse } from '../../utils/apiResponse';
 import { asyncHandler } from '../../utils/asyncHandler';
 import * as settingsService from './settings.service';
-import { ApiResponse } from '../../utils/apiResponse';
-import { STATUS_CODE } from '../../config/constants';
-import set from 'lodash/set';
 
 export const getAppConfig = asyncHandler(async (req: Request, res: Response) => {
     const settings = await settingsService.getSettings();
@@ -37,7 +36,7 @@ export const updateAppConfig = asyncHandler(async (req: Request, res: Response) 
 
     // IMPORTANT: Check for and remove top-level conflicts
     // If we have "header.home.text", we must NOT have "header" as a top-level key
-    if (updateData['header.home.text'] || updateData['header.home.image']) {
+    if (updateData['header.home.text'] || updateData['header.home.image'] || updateData['header.shop.text'] || updateData['header.shop.image']) {
         delete updateData['header'];
     }
 

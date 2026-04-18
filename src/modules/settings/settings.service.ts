@@ -8,7 +8,8 @@ export const getSettings = async (): Promise<ISettings> => {
             businessName: { en: "Tawin" },
             header: {
                 landing_page: { text: { en: "" }, image: "" },
-                home: { text: { en: "" }, image: "" }
+                home: { text: { en: "" }, image: "" },
+                shop: { text: { en: "" }, image: "" }
             }
         });
     }

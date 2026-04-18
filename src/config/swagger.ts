@@ -345,6 +345,31 @@ const options: swaggerJsdoc.Options = {
                     }
                 },
 
+                Brand: {
+                    type: 'object',
+                    properties: {
+                        _id: { $ref: '#/components/schemas/ObjectId', readonly: true },
+                        name: {
+                            type: 'object',
+                            properties: {
+                                en: { type: 'string' },
+                                ar: { type: 'string' }
+                            }
+                        },
+                        description: {
+                            type: 'object',
+                            properties: {
+                                en: { type: 'string' },
+                                ar: { type: 'string' }
+                            }
+                        },
+                        image: { type: 'string' },
+                        isActive: { type: 'boolean' },
+                        createdAt: { type: 'string', format: 'date-time', readOnly: true },
+                        updatedAt: { type: 'string', format: 'date-time', readOnly: true }
+                    }
+                },
+
                 // Add to components -> schemas
                 Order: {
                     type: 'object',
@@ -410,6 +435,7 @@ const options: swaggerJsdoc.Options = {
                             properties: {
                                 landing_page: { $ref: '#/components/schemas/HeaderSection' },
                                 home: { $ref: '#/components/schemas/HeaderSection' },
+                                shop: { $ref: '#/components/schemas/HeaderSection' },
                             },
                         },
                         about: { $ref: '#/components/schemas/LocalizedString' },

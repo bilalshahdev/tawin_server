@@ -34,6 +34,7 @@ const settingUploads = upload.fields([
     { name: 'bottomSectionImage', maxCount: 1 },
     { name: 'header[landing_page][image]', maxCount: 1 },
     { name: 'header[home][image]', maxCount: 1 },
+    { name: 'header[shop][image]', maxCount: 1 },
 ]);
 
 /**
@@ -72,6 +73,13 @@ const settingUploads = upload.fields([
  *               header[home][text][ar]:
  *                 type: string
  *               header[home][image]:
+ *                 type: string
+ *                 format: binary
+ *               header[shop][text][en]:
+ *                 type: string
+ *               header[shop][text][ar]:
+ *                 type: string
+ *               header[shop][image]:
  *                 type: string
  *                 format: binary
  *               logo:

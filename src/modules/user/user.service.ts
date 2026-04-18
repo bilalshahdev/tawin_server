@@ -84,7 +84,8 @@ export const verifyUser = async (id: string) => {
     const user = await User.findById(id);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
     user.isVerified = !user.isVerified;
-    return await user.save();
+    await user.save();
+    return user
 };
 
 export const deleteUser = async (userId: string) => {
