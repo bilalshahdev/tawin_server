@@ -102,8 +102,7 @@ const options: swaggerJsdoc.Options = {
                         lastName: { type: 'string' },
                         email: { type: 'string', format: 'email' },
                         username: { type: 'string' },
-                        password: { type: 'string', format: 'password' },
-                        country: { type: 'string' },
+                        password: { type: 'string', format: 'password' }
                     },
                 },
 

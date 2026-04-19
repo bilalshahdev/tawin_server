@@ -147,3 +147,8 @@ export const resendOtp = async (email: string) => {
 
     await sendEmail(user.email, "New Verification Code", `Your new code is: <b>${newOtp}</b>`);
 };
+
+export const deleteUser = async (userId: string) => {
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
+};

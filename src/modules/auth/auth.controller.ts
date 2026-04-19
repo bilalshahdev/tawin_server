@@ -142,3 +142,29 @@ export const testLogin = asyncHandler(async (req: Request, res: Response) => {
     const token = await authService.login({ email: user.email, password: "Admin@123" }); // Assuming dev password
     res.json(new ApiResponse(req.t('auth.login_success'), token));
 });
+
+export const deleteAccount = asyncHandler(async (req: Request, res: Response) => {
+    const { id, role } = req.user || {}
+
+    if (role === 'admin') {
+        throw new ApiError(STATUS_CODE.FORBIDDEN, "errors.admin_cannot_be_deleted");
+    }
+
+    await authService.deleteUser(id as string);
+    res.json(new ApiResponse(req.t('auth.account_deleted')));
+});
+
+export const deleteUserByAdmin = asyncHandler(async (req: Request, res: Response) => {
+    const { id, role } = req.user || {}
+
+    if (role !== 'admin') {
+        throw new ApiError(STATUS_CODE.FORBIDDEN, "errors.forbidden");
+    }
+
+    const { userId } = req.params;
+    if (userId === id) {
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.admin_cannot_be_deleted");
+    }
+    await authService.deleteUser(userId as string);
+    res.json(new ApiResponse(req.t('auth.account_deleted')));
+});

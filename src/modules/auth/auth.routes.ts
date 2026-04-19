@@ -237,4 +237,47 @@ router.post(
     authController.changePassword
 );
 
+/**
+ * @swagger
+ * /auth/delete-account:
+ *   delete:
+ *     summary: Delete user account
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Account deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.delete("/delete-account", authMiddleware, authController.deleteAccount);
+
+/**
+ * @swagger
+ * /auth/delete-user/{userId}:
+ *   delete:
+ *     summary: Delete user account by admin
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID to delete
+ *     responses:
+ *       200:
+ *         description: User deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.delete("/delete-user/:userId", authMiddleware, authController.deleteUserByAdmin);
+
 export default router;

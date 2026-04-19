@@ -20,7 +20,6 @@ export const registerSchema = z.object({
         email: z.string().email({ message: "errors.validations.invalid_email" }),
         password: z.string().min(8, { message: "errors.validations.auth.password_too_weak" }),
         phone: z.string().optional(),
-        country: z.string().min(1, { message: "errors.validations.required" }),
     })
 });
 
