@@ -85,10 +85,17 @@ export const updateProduct = async (id: string, updateData: any) => {
 };
 
 
-export const getLowStockProducts = async () => {
-    return await Product.find({
-        remainingPieces: { $lte: config.lowStockThreshold }
-    }).sort({ remainingPieces: 1 });
+export const getLowStockProducts = async (query: any) => {
+    const { page, limit, skip } = getPaginationOptions(query);
+    const [products, totalDocs] = await Promise.all([
+        Product.find({
+            remainingPieces: { $lte: config.lowStockThreshold }
+        }).sort({ remainingPieces: 1 }).limit(limit).skip(skip),
+        Product.countDocuments({
+            remainingPieces: { $lte: config.lowStockThreshold }
+        })
+    ]);
+    return { data: products, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };
 
 // Update only the remainingPieces field for a specific product

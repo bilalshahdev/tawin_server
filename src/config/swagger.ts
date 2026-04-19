@@ -262,19 +262,32 @@ const options: swaggerJsdoc.Options = {
                         isNewArrival: { type: 'boolean', default: true },
                         isFeatured: { type: 'boolean', default: false },
                         rating: { type: 'number', readOnly: true },
-                        reviewCount: { type: 'integer', readOnly: true }
+                        reviewCount: { type: 'integer', readOnly: true },
+                        createdAt: { type: 'string', format: 'date-time', readOnly: true },
+                        updatedAt: { type: 'string', format: 'date-time', readOnly: true }
                     }
+                },
+
+                ReviewInput: {
+                    type: 'object',
+                    required: ['product', 'rating'],
+                    properties: {
+                        product: { $ref: '#/components/schemas/ObjectId' },
+                        rating: { type: 'number', minimum: 1, maximum: 5 },
+                        comment: { type: 'string' },
+                    },
                 },
 
                 Review: {
                     type: 'object',
+                    required: ['product', 'rating'],
                     properties: {
-                        _id: { $ref: '#/components/schemas/ObjectId' },
-                        user: { $ref: '#/components/schemas/ObjectId' },
+                        _id: { $ref: '#/components/schemas/ObjectId', readOnly: true },
+                        user: { $ref: '#/components/schemas/ObjectId', readOnly: true },
                         product: { $ref: '#/components/schemas/ObjectId' },
                         rating: { type: 'number', minimum: 1, maximum: 5 },
                         comment: { type: 'string' },
-                        createdAt: { type: 'string', format: 'date-time' },
+                        createdAt: { type: 'string', format: 'date-time', readOnly: true },
                     },
                 },
 

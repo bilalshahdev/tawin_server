@@ -76,8 +76,8 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getLowStock = asyncHandler(async (req: Request, res: Response) => {
-    const products = await productService.getLowStockProducts();
-    res.json(new ApiResponse(req.t('product.low_stock_retrieved'), products));
+    const { data, meta } = await productService.getLowStockProducts(req.query);
+    res.json(new ApiResponse(req.t('product.low_stock_retrieved'), data, meta));
 });
 
 export const updateStock = asyncHandler(async (req: Request, res: Response) => {

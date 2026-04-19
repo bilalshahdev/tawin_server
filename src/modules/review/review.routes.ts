@@ -17,6 +17,15 @@ const router = Router();
  *     tags: [Review]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: rating
+ *         schema:
+ *           type: number
+ *         minimum: 1
+ *         maximum: 5
+ *         description: Filter reviews by rating
+ * 
  *     responses:
  *       200:
  *         description: List of all reviews retrieved
@@ -66,7 +75,7 @@ router.use(authMiddleware);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Review'
+ *             $ref: '#/components/schemas/ReviewInput'
  *     responses:
  *       201:
  *         description: Review created successfully
@@ -74,7 +83,7 @@ router.use(authMiddleware);
 router.post(
     "/",
     authMiddleware,
-    authorize("user"),
+    authorize("customer"),
     validate(createReviewSchema),
     reviewController.createReview
 );

@@ -12,26 +12,32 @@ export const addReview = async (userId: string, data: any) => {
     return await Review.create({ ...data, user: userId });
 };
 
+
+
+// Admin Moderation: Get all reviews with pagination
+// filter on basis of star if in query
+export const getAllReviews = async (query: any) => {
+    const { page, limit, skip } = getPaginationOptions(query);
+    const { rating } = query;
+
+    const [reviews, total] = await Promise.all([
+        Review.find(rating ? { rating } : {})
+            .populate('user', 'firstName lastName email')
+            .populate('product', 'title')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+        Review.countDocuments(rating ? { rating } : {})
+    ])
+
+    return { data: reviews, meta: { total, page, limit } };
+};
+
 export const getReviewsByProduct = async (productId: string) => {
     return await Review.find({ product: productId })
         .populate('user', 'firstName lastName avatar')
         .sort({ createdAt: -1 })
         .lean();
-};
-
-// Admin Moderation: Get all reviews with pagination
-export const getAllReviews = async (query: any) => {
-    const { page, limit, skip } = getPaginationOptions(query);
-    const reviews = await Review.find()
-        .populate('user', 'firstName lastName email')
-        .populate('product', 'title')
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean();
-
-    const total = await Review.countDocuments();
-    return { data: reviews, meta: { total, page, limit } };
 };
 
 export const deleteReview = async (reviewId: string, userId: string, isAdmin: boolean) => {
