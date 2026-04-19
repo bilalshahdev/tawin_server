@@ -80,4 +80,8 @@ export const updateBasketRequestStatus = asyncHandler(async (req: Request, res: 
     res.json(new ApiResponse(req.t('user.basket_request_status_updated'), basketRequest));
 });
 
-
+export const deleteConstructionBasket = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.params.id as string;
+    const basketRequest = await userService.deleteConstructionBasket(userId);
+    res.json(new ApiResponse(req.t('user.basket_request_deleted'), basketRequest));
+});

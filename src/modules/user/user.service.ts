@@ -180,3 +180,17 @@ export const updateBasketRequestStatus = async (userId: string, status: string) 
     user.constructionBasket.status = status as ConstructionBasketStatus;
     return await user.save();
 };
+
+
+export const deleteConstructionBasket = async (userId: string) => {
+    const user = await User.findById(userId);
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
+
+    if (!user.constructionBasket || !user.constructionBasket.isApplied) {
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.no_construction_basket");
+    }
+
+    user.constructionBasket = undefined;
+
+    return await user.save();
+};

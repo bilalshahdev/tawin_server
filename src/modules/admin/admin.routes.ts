@@ -174,4 +174,28 @@ router.patch(
     userController.updateBasketRequestStatus
 );
 
+/**
+ * @swagger
+ * /admin/construction-basket-requests/{id}:
+ *   delete:
+ *     summary: Delete a basket request (Admin Only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The User ID who applied
+ *     responses:
+ *       200:
+ *         description: Request deleted successfully
+ */
+router.delete(
+    "/construction-basket-requests/:id",
+    userController.deleteConstructionBasket
+);
+
 export default router;

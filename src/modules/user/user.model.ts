@@ -23,17 +23,20 @@ const userSchema = new Schema<IUser>({
     passwordResetExpires: { type: Date, select: false },
 
     constructionBasket: {
-        isApplied: { type: Boolean, default: false },
-        status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-        fullRegistrationName: String,
-        phoneNumber: String,
-        monthlyIncome: Number,
-        occupation: String,
-        unifiedCard: String,
-        residenceCard: String,
-        propertyArea: String,
-        propertyType: { type: String, enum: ['Freehold', 'Leasehold'] },
-        country: String
+        type: {
+            isApplied: { type: Boolean, default: false },
+            status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+            fullRegistrationName: String,
+            phoneNumber: String,
+            monthlyIncome: Number,
+            occupation: String,
+            unifiedCard: String,
+            residenceCard: String,
+            propertyArea: String,
+            propertyType: { type: String, enum: ['Freehold', 'Leasehold'] },
+            country: String
+        },
+        default: undefined
     }
 }, { timestamps: true });
 

@@ -41,7 +41,7 @@ export interface IUser extends Document {
   passwordResetToken?: string;
   passwordResetExpires?: Date;
 
-  constructionBasket: IConstructionBasket;
+  constructionBasket: IConstructionBasket | undefined;
 
   createdAt: Date;
   updatedAt: Date;
