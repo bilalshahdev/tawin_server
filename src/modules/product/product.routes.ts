@@ -126,23 +126,6 @@ router.get("/category/:categoryId", productController.getByCategory);
  */
 router.get("/slug/:slug", productController.getBySlug);
 
-/**
- * @swagger
- * /products/{id}:
- *   get:
- *     summary: Get product by ID
- *     tags: [Product]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Success
- */
-router.get("/:id", productController.getOne);
 
 /**
  * @swagger
@@ -241,6 +224,25 @@ router.get(
     authorize("admin"),
     productController.exportProducts
 );
+
+/**
+ * @swagger
+ * /products/{id}:
+ *   get:
+ *     summary: Get product by ID
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Success
+ */
+router.get("/:id", productController.getOne);
+
 
 /**
  * @swagger
