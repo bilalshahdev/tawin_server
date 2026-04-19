@@ -6,6 +6,7 @@ import * as adminSchemas from "./admin.validation";
 import { authRateLimiter } from "../../middlewares/rateLimiter.middleware";
 import * as authController from "../auth/auth.controller";
 import * as authSchemas from "../auth/auth.validation";
+import * as adminController from "./admin.controller";
 
 const router = Router();
 
@@ -35,6 +36,178 @@ router.get("/", (req, res) => {
 
 // All routes below this line require Admin privileges
 router.use(authMiddleware, authorize("admin"));
+
+// swagger apis
+// also filter in query too, like filter= daily/weekly/monthly
+
+/**
+ * @swagger
+ * /admin/stats:
+ *   get:
+ *     summary: Get stats (Admin Only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly]
+ *         description: Filter type
+ *     responses:
+ *       200:
+ *         description: Stats retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.get("/stats", adminController.getStats);
+/**
+ * @swagger
+ * /admin/sales-report:
+ *   get:
+ *     summary: Get sales report (Admin Only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly]
+ *         description: Filter type
+ *     responses:
+ *       200:
+ *         description: Sales report retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.get("/sales-report", adminController.getSalesReport);
+/**
+ * @swagger
+ * /admin/sales-by-region:
+ *   get:
+ *     summary: Get sales by region (Admin Only)
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly]
+ *         description: Filter type
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Sales by region retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.get("/sales-by-region", adminController.getSalesByRegion);
+/**
+ * @swagger
+ * /admin/top-categories:
+ *   get:
+ *     summary: Get top categories (Admin Only)
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly]
+ *         description: Filter type
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Top categories retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.get("/top-categories", adminController.getTopCategories);
+/**
+ * @swagger
+ * /admin/financials:
+ *   get:
+ *     summary: Get financials (Admin Only)
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly]
+ *         description: Filter type
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Financials retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.get("/financials", adminController.getFinancials);
+/**
+ * @swagger
+ * /admin/top-products:
+ *   get:
+ *     summary: Get top products (Admin Only)
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly]
+ *         description: Filter type
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Top products retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.get("/top-products", adminController.getTopProducts);
+/**
+ * @swagger
+ * /admin/summary:
+ *   get:
+ *     summary: Get dashboard summary (Admin Only)
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly]
+ *         description: Filter type
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard summary retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.get("/summary", adminController.getDashboardSummary);
 
 // ==========================================
 // USER MANAGEMENT
