@@ -3,6 +3,9 @@ import { authMiddleware, authorize } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import * as userController from "../user/user.controller";
 import * as adminSchemas from "./admin.validation";
+import { authRateLimiter } from "../../middlewares/rateLimiter.middleware";
+import * as authController from "../auth/auth.controller";
+import * as authSchemas from "../auth/auth.validation";
 
 const router = Router();
 
@@ -36,6 +39,30 @@ router.use(authMiddleware, authorize("admin"));
 // ==========================================
 // USER MANAGEMENT
 // ==========================================
+
+/**
+ * @swagger
+ * /admin/users/register:
+ *   post:
+ *     summary: Register a new user by admin
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AuthRegister'
+ *     responses:
+ *       201:
+ *         description: Admin registered a new user successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.post("/users/register", authRateLimiter, authMiddleware, authorize("admin"), validate(authSchemas.registerSchema), authController.register);
 
 /**
  * @swagger
