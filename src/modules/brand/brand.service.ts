@@ -12,20 +12,39 @@ export const createBrand = async (data: Partial<IBrand>) => {
 
 export const getAllBrands = async (query: any) => {
     const { page, limit, skip } = getPaginationOptions(query);
-    const { filter, search } = query || { filter: {}, search: '' };
+
+    // 1. Extract search and initialize filter correctly
+    const search = query?.search || '';
+    // Ensure filter is at least an empty object so we can attach properties to it
+    const filter = query?.filter ? { ...query.filter } : {};
+
+    // 2. Safely attach search logic
     if (search) {
         filter.$or = [
             { "name.en": { $regex: search, $options: 'i' } },
             { "name.ar": { $regex: search, $options: 'i' } }
         ];
     }
+
+    // 3. Execute queries with pagination
     const [brands, totalDocs] = await Promise.all([
         Brand.find(filter)
+            .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(limit),
+            .limit(limit)
+            .lean(),
         Brand.countDocuments(filter)
     ]);
-    return { data: brands, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
+
+    return {
+        data: brands,
+        meta: {
+            page,
+            limit,
+            totalDocs,
+            totalPages: Math.ceil(totalDocs / limit)
+        }
+    };
 };
 
 export const getBrandById = async (id: string) => {

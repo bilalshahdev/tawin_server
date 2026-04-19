@@ -203,6 +203,45 @@ router.post(
     productController.create
 );
 
+
+/**
+ * @swagger
+ * /products/low-stock:
+ *   get:
+ *     summary: Get products with low stock (Admin Only)
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Low stock products retrieved successfully
+ */
+router.get(
+    "/low-stock",
+    authMiddleware,
+    authorize("admin"),
+    productController.getLowStock
+);
+
+/**
+ * @swagger
+ * /products/export:
+ *   get:
+ *     summary: Export all products (Admin Only)
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All products retrieved for export
+ */
+router.get(
+    "/export",
+    authMiddleware,
+    authorize("admin"),
+    productController.exportProducts
+);
+
 /**
  * @swagger
  * /products/{id}:
@@ -253,24 +292,7 @@ router.patch(
     productController.update
 );
 
-/**
- * @swagger
- * /products/low-stock:
- *   get:
- *     summary: Get products with low stock (Admin Only)
- *     tags: [Product]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Low stock products retrieved successfully
- */
-router.get(
-    "/low-stock",
-    authMiddleware,
-    authorize("admin"),
-    productController.getLowStock
-);
+
 
 /**
  * @swagger
@@ -309,24 +331,7 @@ router.patch(
     productController.updateStock
 );
 
-/**
- * @swagger
- * /products/export:
- *   get:
- *     summary: Export all products (Admin Only)
- *     tags: [Product]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: All products retrieved for export
- */
-router.get(
-    "/export",
-    authMiddleware,
-    authorize("admin"),
-    productController.exportProducts
-);
+
 
 /**
  * @swagger
