@@ -148,10 +148,12 @@ export const getFinancials = async (query: { page?: number; limit?: number; stat
             .populate({ path: 'user', select: 'name email' })
             .select('totalAmount status createdAt user')
             .sort({ createdAt: -1 })
-            .limit(10).lean(),
+            .limit(10)
+            .skip(skip)
+            .lean(),
         Order.countDocuments(filter)
     ]);
-    return { orders, meta:{} };
+    return { data: orders, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };
 
 export const getFinancialStats = async () => {
@@ -180,5 +182,6 @@ export const getFullSummary = async (filter: string) => {
         getStats(filter), getSalesReport(filter), getSalesByRegion(),
         getTopCategories(), getFinancials({ status: "delivered" }), getTopProducts()
     ]);
-    return { stats, report, region, categories, financials, products };
+
+    return { stats, report, region, categories, financials: financials?.data || [], products };
 };
