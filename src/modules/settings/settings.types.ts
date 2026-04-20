@@ -51,8 +51,10 @@ export interface ISettings extends Document {
     tagline?: LocalizedString;
     logo?: string;
     coverImage?: string;
+    currency: string;
+    currencySymbol: string;
     header: HeaderSection;
-    about: LocalizedString; // Short summary/blurb
+    about: LocalizedString;
     contactFormImage?: string;
     bottomSectionImage?: string;
     contactInfo: ContactInfo;

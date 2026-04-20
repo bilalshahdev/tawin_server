@@ -68,6 +68,10 @@ const router = Router();
  *               addressId:
  *                 type: string
  *                 example: "65f1a2b3c4d5e6f7a8b9c0d1"
+ *               shippingType:
+ *                 type: string
+ *                 enum: [free, express]
+ *                 default: free
  *               paymentMethod:
  *                 type: string
  *                 enum: [COD]

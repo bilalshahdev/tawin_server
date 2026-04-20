@@ -6,7 +6,6 @@ import { Cart } from '../cart/cart.model';
 import { Coupon } from '../coupon/coupon.model';
 import { validateCoupon } from '../coupon/coupon.service';
 import { Order } from './order.model';
-import { type } from 'os';
 
 export const placeOrder = async (userId: string, orderData: any) => {
     const session = await mongoose.startSession();
@@ -72,6 +71,7 @@ export const placeOrder = async (userId: string, orderData: any) => {
             discountAmount,
             finalAmount: totalAmount - discountAmount,
             shippingAddress: addressSnapshot,
+            shippingType: orderData?.shippingType || 'free',
             phone: orderData.phone || "",
             paymentMethod: orderData.paymentMethod || 'COD',
             couponCode: orderData.couponCode

@@ -12,6 +12,8 @@ export const updateSettingsSchema = z.object({
         "tagline.ar": z.string().optional(),
         "about.en": z.string().optional(),
         "about.ar": z.string().optional(),
+        "currency": z.string().optional(),
+        "currencySymbol": z.string().optional(),
 
         // Dot notation mapping for Header Section
         "header.landing_page.text.en": z.string().optional(),

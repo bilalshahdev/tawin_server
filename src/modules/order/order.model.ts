@@ -20,6 +20,7 @@ export interface IOrder extends Document {
         zipCode?: string;
         country: string;
     };
+    shippingType: "free" | "express";
     phone: string;
     paymentMethod: 'COD';
     status: OrderStatus;
@@ -44,6 +45,7 @@ const orderSchema = new Schema<IOrder>({
         zipCode: { type: String },
         country: { type: String, required: true }
     },
+    shippingType: { type: String, enum: ['free', 'express'], default: 'free' },
     phone: { type: String, required: true },
     paymentMethod: { type: String, enum: ['COD'], default: 'COD' },
     status: { type: String, enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'pending' },

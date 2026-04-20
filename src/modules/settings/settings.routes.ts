@@ -61,6 +61,10 @@ const settingUploads = upload.fields([
  *                 type: string
  *               tagline[ar]:
  *                 type: string
+ *               currency:
+ *                 type: string
+ *               currencySymbol:
+ *                 type: string
  *               header[landing_page][text][en]:
  *                 type: string
  *               header[landing_page][text][ar]:

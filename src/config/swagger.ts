@@ -403,6 +403,7 @@ const options: swaggerJsdoc.Options = {
                         discountAmount: { type: 'number' },
                         finalAmount: { type: 'number' },
                         shippingAddress: { type: 'string' },
+                        shippingType: { type: 'string', enum: ['free', 'express'] },
                         phone: { type: 'string' },
                         status: { type: 'string', enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'] },
                         paymentMethod: { type: 'string', example: 'COD' },
@@ -442,6 +443,8 @@ const options: swaggerJsdoc.Options = {
                         tagline: { $ref: '#/components/schemas/LocalizedString' },
                         logo: { type: 'string' },
                         coverImage: { type: 'string' },
+                        currency: { type: 'string' },
+                        currencySymbol: { type: 'string' },
                         header: {
                             type: 'object',
                             properties: {

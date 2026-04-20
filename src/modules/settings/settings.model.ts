@@ -34,6 +34,8 @@ const settingsSchema = new Schema({
     },
 
     about: { en: String, ar: String },
+    currency: { type: String, default: "USD" },
+    currencySymbol: { type: String, default: "$" },
 
     contactFormImage: String,
     bottomSectionImage: String,
