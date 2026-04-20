@@ -1,10 +1,9 @@
-import { Order, OrderStatus } from "../order/order.model";
-import { User } from "../user/user.model";
-import { Product } from "../product/product.model";
-import { Category } from "../category/category.model";
-import { getDateRange, calculateGrowth } from "./admin.utils";
 import { config } from "../../config/env.config";
 import { getPaginationOptions } from "../../utils/pagination";
+import { Order, OrderStatus } from "../order/order.model";
+import { Product } from "../product/product.model";
+import { User } from "../user/user.model";
+import { calculateGrowth, formatChange, getDateRange } from "./admin.utils";
 
 // 1. Stats Card (Total Users, Orders, Sales + Comparison)
 export const getStats = async (filter: string = 'daily') => {
@@ -136,12 +135,18 @@ export const getTopCategories = async () => {
 };
 
 // 5. Financial Transfers
-export const getFinancials = async (query: { page?: number; limit?: number; status?: OrderStatus }) => {
+export const getFinancials = async (query: {search?: string, page?: number; limit?: number; status?: OrderStatus }) => {
     const { page, limit, skip } = getPaginationOptions(query);
     const { status } = query;
     const filter: any = {};
     if (status) {
         filter.status = status;
+    }
+    if (query.search) {
+        filter.$or = [
+            { 'user.name': { $regex: query.search, $options: 'i' } },
+            { 'user.email': { $regex: query.search, $options: 'i' } }
+        ];
     }
     const [orders, totalDocs] = await Promise.all([
         Order.find(filter)
@@ -156,11 +161,76 @@ export const getFinancials = async (query: { page?: number; limit?: number; stat
     return { data: orders, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };
 
-export const getFinancialStats = async () => {
-    return await Order.aggregate([
-        { $group: { _id: "$status", count: { $sum: 1 }, totalAmount: { $sum: "$totalAmount" } } },
-        { $project: { _id: 0, status: "$_id", count: 1, totalAmount: 1 } }
+export const getFinancialStats = async (filter: string = 'weekly') => {
+    const { currentStart, currentEnd, prevStart, prevEnd } = getDateRange(filter);
+
+    const stats = await Order.aggregate([
+        {
+            $facet: {
+                current: [
+                    { $match: { createdAt: { $gte: currentStart, $lte: currentEnd } } },
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 },
+                            pending: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } },
+                            completed: { $sum: { $cond: [{ $eq: ["$status", "delivered"] }, 1, 0] } },
+                            cancelled: { $sum: { $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0] } },
+                            revenue: { $sum: { $cond: [{ $eq: ["$status", "delivered"] }, "$totalAmount", 0] } }
+                        }
+                    }
+                ],
+                previous: [
+                    { $match: { createdAt: { $gte: prevStart, $lte: prevEnd } } },
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 },
+                            pending: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } },
+                            completed: { $sum: { $cond: [{ $eq: ["$status", "delivered"] }, 1, 0] } },
+                            cancelled: { $sum: { $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0] } },
+                            revenue: { $sum: { $cond: [{ $eq: ["$status", "delivered"] }, "$totalAmount", 0] } }
+                        }
+                    }
+                ]
+            }
+        }
     ]);
+
+    const cur = stats[0].current[0] || { total: 0, pending: 0, completed: 0, cancelled: 0, revenue: 0 };
+    const prev = stats[0].previous[0] || { total: 0, pending: 0, completed: 0, cancelled: 0, revenue: 0 };
+
+    return {
+        summary: {
+            period: filter.charAt(0).toUpperCase() + filter.slice(1),
+            cards: [
+                {
+                    title: "Transfers in Progress",
+                    value: cur.pending,
+                    change: formatChange(cur.pending, prev.pending)
+                },
+                {
+                    title: "Total Transfers",
+                    value: cur.total,
+                    change: formatChange(cur.total, prev.total)
+                },
+                {
+                    title: "Completed Transfers",
+                    value: cur.completed,
+                    change: formatChange(cur.completed, prev.completed)
+                },
+                {
+                    title: "Cancelled Transfers",
+                    value: cur.cancelled,
+                    change: formatChange(cur.cancelled, prev.cancelled)
+                }
+            ]
+        },
+        Revenue: {
+            revenue: cur.revenue,
+            change: formatChange(cur.revenue, prev.revenue)
+        }
+    };
 };
 
 // 6. Top Selling Products

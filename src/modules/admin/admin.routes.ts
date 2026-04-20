@@ -136,6 +136,32 @@ router.get("/sales-by-region", adminController.getSalesByRegion);
  *               $ref: '#/components/schemas/ApiResponse'
  */
 router.get("/top-categories", adminController.getTopCategories);
+
+/**
+ * @swagger
+ * /admin/financial-stats:
+ *   get:
+ *     summary: Get financial stats (Admin Only)
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly, yearly, all-time]
+ *         description: Filter type
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Financial stats retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.get("/financial-stats", adminController.getFinancialStats);
+
 /**
  * @swagger
  * /admin/financials:

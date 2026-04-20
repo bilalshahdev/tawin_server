@@ -75,7 +75,8 @@ export const fetchAllBasketRequests = asyncHandler(async (req: Request, res: Res
 
 export const updateBasketRequestStatus = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.params.id as string;
-    const status = req.params.status as string;
+    const status = req.body.status as string;
+
     const basketRequest = await userService.updateBasketRequestStatus(userId, status);
     res.json(new ApiResponse(req.t('user.basket_request_status_updated'), basketRequest));
 });

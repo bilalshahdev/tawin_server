@@ -31,6 +31,12 @@ export const getFinancials = asyncHandler(async (req: Request, res: Response) =>
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.financials_retrieved"), data, meta));
 });
 
+export const getFinancialStats = asyncHandler(async (req: Request, res: Response) => {
+    const filter = (req.query.filter as string) || 'monthly';
+    const data = await adminService.getFinancialStats(filter);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.financial_stats_retrieved"), data));
+});
+
 export const getTopProducts = asyncHandler(async (req: Request, res: Response) => {
     const data = await adminService.getTopProducts();
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.products_retrieved"), data));
