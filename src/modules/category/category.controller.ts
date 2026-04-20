@@ -5,8 +5,8 @@ import * as categoryService from "./category.service";
 import { STATUS_CODE } from "../../config/constants";
 
 export const getCategories = asyncHandler(async (req: Request, res: Response) => {
-    const data = await categoryService.getAllCategories(req.query);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.categories_retrieved"), data));
+    const { data, meta } = await categoryService.getAllCategories(req.query);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.categories_retrieved"), data, meta));
 });
 
 export const getCategory = asyncHandler(async (req: Request, res: Response) => {

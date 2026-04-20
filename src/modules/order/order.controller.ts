@@ -12,8 +12,8 @@ export const checkout = asyncHandler(async (req: Request, res: Response) => {
 export const listOrders = asyncHandler(async (req: Request, res: Response) => {
     // If user is not admin, only fetch their own orders
     const userId = req.user!.role === 'admin' ? undefined : req.user!.id;
-    const { orders, meta } = await orderService.getOrders(req.query, userId);
-    return res.status(200).json(new ApiResponse(req.t('orders_fetched'), orders, meta));
+    const { data, meta } = await orderService.getOrders(req.query, userId);
+    return res.status(200).json(new ApiResponse(req.t('orders_fetched'), data, meta));
 });
 
 export const getOrder = asyncHandler(async (req: Request, res: Response) => {

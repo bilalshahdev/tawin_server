@@ -7,8 +7,8 @@ import { STATUS_CODE } from "../../config/constants";
 
 // get all carts
 export const getAllCarts = asyncHandler(async (req: Request, res: Response) => {
-    const carts = await cartService.getAllCarts(req.query);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("cart.carts_retrieved"), carts));
+    const { data, meta } = await cartService.getAllCarts(req.query);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("cart.carts_retrieved"), data, meta));
 });
 
 export const getCart = asyncHandler(async (req: Request, res: Response) => {

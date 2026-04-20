@@ -18,7 +18,7 @@ export const getAllCoupons = async (query: any) => {
         filter.code = { $regex: search, $options: 'i' };
     }
 
-    const [coupons, total] = await Promise.all([
+    const [coupons, totalDocs] = await Promise.all([
 
         Coupon.find(filter)
             .sort({ createdAt: -1 })
@@ -26,15 +26,10 @@ export const getAllCoupons = async (query: any) => {
             .limit(limit),
 
         Coupon.countDocuments(filter)])
-    return {
-        coupons,
-        pagination: {
-            total,
-            page,
-            limit,
-            pages: Math.ceil(total / limit)
-        }
-    };
+
+    return { data: coupons, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
+
+
 };
 
 export const validateCoupon = async (code: string, type: 'percentage' | 'fixed', orderAmount: number, userId: string) => {

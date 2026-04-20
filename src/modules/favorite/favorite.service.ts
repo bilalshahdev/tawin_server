@@ -2,6 +2,7 @@ import { Favorite } from './favorite.model';
 import { Product } from '../product/product.model';
 import { ApiError } from '../../utils/apiError';
 import { STATUS_CODE } from '../../config/constants';
+import { getPaginationOptions } from '../../utils/pagination';
 
 export const toggleFavorite = async (userId: string, productId: string) => {
     const product = await Product.findById(productId);
@@ -20,11 +21,18 @@ export const toggleFavorite = async (userId: string, productId: string) => {
     }
 };
 
-export const getMyFavorites = async (userId: string) => {
-    return await Favorite.find({ user: userId })
-        .populate('product')
-        .sort({ createdAt: -1 })
-        .lean();
+export const getMyFavorites = async (userId: string, query: any) => {
+    const { page, limit, skip } = getPaginationOptions(query);
+    const [favorites, totalDocs] = await Promise.all([
+        Favorite.find({ user: userId })
+            .populate('product')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+        Favorite.countDocuments({ user: userId })
+    ]);
+    return { data: favorites, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };
 
 export const clearProductFromAllWishlists = async (productId: string) => {

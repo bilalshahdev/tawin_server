@@ -15,11 +15,11 @@ export const getSuppliers = async (query: any) => {
     if (query.isActive !== undefined) filter.isActive = query.isActive === 'true';
     if (query.search) filter.name = new RegExp(query.search, 'i');
 
-    const [suppliers, total] = await Promise.all([
+    const [suppliers, totalDocs] = await Promise.all([
         Supplier.find(filter).limit(limit).skip(skip).sort({ name: 1 }),
         Supplier.countDocuments(filter)
     ]);
-    return { suppliers, meta: { total, page, limit } };
+    return { data: suppliers, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };
 
 export const getSupplierById = async (id: string) => {
@@ -73,7 +73,7 @@ export const addStockInflow = async (data: any) => {
 export const getDetailedHistory = async (supplierId: string, query: any) => {
     const { page, limit, skip } = getPaginationOptions(query);
 
-    const [logs, total] = await Promise.all([
+    const [logs, totalDocs] = await Promise.all([
         SupplyLog.find({ supplier: supplierId })
             .populate('product', 'title photo remainingPieces')
             .sort({ createdAt: -1 })
@@ -82,5 +82,5 @@ export const getDetailedHistory = async (supplierId: string, query: any) => {
         SupplyLog.countDocuments({ supplier: supplierId })
     ]);
 
-    return { logs, meta: { total, page, limit } };
+    return { data: logs, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };

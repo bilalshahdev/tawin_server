@@ -10,8 +10,8 @@ export const createReview = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const getProductReviews = asyncHandler(async (req: Request, res: Response) => {
-    const reviews = await reviewService.getReviewsByProduct(req.params.productId as string);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.reviews_retrieved"), reviews));
+    const { data, meta } = await reviewService.getReviewsByProduct(req.params.productId as string, req.query);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.reviews_retrieved"), data, meta));
 });
 
 /**
@@ -19,8 +19,8 @@ export const getProductReviews = asyncHandler(async (req: Request, res: Response
  * @route   GET /api/reviews
  */
 export const getAllReviews = asyncHandler(async (req: Request, res: Response) => {
-    const result = await reviewService.getAllReviews(req.query);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.reviews_retrieved"), result.data, result.meta));
+    const { data, meta } = await reviewService.getAllReviews(req.query);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.reviews_retrieved"), data, meta));
 });
 
 /**

@@ -1,9 +1,10 @@
-import { Order } from "../order/order.model";
+import { Order, OrderStatus } from "../order/order.model";
 import { User } from "../user/user.model";
 import { Product } from "../product/product.model";
 import { Category } from "../category/category.model";
 import { getDateRange, calculateGrowth } from "./admin.utils";
 import { config } from "../../config/env.config";
+import { getPaginationOptions } from "../../utils/pagination";
 
 // 1. Stats Card (Total Users, Orders, Sales + Comparison)
 export const getStats = async (filter: string = 'daily') => {
@@ -135,12 +136,29 @@ export const getTopCategories = async () => {
 };
 
 // 5. Financial Transfers
-export const getFinancials = async () => {
-    return await Order.find()
-        .populate({ path: 'user', select: 'name email' })
-        .select('totalAmount status createdAt user')
-        .sort({ createdAt: -1 })
-        .limit(10).lean();
+export const getFinancials = async (query: { page?: number; limit?: number; status?: OrderStatus }) => {
+    const { page, limit, skip } = getPaginationOptions(query);
+    const { status } = query;
+    const filter: any = {};
+    if (status) {
+        filter.status = status;
+    }
+    const [orders, totalDocs] = await Promise.all([
+        Order.find(filter)
+            .populate({ path: 'user', select: 'name email' })
+            .select('totalAmount status createdAt user')
+            .sort({ createdAt: -1 })
+            .limit(10).lean(),
+        Order.countDocuments(filter)
+    ]);
+    return { orders, meta:{} };
+};
+
+export const getFinancialStats = async () => {
+    return await Order.aggregate([
+        { $group: { _id: "$status", count: { $sum: 1 }, totalAmount: { $sum: "$totalAmount" } } },
+        { $project: { _id: 0, status: "$_id", count: 1, totalAmount: 1 } }
+    ]);
 };
 
 // 6. Top Selling Products
@@ -160,7 +178,7 @@ export const getTopProducts = async () => {
 export const getFullSummary = async (filter: string) => {
     const [stats, report, region, categories, financials, products] = await Promise.all([
         getStats(filter), getSalesReport(filter), getSalesByRegion(),
-        getTopCategories(), getFinancials(), getTopProducts()
+        getTopCategories(), getFinancials({ status: "delivered" }), getTopProducts()
     ]);
     return { stats, report, region, categories, financials, products };
 };

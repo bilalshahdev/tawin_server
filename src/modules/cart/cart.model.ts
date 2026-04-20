@@ -11,3 +11,4 @@ const cartSchema = new Schema({
 }, { timestamps: true });
 
 export const Cart = model('Cart', cartSchema);
+export type ICart = typeof Cart;

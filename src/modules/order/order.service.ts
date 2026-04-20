@@ -98,7 +98,7 @@ export const getOrders = async (query: any, userId?: string) => {
     if (query.status) filter.status = query.status;
 
 
-    const [orders, total] = await Promise.all([
+    const [orders, totalDocs] = await Promise.all([
         Order.find(filter).populate([
             {
                 path: 'user',
@@ -112,7 +112,7 @@ export const getOrders = async (query: any, userId?: string) => {
         Order.countDocuments(filter)
     ]);
 
-    return { orders, meta: { total, page, limit, pages: Math.ceil(total / limit) } };
+    return { data: orders, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };
 
 export const getOrderDetails = async (id: string, userId?: string) => {

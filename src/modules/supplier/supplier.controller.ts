@@ -9,8 +9,8 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getAll = asyncHandler(async (req: Request, res: Response) => {
-    const { suppliers, meta } = await supplierService.getSuppliers(req.query);
-    return res.status(200).json(new ApiResponse(req.t('supplier.fetched'), suppliers, meta));
+    const { data, meta } = await supplierService.getSuppliers(req.query);
+    return res.status(200).json(new ApiResponse(req.t('supplier.fetched'), data, meta));
 });
 
 export const getOne = asyncHandler(async (req: Request, res: Response) => {
@@ -34,6 +34,6 @@ export const addStock = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getHistory = asyncHandler(async (req: Request, res: Response) => {
-    const { logs, meta } = await supplierService.getDetailedHistory(req.params.id as string, req.query);
-    return res.status(200).json(new ApiResponse(req.t('supplier.history_fetched'), logs, meta));
+    const { data, meta } = await supplierService.getDetailedHistory(req.params.id as string, req.query);
+    return res.status(200).json(new ApiResponse(req.t('supplier.history_fetched'), data, meta));
 });

@@ -20,7 +20,7 @@ export const getAllReviews = async (query: any) => {
     const { page, limit, skip } = getPaginationOptions(query);
     const { rating } = query;
 
-    const [reviews, total] = await Promise.all([
+    const [reviews, totalDocs] = await Promise.all([
         Review.find(rating ? { rating } : {})
             .populate('user', 'firstName lastName email')
             .populate('product', 'title')
@@ -30,14 +30,20 @@ export const getAllReviews = async (query: any) => {
         Review.countDocuments(rating ? { rating } : {})
     ])
 
-    return { data: reviews, meta: { total, page, limit } };
+    return { data: reviews, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };
 
-export const getReviewsByProduct = async (productId: string) => {
-    return await Review.find({ product: productId })
-        .populate('user', 'firstName lastName avatar')
-        .sort({ createdAt: -1 })
-        .lean();
+export const getReviewsByProduct = async (productId: string, query: any) => {
+    const { page, limit, skip } = getPaginationOptions(query);
+    const [reviews, totalDocs] = await Promise.all([
+        Review.find({ product: productId })
+            .populate('user', 'firstName lastName avatar')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+        Review.countDocuments({ product: productId })
+    ])
+    return { data: reviews, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };
 
 export const deleteReview = async (reviewId: string, userId: string, isAdmin: boolean) => {

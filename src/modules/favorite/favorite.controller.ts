@@ -15,6 +15,6 @@ export const toggle = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const list = asyncHandler(async (req: Request, res: Response) => {
-    const data = await favoriteService.getMyFavorites(req.user!.id);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("favorite.list_fetched"), data));
+    const { data, meta } = await favoriteService.getMyFavorites(req.user!.id, req.query);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("favorite.list_fetched"), data, meta));
 });

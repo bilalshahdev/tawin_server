@@ -27,7 +27,7 @@ export const getTopCategories = asyncHandler(async (req: Request, res: Response)
 });
 
 export const getFinancials = asyncHandler(async (req: Request, res: Response) => {
-    const data = await adminService.getFinancials();
+    const data = await adminService.getFinancials(req.query as any);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.financials_retrieved"), data));
 });
 

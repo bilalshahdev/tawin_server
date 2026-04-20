@@ -11,8 +11,8 @@ export const createBrand = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getBrands = asyncHandler(async (req: Request, res: Response) => {
-    const data = await brandService.getAllBrands(req.query);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("brand.retrieved"), data));
+    const { data, meta } = await brandService.getAllBrands(req.query);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("brand.retrieved"), data, meta));
 });
 
 export const getBrand = asyncHandler(async (req: Request, res: Response) => {

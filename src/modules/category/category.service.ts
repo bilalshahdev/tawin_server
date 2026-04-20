@@ -4,6 +4,7 @@ import { STATUS_CODE } from "../../config/constants";
 import { ICategory } from "./category.types";
 import { FilterQuery, Types } from "mongoose";
 import { getPaginationOptions } from "../../utils/pagination";
+import { PaginatedResponse } from "../../types/response.interface";
 
 export const createCategory = async (data: Partial<ICategory>) => {
     const existing = await Category.findOne({ "name.en": data.name?.en });
@@ -12,13 +13,12 @@ export const createCategory = async (data: Partial<ICategory>) => {
     return await Category.create(data);
 };
 
-export const getAllCategories = async (query: any) => {
+export const getAllCategories = async (query: any): Promise<PaginatedResponse<ICategory>> => {
     // Admin Flow: Flat list, Paginated, with Search
     if (query.admin === 'true') {
         const { page, limit, skip } = getPaginationOptions(query);
-        const filter: FilterQuery<ICategory> = {};
+        const filter: FilterQuery<typeof Category> = {};
 
-        // Search filter for name in English or Arabic
         if (query.search) {
             filter.$or = [
                 { "name.en": { $regex: query.search, $options: "i" } },
@@ -26,25 +26,20 @@ export const getAllCategories = async (query: any) => {
             ];
         }
 
-        // Apply type filter if provided
         if (query.type) filter.type = query.type;
 
-        const categories = await Category.find(filter)
-            .populate("parentCategory", "name slug")
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const total = await Category.countDocuments(filter);
+        const [categories = [], totalDocs] = await Promise.all([
+            Category.find(filter)
+                .populate("parentCategory", "name slug")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
+            Category.countDocuments(filter)
+        ]);
 
         return {
-            categories,
-            pagination: {
-                total,
-                page,
-                limit,
-                pages: Math.ceil(total / limit)
-            }
+            data: categories,
+            meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) }
         };
     }
 
@@ -57,7 +52,7 @@ export const getAllCategories = async (query: any) => {
     };
     if (query.type) filter.type = query.type;
 
-    return await Category.aggregate([
+    const categories = await Category.aggregate([
         { $match: filter },
         {
             $lookup: {
@@ -69,6 +64,11 @@ export const getAllCategories = async (query: any) => {
         },
         { $sort: { "name.en": 1 } }
     ]);
+
+    return {
+        data: categories,
+        meta: null
+    };
 };
 
 export const getCategoryById = async (id: string, isAdmin: boolean = false) => {

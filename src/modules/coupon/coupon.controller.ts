@@ -6,8 +6,8 @@ import { ApiError } from '../../utils/apiError';
 
 export const getAdminCoupons = asyncHandler(async (req: Request, res: Response) => {
     // Passes page, limit, and search from req.query
-    const result = await couponService.getAllCoupons(req.query);
-    return res.status(200).json(new ApiResponse("Coupons fetched successfully", result));
+    const { data, meta } = await couponService.getAllCoupons(req.query);
+    return res.status(200).json(new ApiResponse("Coupons fetched successfully", data, meta));
 });
 
 export const adminCreateCoupon = asyncHandler(async (req: Request, res: Response) => {
