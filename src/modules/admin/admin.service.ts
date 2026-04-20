@@ -135,30 +135,52 @@ export const getTopCategories = async () => {
 };
 
 // 5. Financial Transfers
-export const getFinancials = async (query: {search?: string, page?: number; limit?: number; status?: OrderStatus }) => {
+export const getFinancials = async (query: { search?: string, page?: number; limit?: number; status?: OrderStatus }) => {
     const { page, limit, skip } = getPaginationOptions(query);
-    const { status } = query;
+    const { status, search } = query;
     const filter: any = {};
+
     if (status) {
         filter.status = status;
     }
-    if (query.search) {
-        filter.$or = [
-            { 'user.name': { $regex: query.search, $options: 'i' } },
-            { 'user.email': { $regex: query.search, $options: 'i' } }
-        ];
+
+    if (search) {
+        const matchingUsers = await User.find({
+            $or: [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ]
+        }).select('_id').lean();
+
+        const userIds = matchingUsers.map(u => u._id);
+
+        if (userIds.length === 0) {
+            return { data: [], meta: { page, limit, totalDocs: 0, totalPages: 0 } };
+        }
+
+        filter.user = { $in: userIds };
     }
+
     const [orders, totalDocs] = await Promise.all([
         Order.find(filter)
             .populate({ path: 'user', select: 'name email' })
             .select('totalAmount status createdAt user')
             .sort({ createdAt: -1 })
-            .limit(10)
             .skip(skip)
+            .limit(limit)
             .lean(),
         Order.countDocuments(filter)
     ]);
-    return { data: orders, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
+
+    return {
+        data: orders,
+        meta: {
+            page,
+            limit,
+            totalDocs,
+            totalPages: Math.ceil(totalDocs / limit)
+        }
+    };
 };
 
 export const getFinancialStats = async (filter: string = 'weekly') => {
