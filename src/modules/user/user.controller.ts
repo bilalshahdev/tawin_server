@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler";
 import * as userService from "./user.service";
 import { ApiResponse } from "../../utils/apiResponse";
+import { ApiError } from "../../utils/apiError";
+import { STATUS_CODE } from "../../config/constants";
 
 
 /**
@@ -33,7 +35,12 @@ export const getUser = asyncHandler(async (req: Request, res: Response) => {
  * @access  Private
  */
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
-    const updateData = { ...req.body };
+    const { firstName,
+        lastName,
+        username,
+        email,
+        phone } = req.body
+    const updateData: any = { firstName, lastName, username, email, phone };
     const files = req.files as any;
 
 
@@ -43,6 +50,21 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
 
     const updatedUser = await userService.updateUser(req.user!.id, updateData);
     res.json(new ApiResponse(req.t('user.profile_updated'), updatedUser));
+});
+
+export const updateProfilePicture = asyncHandler(async (req: Request, res: Response) => {
+    const files = req.files as any;
+
+    if (!files?.profileImage) {
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.image_required");
+    }
+
+    const imagePath = files.profileImage[0].path;
+
+    // We only pass the image path, nothing from req.body
+    const updatedUser = await userService.updateProfilePicture(req.user!.id, imagePath);
+
+    res.json(new ApiResponse(req.t('user.profile_picture_updated'), updatedUser));
 });
 
 

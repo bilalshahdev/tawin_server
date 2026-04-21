@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiResponse } from "../../utils/apiResponse";
-import { STATUS_CODE } from "../../config/constants";
+import { AUTH_CONSTANTS, STATUS_CODE } from "../../config/constants";
+import bcrypt from "bcryptjs";
 import * as adminService from "./admin.service";
 
 export const getStats = asyncHandler(async (req: Request, res: Response) => {
@@ -46,4 +47,23 @@ export const getDashboardSummary = asyncHandler(async (req: Request, res: Respon
     const filter = (req.query.filter as string) || 'daily';
     const data = await adminService.getFullSummary(filter);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.summary_retrieved"), data));
+});
+
+export const updateAdminProfile = asyncHandler(async (req: Request, res: Response) => {
+
+
+    const { firstName, lastName, email, phone, password } = req.body
+
+    const hashedPassword = await bcrypt.hash(password, AUTH_CONSTANTS.SALT_ROUNDS);
+    const updateData: any = { firstName, lastName, email, phone, password: hashedPassword }
+    const adminId = req.user?.id;
+
+    const files = req.files as any;
+
+
+    if (files?.profileImage) {
+        updateData.profileImage = files.profileImage[0].path;
+    }
+    const data = await adminService.updateAdminProfile(adminId as string, updateData);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.profile_updated"), data));
 });

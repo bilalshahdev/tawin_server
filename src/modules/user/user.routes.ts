@@ -4,6 +4,7 @@ import { validate } from "../../middlewares/validate.middleware";
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import * as schemas from "./user.validation";
 import { upload } from "../../config/multer.config";
+import { trackUploadedFiles } from "../../middlewares/trackUploadedFiles.middleware";
 
 const router = Router();
 
@@ -36,6 +37,7 @@ router.patch(
     "/",
     authMiddleware,
     upload.fields([{ name: "profileImage", maxCount: 1 }]),
+    trackUploadedFiles,
     validate(schemas.updateProfileSchema),
     C.updateUser
 );
@@ -65,7 +67,7 @@ router.patch(
     "/profile-picture",
     authMiddleware,
     upload.fields([{ name: "profileImage", maxCount: 1 }]),
-    C.updateUser
+    C.updateProfilePicture
 );
 
 /**

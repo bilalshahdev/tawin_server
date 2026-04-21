@@ -5,14 +5,24 @@ export const updateProfileSchema = z.object({
     firstName: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
     lastName: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
     username: z.string().min(3, { message: "errors.validations.auth.username_short" }).optional(),
+    email: z.string().email({ message: "errors.validations.common.invalid_email" }).optional(),
     phone: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
-    country: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
+  })
+});
+
+export const updateAdminProfileSchema = z.object({
+  body: z.object({
+    firstName: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
+    lastName: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
+    username: z.string().min(3, { message: "errors.validations.auth.username_short" }).optional(),
+    email: z.string().email({ message: "errors.validations.common.invalid_email" }).optional(),
+    phone: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
   })
 });
 
 export const applyForBasketSchema = z.object({
   body: z.object({
-    fullRegistrationName: z.string().min(1, "errors.validations.common.required" ),
+    fullRegistrationName: z.string().min(1, "errors.validations.common.required"),
     phoneNumber: z.string().min(1, { message: "errors.validations.common.required" }),
     monthlyIncome: z.number({
       message: "errors.validations.common.positive"

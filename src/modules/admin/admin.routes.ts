@@ -7,6 +7,9 @@ import { authRateLimiter } from "../../middlewares/rateLimiter.middleware";
 import * as authController from "../auth/auth.controller";
 import * as authSchemas from "../auth/auth.validation";
 import * as adminController from "./admin.controller";
+import { upload } from "../../config/multer.config";
+import { updateAdminProfileSchema } from "../user/user.validation";
+import { trackUploadedFiles } from "../../middlewares/trackUploadedFiles.middleware";
 
 const router = Router();
 
@@ -36,6 +39,46 @@ router.get("/", (req, res) => {
 
 // All routes below this line require Admin privileges
 router.use(authMiddleware, authorize("admin"));
+
+// admin profile update api
+
+/** 
+ * @swagger
+ * /admin/profile:
+ *   patch:
+ *     summary: Update admin profile (Admin Only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profilePicture:
+ *                 type: string
+ *                 format: binary
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.patch("/profile", upload.fields([{ name: 'profilePicture', maxCount: 1 }]), trackUploadedFiles, validate(updateAdminProfileSchema), adminController.updateAdminProfile);
 
 // swagger apis
 // also filter in query too, like filter= daily/weekly/monthly

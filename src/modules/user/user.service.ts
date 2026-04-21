@@ -79,6 +79,21 @@ export const updateUser = async (id: string, updateData: any) => {
     return await User.findByIdAndUpdate(id, { $set: updateData }, { new: true });
 };
 
+export const updateProfilePicture = async (id: string, newImagePath: string) => {
+    const user = await User.findById(id);
+    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
+
+    if (user.profileImage && user.profileImage !== 'default.png') {
+        await deleteFile(user.profileImage);
+    }
+
+    return await User.findByIdAndUpdate(
+        id,
+        { $set: { profileImage: newImagePath } },
+        { new: true }
+    );
+};
+
 // verify user 
 export const verifyUser = async (id: string) => {
     const user = await User.findById(id);
