@@ -3,6 +3,15 @@ import * as orderService from './order.service';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { ApiResponse } from '../../utils/apiResponse';
 import { ApiError } from '../../utils/apiError';
+import { STATUS_CODE } from '../../config/constants';
+
+export const getOrderStats = asyncHandler(async (req: Request, res: Response) => {
+    const stats = await orderService.getOrderStats();
+
+    res.status(STATUS_CODE.OK).json(
+        new ApiResponse(req.t("order.stats_retrieved"), stats)
+    );
+});
 
 export const checkout = asyncHandler(async (req: Request, res: Response) => {
     const order = await orderService.placeOrder(req.user!.id, req.body);

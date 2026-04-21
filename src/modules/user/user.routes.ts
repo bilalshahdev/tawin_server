@@ -1,12 +1,28 @@
 import { Router } from "express";
 import * as C from "./user.controller";
 import { validate } from "../../middlewares/validate.middleware";
-import { authMiddleware } from "../../middlewares/auth.middleware";
+import { authMiddleware, authorize } from "../../middlewares/auth.middleware";
 import * as schemas from "./user.validation";
 import { upload } from "../../config/multer.config";
 import { trackUploadedFiles } from "../../middlewares/trackUploadedFiles.middleware";
 
 const router = Router();
+
+
+/**   
+ * @swagger
+ * /users/stats:
+ *   get:
+ *     summary: Get user statistics
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User statistics retrieved successfully
+ * 
+ */
+router.get("/stats", authMiddleware, authorize('admin'), C.getUserStats);
 
 /**
  * @swagger

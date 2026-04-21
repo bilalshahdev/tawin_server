@@ -6,10 +6,34 @@ const router = Router();
 
 /**
 * @swagger
+* /orders/stats:
+*   get:
+*     summary: Get order statistics (Admin only)
+*     tags: [Order]
+*     security: [{ bearerAuth: [] }]
+*     responses:
+*       200:
+*         description: Order statistics retrieved successfully
+*         content:
+*           application/json:
+*             schema:
+*               allOf:
+*                 - $ref: '#/components/schemas/ApiResponse'
+*                 - type: object
+*                   properties:
+*                     data:
+*                       $ref: '#/components/schemas/OrderStats'
 * tags:
 *   name: Order
 *   description: Order management and checkout flow
 */
+
+router.get(
+    "/stats",
+    authMiddleware,
+    authorize('admin'),
+    orderController.getOrderStats
+);
 
 /**
  * @swagger

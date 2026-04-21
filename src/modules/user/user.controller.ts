@@ -6,6 +6,15 @@ import { ApiError } from "../../utils/apiError";
 import { STATUS_CODE } from "../../config/constants";
 
 
+export const getUserStats = asyncHandler(async (req: Request, res: Response) => {
+    const period = (req.query.period as string) || 'all-time';
+    const stats = await userService.getUserStats(period);
+
+    res.status(STATUS_CODE.OK).json(
+        new ApiResponse(req.t("user.stats_retrieved"), stats)
+    );
+});
+
 /**
  * @desc    Get all users with pagination
  * @route   GET /api/users

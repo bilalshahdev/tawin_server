@@ -7,6 +7,44 @@ import { Coupon } from '../coupon/coupon.model';
 import { validateCoupon } from '../coupon/coupon.service';
 import { Order } from './order.model';
 
+export const getOrderStats = async () => {
+    const stats = await Order.aggregate([
+        {
+            $facet: {
+                statusCounts: [
+                    {
+                        $group: {
+                            _id: "$status",
+                            count: { $sum: 1 }
+                        }
+                    }
+                ],
+                totalOrders: [
+                    { $count: "count" }
+                ]
+            }
+        }
+    ]);
+
+    const result = stats[0];
+    const statusMap: any = {};
+
+    ['pending', 'delivered', 'canceled', 'processing', 'shipped'].forEach(s => statusMap[s] = 0);
+
+    result.statusCounts.forEach((item: any) => {
+        statusMap[item._id] = item.count;
+    });
+
+    return {
+        total: result.totalOrders[0]?.count || 0,
+        pending: statusMap.pending,
+        delivered: statusMap.delivered,
+        canceled: statusMap.canceled,
+        processing: statusMap.processing,
+        shipped: statusMap.shipped,
+    };
+};
+
 export const placeOrder = async (userId: string, orderData: any) => {
     const session = await mongoose.startSession();
     session.startTransaction();

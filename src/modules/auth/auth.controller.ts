@@ -136,11 +136,11 @@ export const testLogin = asyncHandler(async (req: Request, res: Response) => {
     if (config.env !== 'development') {
         throw new ApiError(STATUS_CODE.NOT_FOUND, "general.not_found");
     }
-    // We removed the service, so we handle a simple test login directly for devs
+    
     const user = await User.findOne({ role: 'admin' });
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
-    const token = await authService.login({ email: user.email}); 
+    const token = await authService.login({ email: user.email, password: "12345678" }); 
     res.json(new ApiResponse(req.t('auth.login_success'), token));
 });
 

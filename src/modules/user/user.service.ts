@@ -1,11 +1,110 @@
-import { User } from "./user.model";
+import { startOfDay, startOfMonth, startOfYear, subDays } from "date-fns";
+import { STATUS_CODE } from "../../config/constants";
+import { sendEmail } from "../../services/email.service";
 import { ApiError } from "../../utils/apiError";
 import { deleteFile } from "../../utils/deleteFile";
-import { sendEmail } from "../../services/email.service";
-import { ConstructionBasketStatus } from "./user.types";
-import { STATUS_CODE } from "../../config/constants";
 import generateOTP from "../../utils/generateOtp";
 import { getPaginationOptions } from "../../utils/pagination";
+import { User } from "./user.model";
+import { ConstructionBasketStatus } from "./user.types";
+
+export const getUserStats = async (period: string = 'all-time') => {
+    const now = new Date();
+    let startDate: Date | null = null;
+    let groupByFormat = "%Y-%m-%d";
+
+    const periodLabel = period.charAt(0).toUpperCase() + period.slice(1);
+
+    switch (period) {
+        case 'daily':
+            startDate = startOfDay(now);
+            groupByFormat = "%H:00";
+            break;
+        case 'weekly':
+            startDate = subDays(now, 7);
+            break;
+        case 'monthly':
+            startDate = startOfMonth(now);
+            break;
+        case 'yearly':
+            startDate = startOfYear(now);
+            groupByFormat = "%Y-%m";
+            break;
+        default:
+            startDate = null;
+    }
+
+    const matchQuery: any = { role: 'customer' };
+    if (startDate) {
+        matchQuery.createdAt = { $gte: startDate };
+    }
+
+    const stats = await User.aggregate([
+        {
+            $facet: {
+                cards: [
+                    { $match: matchQuery },
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: 1 },
+                            verified: { $sum: { $cond: ["$isVerified", 1, 0] } },
+                            unverified: { $sum: { $cond: ["$isVerified", 0, 1] } }
+                        }
+                    }
+                ],
+                graph: [
+                    { $match: matchQuery },
+                    {
+                        $group: {
+                            _id: { $dateToString: { format: groupByFormat, date: "$createdAt" } },
+                            count: { $sum: 1 }
+                        }
+                    },
+                    { $sort: { "_id": 1 } }
+                ]
+            }
+        }
+    ]);
+
+    const rawCards = stats[0].cards[0] || { total: 0, verified: 0, unverified: 0 };
+
+    return {
+        summary: {
+            period: periodLabel,
+            cards: [
+                {
+                    title: "Total Customers",
+                    value: rawCards.total,
+                    change: {
+                        type: "increase", 
+                        percentage: 100
+                    }
+                },
+                {
+                    title: "Verified Customers",
+                    value: rawCards.verified,
+                    change: {
+                        type: "increase",
+                        percentage: 100
+                    }
+                },
+                {
+                    title: "Unverified Customers",
+                    value: rawCards.unverified,
+                    change: {
+                        type: "increase",
+                        percentage: 0
+                    }
+                }
+            ]
+        },
+        graph: stats[0].graph.map((item: any) => ({
+            label: item._id,
+            customers: item.count
+        }))
+    };
+};
 
 export const getAllUsersService = async (query: any) => {
     const { page, limit, skip } = getPaginationOptions(query);
