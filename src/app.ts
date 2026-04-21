@@ -5,6 +5,7 @@ import i18next from 'i18next';
 import middleware from 'i18next-http-middleware';
 import swaggerUi from 'swagger-ui-express';
 import path from 'path';
+import bcrypt from 'bcryptjs';
 
 import { config } from './config/env.config';
 import { corsOptions } from './config/cors';
@@ -15,6 +16,7 @@ import { globalErrorHandler } from './middlewares/error.middleware';
 import { apiRateLimiter } from './middlewares/rateLimiter.middleware';
 import { requestContext } from './utils/context';
 import { now } from 'lodash';
+import { User } from './modules/user/user.model';
 
 const app: Application = express();
 
