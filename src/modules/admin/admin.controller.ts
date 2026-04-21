@@ -64,10 +64,11 @@ export const updateAdminProfile = asyncHandler(async (req: Request, res: Respons
     }
 
     const adminId = req.user?.id;
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+    const files = req.files as any;
 
-    if (files?.profilePicture?.[0]) {
-        updateData.profileImage = files.profilePicture[0].path;
+
+    if (files?.profileImage) {
+        updateData.profileImage = files.profileImage[0].path;
     }
 
     Object.keys(updateData).forEach(key => (updateData[key] === undefined) && delete updateData[key]);
