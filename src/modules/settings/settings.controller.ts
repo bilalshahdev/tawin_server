@@ -11,27 +11,27 @@ export const getAppConfig = asyncHandler(async (req: Request, res: Response) => 
 
 export const updateAppConfig = asyncHandler(async (req: Request, res: Response) => {
     const rawData = { ...req.body };
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
     const updateData: any = {};
 
-    // 1. Handle Text Fields (Convert brackets/dots to flat dot notation)
     Object.keys(rawData).forEach((key) => {
-        // Convert 'header[home][text][en]' to 'header.home.text.en'
         const dbPath = key.replace(/\[/g, '.').replace(/\]/g, '');
         updateData[dbPath] = rawData[key];
     });
 
-    // 2. Handle File Fields (Only add to updateData if a file was actually uploaded)
     if (files) {
         Object.keys(files).forEach((key) => {
-            if (files[key] && files[key][0]) {
+            if (files[key]?.[0]) {
                 const dbPath = key.replace(/\[/g, '.').replace(/\]/g, '');
                 updateData[dbPath] = files[key][0].path;
             }
         });
     }
+    
+    if (updateData['header']) {
+        delete updateData['header'];
+    }
 
-    // 3. Update only the fields present in updateData
     const updated = await settingsService.updateSettings(updateData);
 
     res.status(200).json(
