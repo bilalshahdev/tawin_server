@@ -50,20 +50,29 @@ export const getDashboardSummary = asyncHandler(async (req: Request, res: Respon
 });
 
 export const updateAdminProfile = asyncHandler(async (req: Request, res: Response) => {
+    const { firstName, lastName, username, email, phone, password } = req.body;
 
-
-    const { firstName, lastName, email, phone, password } = req.body
-
-    const hashedPassword = await bcrypt.hash(password, AUTH_CONSTANTS.SALT_ROUNDS);
-    const updateData: any = { firstName, lastName, email, phone, password: hashedPassword }
-    const adminId = req.user?.id;
-
-    const files = req.files as any;
-
-
-    if (files?.profileImage) {
-        updateData.profileImage = files.profileImage[0].path;
+    let hashedPassword: string | undefined;
+    if (password && typeof password === 'string' && password.trim() !== "") {
+        hashedPassword = await bcrypt.hash(password, AUTH_CONSTANTS.SALT_ROUNDS);
     }
+
+    const updateData: any = { firstName, lastName, email, username, phone };
+
+    if (hashedPassword) {
+        updateData.password = hashedPassword;
+    }
+
+    const adminId = req.user?.id;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+
+    if (files?.profilePicture?.[0]) {
+        updateData.profileImage = files.profilePicture[0].path;
+    }
+
+    Object.keys(updateData).forEach(key => (updateData[key] === undefined) && delete updateData[key]);
+
     const data = await adminService.updateAdminProfile(adminId as string, updateData);
+
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.profile_updated"), data));
 });
