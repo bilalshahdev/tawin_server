@@ -54,17 +54,17 @@ export const getUser = async (id: string) => {
     return user;
 };
 
-export const updateUser = async (id: string, updateData: any) => {
+export const updateUser = async (id: string, updateData: any, isAdmin?: boolean) => {
     const user = await User.findById(id);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
     // 1. Handle Profile Image Cleanup
-    if (updateData.profileImage && user.profileImage && user.profileImage !== 'default.png') {
+    if (updateData.profileImage && user.profileImage && user.profileImage !== 'default-avatar.png') {
         await deleteFile(user.profileImage);
     }
 
     // 2. Handle Email Change Logic
-    if (updateData.email && updateData.email !== user.email) {
+    if (!isAdmin && updateData.email && updateData.email !== user.email) {
         const emailExists = await User.findOne({ email: updateData.email });
         if (emailExists) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.user_exists");
 
@@ -83,7 +83,7 @@ export const updateProfilePicture = async (id: string, newImagePath: string) => 
     const user = await User.findById(id);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
-    if (user.profileImage && user.profileImage !== 'default.png') {
+    if (user.profileImage && user.profileImage !== 'default-avatar.png') {
         await deleteFile(user.profileImage);
     }
 

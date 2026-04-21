@@ -57,7 +57,7 @@ router.use(authMiddleware, authorize("admin"));
  *           schema:
  *             type: object
  *             properties:
- *               profilePicture:
+ *               profileImage:
  *                 type: string
  *                 format: binary
  *               firstName:
@@ -78,7 +78,12 @@ router.use(authMiddleware, authorize("admin"));
  *             schema:
  *               $ref: '#/components/schemas/ApiResponse'
  */
-router.patch("/profile", upload.fields([{ name: 'profilePicture', maxCount: 1 }]), trackUploadedFiles, validate(updateAdminProfileSchema), adminController.updateAdminProfile);
+router.patch(
+    "/profile",
+    upload.fields([{ name: "profileImage", maxCount: 1 }]),
+    trackUploadedFiles,
+    validate(updateAdminProfileSchema),
+    adminController.updateAdminProfile);
 
 // swagger apis
 // also filter in query too, like filter= daily/weekly/monthly

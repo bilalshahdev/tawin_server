@@ -277,7 +277,3 @@ export const getFullSummary = async (filter: string) => {
 
     return { stats, report, region, categories, financials: financials?.data || [], products };
 };
-
-export const updateAdminProfile = async (adminId: string, data: any) => {
-    return await User.findByIdAndUpdate(adminId, data, { new: true });
-};

@@ -4,6 +4,7 @@ import { ApiResponse } from "../../utils/apiResponse";
 import { AUTH_CONSTANTS, STATUS_CODE } from "../../config/constants";
 import bcrypt from "bcryptjs";
 import * as adminService from "./admin.service";
+import { updateUser } from "../user/user.service";
 
 export const getStats = asyncHandler(async (req: Request, res: Response) => {
     const filter = (req.query.filter as string) || 'daily';
@@ -51,14 +52,12 @@ export const getDashboardSummary = asyncHandler(async (req: Request, res: Respon
 
 export const updateAdminProfile = asyncHandler(async (req: Request, res: Response) => {
     const { firstName, lastName, username, email, phone, password } = req.body;
-
     let hashedPassword: string | undefined;
     if (password && typeof password === 'string' && password.trim() !== "") {
         hashedPassword = await bcrypt.hash(password, AUTH_CONSTANTS.SALT_ROUNDS);
     }
 
     const updateData: any = { firstName, lastName, email, username, phone };
-
     if (hashedPassword) {
         updateData.password = hashedPassword;
     }
@@ -71,9 +70,6 @@ export const updateAdminProfile = asyncHandler(async (req: Request, res: Respons
         updateData.profileImage = files.profileImage[0].path;
     }
 
-    Object.keys(updateData).forEach(key => (updateData[key] === undefined) && delete updateData[key]);
-
-    const data = await adminService.updateAdminProfile(adminId as string, updateData);
-
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.profile_updated"), data));
+    const updatedUser = await updateUser(adminId!, updateData);
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.profile_updated"), updatedUser));
 });

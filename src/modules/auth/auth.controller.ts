@@ -140,7 +140,7 @@ export const testLogin = asyncHandler(async (req: Request, res: Response) => {
     const user = await User.findOne({ role: 'admin' });
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
-    const token = await authService.login({ email: user.email, password: "Admin@123" }); // Assuming dev password
+    const token = await authService.login({ email: user.email}); 
     res.json(new ApiResponse(req.t('auth.login_success'), token));
 });
 
