@@ -4,6 +4,16 @@ import { ApiResponse } from "../../utils/apiResponse";
 import * as reviewService from "./review.service";
 import { STATUS_CODE } from "../../config/constants";
 
+export const getReviewDashboard = asyncHandler(async (req: Request, res: Response) => {
+    const period = (req.query.period as any) || 'month';
+    const stats = await reviewService.getReviewStats(period);
+    console.log({stats})
+
+    res.status(STATUS_CODE.OK).json(
+        new ApiResponse(req.t("review.stats_retrieved"), stats)
+    );
+});
+
 export const createReview = asyncHandler(async (req: Request, res: Response) => {
     const review = await reviewService.addReview(req.user!.id, req.body);
     res.status(STATUS_CODE.CREATED).json(new ApiResponse(req.t("review.review_created"), review));

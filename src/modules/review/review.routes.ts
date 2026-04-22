@@ -11,6 +11,33 @@ const router = Router();
 
 /**
  * @swagger
+ * /reviews/stats:
+ *   get:
+ *     summary: Get review statistics for dashboard
+ *     tags: [Review]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly, yearly, all-time]
+ *         description: Filter type
+ *     responses:
+ *       200:
+ *         description: Statistics retrieved successfully
+ * 
+ */
+router.get(
+    "/stats",
+    authMiddleware,
+    authorize("admin"),
+    reviewController.getReviewDashboard
+);
+
+/**
+ * @swagger
  * /reviews:
  *   get:
  *     summary: Get all reviews for moderation (Admin Only)
@@ -29,6 +56,10 @@ const router = Router();
  *     responses:
  *       200:
  *         description: List of all reviews retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.get(
     "/",
@@ -52,6 +83,10 @@ router.get(
  *     responses:
  *       200:
  *         description: Reviews retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.get(
     "/product/:productId",
@@ -59,7 +94,6 @@ router.get(
     reviewController.getProductReviews
 );
 
-// Authentication required for routes below (Public but needs login)
 router.use(authMiddleware);
 
 /**
@@ -79,6 +113,10 @@ router.use(authMiddleware);
  *     responses:
  *       201:
  *         description: Review created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.post(
     "/",
@@ -105,6 +143,10 @@ router.post(
  *     responses:
  *       200:
  *         description: Review deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.delete("/:id", authMiddleware, authorize("admin"), reviewController.removeReview);
 

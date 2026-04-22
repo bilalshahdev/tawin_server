@@ -17,9 +17,18 @@ const router = Router();
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
+ *     description: Get user statistics
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly, yearly, all-time]
+ *         default: daily
  *     responses:
  *       200:
  *         description: User statistics retrieved successfully
+ * 
  * 
  */
 router.get("/stats", authMiddleware, authorize('admin'), C.getUserStats);

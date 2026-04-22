@@ -8,14 +8,14 @@ import { getPaginationOptions } from "../../utils/pagination";
 import { User } from "./user.model";
 import { ConstructionBasketStatus } from "./user.types";
 
-export const getUserStats = async (period: string = 'all-time') => {
+export const getUserStats = async (filter: string = 'all-time') => {
     const now = new Date();
     let startDate: Date | null = null;
     let groupByFormat = "%Y-%m-%d";
 
-    const periodLabel = period.charAt(0).toUpperCase() + period.slice(1);
+    const filterLabel = filter.charAt(0).toUpperCase() + filter.slice(1);
 
-    switch (period) {
+    switch (filter) {
         case 'daily':
             startDate = startOfDay(now);
             groupByFormat = "%H:00";
@@ -71,13 +71,13 @@ export const getUserStats = async (period: string = 'all-time') => {
 
     return {
         summary: {
-            period: periodLabel,
+            filter: filterLabel,
             cards: [
                 {
                     title: "Total Customers",
                     value: rawCards.total,
                     change: {
-                        type: "increase", 
+                        type: "increase",
                         percentage: 100
                     }
                 },
@@ -157,12 +157,12 @@ export const updateUser = async (id: string, updateData: any, isAdmin?: boolean)
     const user = await User.findById(id);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
-    // 1. Handle Profile Image Cleanup
+    
     if (updateData.profileImage && user.profileImage && user.profileImage !== 'default-avatar.png') {
         await deleteFile(user.profileImage);
     }
 
-    // 2. Handle Email Change Logic
+    
     if (!isAdmin && updateData.email && updateData.email !== user.email) {
         const emailExists = await User.findOne({ email: updateData.email });
         if (emailExists) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.user_exists");
@@ -193,7 +193,7 @@ export const updateProfilePicture = async (id: string, newImagePath: string) => 
     );
 };
 
-// verify user 
+
 export const verifyUser = async (id: string) => {
     const user = await User.findById(id);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
@@ -215,7 +215,6 @@ export const deleteUser = async (userId: string) => {
     return await User.findByIdAndDelete(userId);
 };
 
-// construction basket
 export const applyForBasket = async (userId: string, basketData: any) => {
     const user = await User.findById(userId);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");

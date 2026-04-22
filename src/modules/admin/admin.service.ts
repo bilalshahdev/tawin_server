@@ -5,7 +5,7 @@ import { Product } from "../product/product.model";
 import { User } from "../user/user.model";
 import { calculateGrowth, formatChange, getDateRange } from "./admin.utils";
 
-// 1. Stats Card (Total Users, Orders, Sales + Comparison)
+
 export const getStats = async (filter: string = 'daily') => {
     const { currentStart, prevStart, prevEnd } = getDateRange(filter);
 
@@ -37,7 +37,7 @@ export const getStats = async (filter: string = 'daily') => {
 export const getSalesReport = async (filter: string) => {
     const { currentStart } = getDateRange(filter);
 
-    // 1. Fetch data from DB
+
     const revenueHistory = await Order.aggregate([
         {
             $match: {
@@ -50,38 +50,38 @@ export const getSalesReport = async (filter: string) => {
                 _id: filter === 'daily'
                     ? { $hour: "$createdAt" }
                     : filter === 'weekly'
-                        ? { $dayOfWeek: "$createdAt" } // 1 (Sun) to 7 (Sat)
-                        : { $ceil: { $divide: [{ $dayOfMonth: "$createdAt" }, 7] } }, // Week 1 to 5
+                        ? { $dayOfWeek: "$createdAt" }
+                        : { $ceil: { $divide: [{ $dayOfMonth: "$createdAt" }, 7] } },
                 amount: { $sum: "$totalAmount" }
             }
         }
     ]);
 
-    // 2. Initialize full range with 0 based on filter
+
     let fullHistory: { label: string, amount: number }[] = [];
 
     if (filter === 'daily') {
-        // 24 Hours (0:00 to 23:00)
+
         for (let i = 0; i < 24; i++) {
             const record = revenueHistory.find(item => item._id === i);
             fullHistory.push({ label: `${i}:00`, amount: record ? record.amount : 0 });
         }
     } else if (filter === 'weekly') {
-        // 7 Days
+
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         days.forEach((day, index) => {
             const record = revenueHistory.find(item => item._id === index + 1);
             fullHistory.push({ label: day, amount: record ? record.amount : 0 });
         });
     } else if (filter === 'monthly') {
-        // 4-5 Weeks
+
         for (let i = 1; i <= 5; i++) {
             const record = revenueHistory.find(item => item._id === i);
             fullHistory.push({ label: `Week ${i}`, amount: record ? record.amount : 0 });
         }
     }
 
-    // 3. Comprehensive Stats for the Report Section
+
     const [
         totalProducts,
         lowStock,
@@ -111,7 +111,7 @@ export const getSalesReport = async (filter: string) => {
     };
 };
 
-// 3. Sales by Region
+
 export const getSalesByRegion = async () => {
     return await Order.aggregate([
         { $group: { _id: "$shippingAddress.city", orderCount: { $sum: 1 }, totalSales: { $sum: "$totalAmount" } } },
@@ -120,7 +120,7 @@ export const getSalesByRegion = async () => {
     ]);
 };
 
-// 4. Top Categories
+
 export const getTopCategories = async () => {
     return await Order.aggregate([
         { $match: { status: 'delivered' } },
@@ -134,7 +134,7 @@ export const getTopCategories = async () => {
     ]);
 };
 
-// 5. Financial Transfers
+
 export const getFinancials = async (query: { search?: string, page?: number; limit?: number; status?: OrderStatus }) => {
     const { page, limit, skip } = getPaginationOptions(query);
     const { status, search } = query;
@@ -255,7 +255,7 @@ export const getFinancialStats = async (filter: string = 'weekly') => {
     };
 };
 
-// 6. Top Selling Products
+
 export const getTopProducts = async () => {
     return await Order.aggregate([
         { $unwind: "$items" },
@@ -268,7 +268,7 @@ export const getTopProducts = async () => {
     ]);
 };
 
-// 7. Dashboard Summary (Combine all)
+
 export const getFullSummary = async (filter: string) => {
     const [stats, report, region, categories, financials, products] = await Promise.all([
         getStats(filter), getSalesReport(filter), getSalesByRegion(),

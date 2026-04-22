@@ -7,8 +7,8 @@ import { STATUS_CODE } from "../../config/constants";
 
 
 export const getUserStats = asyncHandler(async (req: Request, res: Response) => {
-    const period = (req.query.period as string) || 'all-time';
-    const stats = await userService.getUserStats(period);
+    const filter = (req.query.filter as string) || 'all-time';
+    const stats = await userService.getUserStats(filter);
 
     res.status(STATUS_CODE.OK).json(
         new ApiResponse(req.t("user.stats_retrieved"), stats)
@@ -22,7 +22,7 @@ export const getUserStats = asyncHandler(async (req: Request, res: Response) => 
  */
 
 export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
-    // No more manual parsing here
+
     const { data, meta } = await userService.getAllUsersService(req.query);
     res.json(new ApiResponse(req.t('user.users_retrieved'), data, meta));
 });
@@ -70,7 +70,7 @@ export const updateProfilePicture = asyncHandler(async (req: Request, res: Respo
 
     const imagePath = files.profileImage[0].path;
 
-    // We only pass the image path, nothing from req.body
+
     const updatedUser = await userService.updateProfilePicture(req.user!.id, imagePath);
 
     res.json(new ApiResponse(req.t('user.profile_picture_updated'), updatedUser));
@@ -92,7 +92,6 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
     res.json(new ApiResponse(req.t('user.account_deleted')));
 });
 
-// applyForBasket controller
 export const applyForBasket = asyncHandler(async (req: Request, res: Response) => {
     const basketData = req.body;
     const user = await userService.applyForBasket(req.user!.id, basketData);
