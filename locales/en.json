@@ -39,6 +39,23 @@
     "password_mismatch": "Old password does not match",
     "profile_fetched": "Profile data retrieved successfully"
   },
+  "supplier": {
+    "created": "Supplier profile created successfully.",
+    "updated": "Supplier details updated successfully.",
+    "deleted": "Supplier removed from the system.",
+    "retrieved": "Supplier data retrieved successfully.",
+    "suppliers_retrieved": "List of suppliers loaded successfully.",
+    "stats_fetched": "Supplier and procurement statistics retrieved successfully.",
+    "stock_added": "Stock inflow recorded and inventory updated successfully.",
+    "history_fetched": "Supply history for this supplier retrieved successfully.",
+    "not_found": "The requested supplier could not be found."
+  },
+  "supplyLog": {
+    "created": "Supply log recorded successfully.",
+    "retrieved": "Log details retrieved successfully.",
+    "deleted": "Log entry deleted successfully.",
+    "not_found": "Supply record not found."
+  },
   "address": {
     "created": "Address created successfully.",
     "updated": "Address updated successfully.",
@@ -185,7 +202,18 @@
     "facebook": "Facebook",
     "instagram": "Instagram",
     "whatsapp": "WhatsApp",
-    "youtube": "YouTube"
+    "youtube": "YouTube",
+    "supplier": "Supplier",
+    "supplierQuantity": "Supplier quantity",
+    "supplierUnit": "Supplier unit",
+    "stockIncrement": "Stock increment",
+    "costPrice": "Cost price",
+    "sacksCount": "Sacks count",
+    "note": "Note",
+    "totalSpend": "Total spend",
+    "totalItems": "Total items",
+    "active": "Active",
+    "inactive": "Inactive"
   },
   "errors": {
     "user_exists": "An account already exists with this email or username.",
@@ -219,6 +247,7 @@
     "internal_error": "A server error occurred",
     "brand_exists": "A brand with this name already exists",
     "brand_not_found": "Brand not found",
+    "supplier_inactive": "Cannot perform actions with an inactive supplier.",
     "validations": {
       "required": "{{field}} is required.",
       "invalid_email": "Please enter a valid email address.",

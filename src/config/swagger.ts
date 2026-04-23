@@ -257,7 +257,7 @@ const options: swaggerJsdoc.Options = {
                         title: { $ref: '#/components/schemas/LocalizedString' },
                         category: { type: 'string', description: 'Reference to Category ID' },
                         price: { type: 'number', minimum: 0 },
-                        variant: { type: 'string', example: '50kg Bag' }, 
+                        variant: { type: 'string', example: '50kg Bag' },
                         remainingPieces: { type: 'integer', minimum: 0, default: 0 },
                         isNewArrival: { type: 'boolean', default: true },
                         isFeatured: { type: 'boolean', default: false },
@@ -382,7 +382,7 @@ const options: swaggerJsdoc.Options = {
                     }
                 },
 
-                
+
                 Order: {
                     type: 'object',
                     properties: {
@@ -414,25 +414,31 @@ const options: swaggerJsdoc.Options = {
                 Supplier: {
                     type: 'object',
                     properties: {
-                        _id: { type: 'string', example: '65f1a2b3c4d5e6f7a8b9c0d1' },
+                        _id: { type: 'string', example: '65f1a2b3c4d5e6f7a8b9c0d1', readOnly: true },
                         name: { type: 'string', example: 'Lucky Cement Ltd' },
                         code: { type: 'string', example: 'SUP-001' },
                         phone: { type: 'string', example: '+923001234567' },
                         isActive: { type: 'boolean' },
-                        suppliedProducts: { type: 'array', items: { type: 'string' } }
+                        suppliedProducts: { type: 'array', items: { type: 'string' } },
+                        createdAt: { type: 'string', format: 'date-time', readOnly: true },
+                        updatedAt: { type: 'string', format: 'date-time', readOnly: true }
                     }
                 },
+
                 SupplyLog: {
                     type: 'object',
                     properties: {
-                        _id: { type: 'string' },
-                        supplier: { type: 'string' },
-                        product: { type: 'string' },
-                        quantity: { type: 'number' },
-                        unit: { type: 'string', enum: ['piece', 'ton'] },
+                        _id: { type: 'string', example: '65f1a2b3c4d5e6f7a8b9c0d1', readOnly: true },
+                        supplier: { type: 'string', example: '65f1a2b3c4d5e6f7a8b9c0d1', readOnly: true },
+                        product: { type: 'string', example: '65f1a2b3c4d5e6f7a8b9c0d1', readOnly: true },
+                        supplierQuantity: { type: 'number' },
+                        supplierUnit: { type: 'string', enum: ['piece', 'ton'] },
+                        stockIncrement: { type: 'number' },
                         costPrice: { type: 'number' },
                         sacksCount: { type: 'number' },
-                        createdAt: { type: 'string', format: 'date-time' }
+                        note: { type: 'string' },
+                        createdAt: { type: 'string', format: 'date-time', readOnly: true },
+                        updatedAt: { type: 'string', format: 'date-time', readOnly: true }
                     }
                 },
 
@@ -526,7 +532,7 @@ if (specs.paths) {
 
                 if (!operation.parameters) operation.parameters = [];
 
-                
+
                 const hasLang = operation.parameters.some((p: any) =>
                     p.$ref === '#/components/parameters/acceptLanguage'
                 );

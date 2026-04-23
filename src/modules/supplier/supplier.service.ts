@@ -13,7 +13,6 @@ import {
 
 export const getSupplierStats = async (period: 'day' | 'week' | 'month' | 'year' = 'month') => {
 
-
     const [totalSuppliers, activeSuppliers, inactiveSuppliers] = await Promise.all([
         Supplier.countDocuments(),
         Supplier.countDocuments({ isActive: true }),
@@ -24,28 +23,26 @@ export const getSupplierStats = async (period: 'day' | 'week' | 'month' | 'year'
     const logsResult = await SupplyLog.aggregate([
         {
             $facet: {
-
                 generalMetrics: [
                     {
                         $group: {
                             _id: null,
-                            totalSpend: { $sum: { $multiply: ["$costPrice", "$quantity"] } },
-                            totalItemsProcured: { $sum: "$quantity" },
+                            totalSpend: { $sum: { $multiply: ["$costPrice", "$supplierQuantity"] } },
+                            totalItemsProcured: { $sum: "$supplierQuantity" },
                             itemsInTons: {
-                                $sum: { $cond: [{ $eq: ["$unit", "ton"] }, "$quantity", 0] }
+                                $sum: { $cond: [{ $eq: ["$supplierUnit", "ton"] }, "$supplierQuantity", 0] }
                             },
                             itemsInPieces: {
-                                $sum: { $cond: [{ $eq: ["$unit", "piece"] }, "$quantity", 0] }
+                                $sum: { $cond: [{ $eq: ["$supplierUnit", "piece"] }, "$supplierQuantity", 0] }
                             }
                         }
                     }
                 ],
-
                 topSuppliers: [
                     {
                         $group: {
                             _id: "$supplier",
-                            spend: { $sum: { $multiply: ["$costPrice", "$quantity"] } }
+                            spend: { $sum: { $multiply: ["$costPrice", "$supplierQuantity"] } }
                         }
                     },
                     { $sort: { spend: -1 } },
@@ -98,9 +95,6 @@ export const getSupplierStats = async (period: 'day' | 'week' | 'month' | 'year'
     };
 };
 
-/**
- * Helper to generate zero-filled timeline for supplier procurement
- */
 async function generateSupplierTimeline(period: string) {
     const now = new Date();
     let start: Date;
@@ -136,15 +130,12 @@ async function generateSupplierTimeline(period: string) {
 
         return {
             label: format(interval, dateFormat),
-            spend: periodLogs.reduce((acc, curr) => acc + (curr.costPrice * curr.quantity), 0),
-            items: periodLogs.reduce((acc, curr) => acc + curr.quantity, 0)
+            spend: periodLogs.reduce((acc, curr) => acc + (curr.costPrice * curr.supplierQuantity), 0),
+            items: periodLogs.reduce((acc, curr) => acc + curr.supplierQuantity, 0)
         };
     });
 }
 
-/**
- * Standard Supplier CRUD Operations
- */
 export const createSupplier = async (data: any) => Supplier.create(data);
 
 export const getSuppliers = async (query: any) => {
@@ -175,24 +166,20 @@ export const deleteSupplier = async (id: string) => {
     return await supplier.deleteOne();
 };
 
-/**
- * Stock Inflow Logic
- */
 export const addStockInflow = async (data: any) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
         const supplier = await Supplier.findById(data.supplier);
         if (!supplier?.isActive) throw new ApiError(400, "Cannot add stock from inactive supplier");
-
         const log = await SupplyLog.create([data], { session });
-
         const product = await Product.findByIdAndUpdate(
             data.product,
-            { $inc: { remainingPieces: data.quantity } },
+            { $inc: { remainingPieces: data.stockIncrement } },
             { session, new: true }
         );
         if (!product) throw new ApiError(404, "Product not found");
+
 
         await Supplier.findByIdAndUpdate(data.supplier, {
             $addToSet: { suppliedProducts: data.product }

@@ -15,8 +15,8 @@ export const addStockSchema = z.object({
     body: z.object({
         supplier: z.string().min(1, "Supplier ID is required"),
         product: z.string().min(1, "Product ID is required"),
-        quantity: z.number().positive("Quantity must be greater than 0"),
-        unit: z.enum(['piece', 'ton']),
+        supplierQuantity: z.number().positive("Supplier quantity is required"),
+        supplierUnit: z.enum(['piece', 'ton']),
         costPrice: z.number().positive("Cost price is required"),
         sacksCount: z.number().optional(),
         note: z.string().optional(),
