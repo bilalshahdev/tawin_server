@@ -257,7 +257,7 @@ const options: swaggerJsdoc.Options = {
                         title: { $ref: '#/components/schemas/LocalizedString' },
                         category: { type: 'string', description: 'Reference to Category ID' },
                         price: { type: 'number', minimum: 0 },
-                        variant: { type: 'string', example: '50kg Bag' }, // Cleaned
+                        variant: { type: 'string', example: '50kg Bag' }, 
                         remainingPieces: { type: 'integer', minimum: 0, default: 0 },
                         isNewArrival: { type: 'boolean', default: true },
                         isFeatured: { type: 'boolean', default: false },
@@ -382,7 +382,7 @@ const options: swaggerJsdoc.Options = {
                     }
                 },
 
-                // Add to components -> schemas
+                
                 Order: {
                     type: 'object',
                     properties: {
@@ -430,6 +430,7 @@ const options: swaggerJsdoc.Options = {
                         product: { type: 'string' },
                         quantity: { type: 'number' },
                         unit: { type: 'string', enum: ['piece', 'ton'] },
+                        costPrice: { type: 'number' },
                         sacksCount: { type: 'number' },
                         createdAt: { type: 'string', format: 'date-time' }
                     }
@@ -525,7 +526,7 @@ if (specs.paths) {
 
                 if (!operation.parameters) operation.parameters = [];
 
-                // Avoid duplicate injections if you restart the server/hot-reload
+                
                 const hasLang = operation.parameters.some((p: any) =>
                     p.$ref === '#/components/parameters/acceptLanguage'
                 );

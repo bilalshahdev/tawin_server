@@ -2,12 +2,14 @@ import { Schema, model, Document } from 'mongoose';
 
 export interface ISupplier extends Document {
     name: string;
-    code: string; // Unique Supplier ID
+    code: string; 
     phone: string;
     email?: string;
     address?: string;
     isActive: boolean;
     suppliedProducts: Schema.Types.ObjectId[];
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const supplierSchema = new Schema<ISupplier>({

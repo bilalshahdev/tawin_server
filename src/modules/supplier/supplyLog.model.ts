@@ -5,8 +5,11 @@ export interface ISupplyLog extends Document {
     product: Schema.Types.ObjectId;
     quantity: number;
     unit: 'piece' | 'ton';
+    costPrice: number;
     sacksCount?: number;
     note?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const supplyLogSchema = new Schema<ISupplyLog>({
@@ -14,6 +17,7 @@ const supplyLogSchema = new Schema<ISupplyLog>({
     product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
     quantity: { type: Number, required: true },
     unit: { type: String, enum: ['piece', 'ton'], required: true },
+    costPrice: { type: Number, required: true },
     sacksCount: { type: Number },
     note: { type: String }
 }, { timestamps: true });

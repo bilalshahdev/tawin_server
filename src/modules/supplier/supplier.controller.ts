@@ -3,6 +3,12 @@ import * as supplierService from './supplier.service';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { ApiResponse } from '../../utils/apiResponse';
 
+export const getStats = asyncHandler(async (req: Request, res: Response) => {
+    const period = (req.query.period as 'day' | 'week' | 'month' | 'year') || 'month';
+    const stats = await supplierService.getSupplierStats(period);
+    return res.status(200).json(new ApiResponse(req.t('supplier.stats_fetched'), stats));
+});
+
 export const create = asyncHandler(async (req: Request, res: Response) => {
     const data = await supplierService.createSupplier(req.body);
     return res.status(201).json(new ApiResponse(req.t('supplier.created'), data));

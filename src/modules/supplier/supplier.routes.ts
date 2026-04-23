@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import * as supplierController from './supplier.controller';
 import { authMiddleware, authorize } from '../../middlewares/auth.middleware';
+import { validate } from '../../middlewares/validate.middleware';
+import { createSupplierSchema, addStockSchema } from './supplier.validation';
 
 const router = Router();
+
 
 router.use(authMiddleware, authorize('admin'));
 
@@ -12,6 +15,61 @@ router.use(authMiddleware, authorize('admin'));
  *   name: Supplier
  *   description: Admin-only management of suppliers and stock inflow
  */
+
+/**
+ * @swagger
+ * /suppliers/stats:
+ *   get:
+ *     summary: Get dashboard statistics for suppliers and procurement
+ *     tags: [Supplier]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month, year]
+ *           default: month
+ *         description: Time period for the graph and metrics
+ *     responses:
+ *       200:
+ *         description: Statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         totalSuppliers:
+ *                           type: number
+ *                           example: 10
+ *                         totalSpend:
+ *                           type: number
+ *                           example: 5000.50
+ *                         totalItemsProcured:
+ *                           type: number
+ *                           example: 1200
+ *                         graphData:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               label:
+ *                                 type: string
+ *                                 example: "22 Apr"
+ *                               spend:
+ *                                 type: number
+ *                                 example: 450.00
+ *                               items:
+ *                                 type: number
+ *                                 example: 100
+ */
+router.get('/stats', supplierController.getStats);
 
 /**
  * @swagger
@@ -82,7 +140,7 @@ router.get('/', supplierController.getAll);
  *                     data:
  *                       $ref: '#/components/schemas/Supplier'
  */
-router.post('/', supplierController.create);
+router.post('/', validate(createSupplierSchema), supplierController.create);
 
 /**
  * @swagger
@@ -98,7 +156,7 @@ router.post('/', supplierController.create);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [supplier, product, quantity, unit]
+ *             required: [supplier, product, quantity, unit, costPrice]
  *             properties:
  *               supplier:
  *                 type: string
@@ -106,11 +164,13 @@ router.post('/', supplierController.create);
  *                 type: string
  *               quantity:
  *                 type: number
+ *               costPrice:
+ *                 type: number
  *               unit:
  *                 type: string
  *                 enum: [piece, ton]
  *     responses:
- *       200:
+ *       201:
  *         description: Stock added successfully
  *         content:
  *           application/json:
@@ -120,12 +180,9 @@ router.post('/', supplierController.create);
  *                 - type: object
  *                   properties:
  *                     data:
- *                       type: object
- *                       properties:
- *                         message:
- *                           type: string
+ *                       $ref: '#/components/schemas/SupplyLog'
  */
-router.post('/add-stock', supplierController.addStock);
+router.post('/add-stock', validate(addStockSchema), supplierController.addStock);
 
 /**
  * @swagger
@@ -154,7 +211,7 @@ router.post('/add-stock', supplierController.addStock);
  *                     data:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/SupplierDelivery'
+ *                         $ref: '#/components/schemas/SupplyLog'
  */
 router.get('/:id/history', supplierController.getHistory);
 
@@ -248,19 +305,11 @@ router.patch('/:id', supplierController.update);
  *           type: string
  *     responses:
  *       200:
- *         description: Suppliers fetched successfully
+ *         description: Supplier deleted successfully
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Supplier'
- * 
+ *               $ref: '#/components/schemas/ApiResponse'
  */
 router.delete('/:id', supplierController.remove);
 
