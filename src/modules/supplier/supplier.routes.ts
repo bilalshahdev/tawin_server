@@ -25,13 +25,7 @@ router.use(authMiddleware, authorize('admin'));
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: period
- *         schema:
- *           type: string
- *           enum: [day, week, month, year]
- *           default: month
- *         description: Time period for the graph and metrics
+ *       - $ref: '#/components/parameters/Period'
  *     responses:
  *       200:
  *         description: Statistics retrieved successfully
@@ -142,6 +136,16 @@ router.get('/', supplierController.getAll);
  */
 router.post('/', validate(createSupplierSchema), supplierController.create);
 
+
+// body: z.object({
+//     supplier: z.string().min(1, "Supplier ID is required"),
+//     product: z.string().min(1, "Product ID is required"),
+//     supplierQuantity: z.number().positive("Supplier quantity is required"),
+//     supplierUnit: z.enum(['piece', 'ton']),
+//     costPrice: z.number().positive("Cost price is required"),
+//     sacksCount: z.number().optional(),
+//     note: z.string().optional(),
+// }),
 /**
  * @swagger
  * /suppliers/add-stock:
@@ -156,17 +160,17 @@ router.post('/', validate(createSupplierSchema), supplierController.create);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [supplier, product, quantity, unit, costPrice]
+ *             required: [supplier, product, supplierQuantity, supplierUnit, costPrice]
  *             properties:
  *               supplier:
  *                 type: string
  *               product:
  *                 type: string
- *               quantity:
+ *               supplierQuantity:
  *                 type: number
  *               costPrice:
  *                 type: number
- *               unit:
+ *               supplierUnit:
  *                 type: string
  *                 enum: [piece, ton]
  *     responses:

@@ -50,10 +50,21 @@ const options: swaggerJsdoc.Options = {
                         default: 'en'
                     },
                     description: 'Language preference for the response (en for English, ar for Arabic)'
-                }
+                },
+                Period: {
+                    in: "query",
+                    name: "period",
+                    description: "The time range for the data",
+                    required: false,
+                    schema: {
+                        type: "string",
+                        enum: ["daily", "weekly", "monthly", "yearly", "all-time"],
+                        default: "monthly"
+                    }
+                },
             },
-            schemas: {
 
+            schemas: {
                 ObjectId: {
                     type: 'string',
                     example: '64f1c2a9e4b0c123456789ab',

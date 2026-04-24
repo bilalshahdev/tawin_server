@@ -4,11 +4,12 @@ import * as userService from "./user.service";
 import { ApiResponse } from "../../utils/apiResponse";
 import { ApiError } from "../../utils/apiError";
 import { STATUS_CODE } from "../../config/constants";
+import { Period } from "../../types/global.types";
 
 
 export const getUserStats = asyncHandler(async (req: Request, res: Response) => {
-    const filter = (req.query.filter as string) || 'all-time';
-    const stats = await userService.getUserStats(filter);
+    const period = (req.query.period as Period) || 'monthly';
+    const stats = await userService.getUserStats(period);
 
     res.status(STATUS_CODE.OK).json(
         new ApiResponse(req.t("user.stats_retrieved"), stats)

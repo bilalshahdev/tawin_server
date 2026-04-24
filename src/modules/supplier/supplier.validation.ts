@@ -25,6 +25,6 @@ export const addStockSchema = z.object({
 
 export const getStatsSchema = z.object({
     query: z.object({
-        period: z.enum(['day', 'week', 'month', 'year']).optional(),
+        period: z.enum(['daily', 'weekly', 'monthly', 'yearly', 'all-time']).optional(),
     }),
 });

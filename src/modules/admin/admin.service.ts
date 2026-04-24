@@ -1,4 +1,5 @@
 import { config } from "../../config/env.config";
+import { Period } from "../../types/global.types";
 import { getPaginationOptions } from "../../utils/pagination";
 import { Order, OrderStatus } from "../order/order.model";
 import { Product } from "../product/product.model";
@@ -6,8 +7,8 @@ import { User } from "../user/user.model";
 import { calculateGrowth, formatChange, getDateRange } from "./admin.utils";
 
 
-export const getStats = async (filter: string = 'daily') => {
-    const { currentStart, prevStart, prevEnd } = getDateRange(filter);
+export const getStats = async (period: Period = 'daily') => {
+    const { currentStart, prevStart, prevEnd } = getDateRange(period);
 
     const getMetrics = async (start: Date, end?: Date) => {
         const query: any = { createdAt: { $gte: start } };
@@ -34,8 +35,8 @@ export const getStats = async (filter: string = 'daily') => {
     };
 };
 
-export const getSalesReport = async (filter: string) => {
-    const { currentStart } = getDateRange(filter);
+export const getSalesReport = async (period: Period) => {
+    const { currentStart } = getDateRange(period);
 
 
     const revenueHistory = await Order.aggregate([
@@ -47,9 +48,9 @@ export const getSalesReport = async (filter: string) => {
         },
         {
             $group: {
-                _id: filter === 'daily'
+                _id: period === 'daily'
                     ? { $hour: "$createdAt" }
-                    : filter === 'weekly'
+                    : period === 'weekly'
                         ? { $dayOfWeek: "$createdAt" }
                         : { $ceil: { $divide: [{ $dayOfMonth: "$createdAt" }, 7] } },
                 amount: { $sum: "$totalAmount" }
@@ -60,20 +61,20 @@ export const getSalesReport = async (filter: string) => {
 
     let fullHistory: { label: string, amount: number }[] = [];
 
-    if (filter === 'daily') {
+    if (period === 'daily') {
 
         for (let i = 0; i < 24; i++) {
             const record = revenueHistory.find(item => item._id === i);
             fullHistory.push({ label: `${i}:00`, amount: record ? record.amount : 0 });
         }
-    } else if (filter === 'weekly') {
+    } else if (period === 'weekly') {
 
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         days.forEach((day, index) => {
             const record = revenueHistory.find(item => item._id === index + 1);
             fullHistory.push({ label: day, amount: record ? record.amount : 0 });
         });
-    } else if (filter === 'monthly') {
+    } else if (period === 'monthly') {
 
         for (let i = 1; i <= 5; i++) {
             const record = revenueHistory.find(item => item._id === i);
@@ -138,10 +139,10 @@ export const getTopCategories = async () => {
 export const getFinancials = async (query: { search?: string, page?: number; limit?: number; status?: OrderStatus }) => {
     const { page, limit, skip } = getPaginationOptions(query);
     const { status, search } = query;
-    const filter: any = {};
+    const period: any = {};
 
     if (status) {
-        filter.status = status;
+        period.status = status;
     }
 
     if (search) {
@@ -158,18 +159,18 @@ export const getFinancials = async (query: { search?: string, page?: number; lim
             return { data: [], meta: { page, limit, totalDocs: 0, totalPages: 0 } };
         }
 
-        filter.user = { $in: userIds };
+        period.user = { $in: userIds };
     }
 
     const [orders, totalDocs] = await Promise.all([
-        Order.find(filter)
+        Order.find(period)
             .populate({ path: 'user', select: 'name email' })
             .select('totalAmount status createdAt user')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
             .lean(),
-        Order.countDocuments(filter)
+        Order.countDocuments(period)
     ]);
 
     return {
@@ -183,8 +184,8 @@ export const getFinancials = async (query: { search?: string, page?: number; lim
     };
 };
 
-export const getFinancialStats = async (filter: string = 'weekly') => {
-    const { currentStart, currentEnd, prevStart, prevEnd } = getDateRange(filter);
+export const getFinancialStats = async (period: Period = 'weekly') => {
+    const { currentStart, currentEnd, prevStart, prevEnd } = getDateRange(period);
 
     const stats = await Order.aggregate([
         {
@@ -224,7 +225,7 @@ export const getFinancialStats = async (filter: string = 'weekly') => {
 
     return {
         summary: {
-            period: filter.charAt(0).toUpperCase() + filter.slice(1),
+            period: period.charAt(0).toUpperCase() + period.slice(1),
             cards: [
                 {
                     title: "Transfers in Progress",
@@ -269,9 +270,9 @@ export const getTopProducts = async () => {
 };
 
 
-export const getFullSummary = async (filter: string) => {
+export const getFullSummary = async (period: Period) => {
     const [stats, report, region, categories, financials, products] = await Promise.all([
-        getStats(filter), getSalesReport(filter), getSalesByRegion(),
+        getStats(period), getSalesReport(period), getSalesByRegion(),
         getTopCategories(), getFinancials({ status: "delivered" }), getTopProducts()
     ]);
 

@@ -85,8 +85,6 @@ router.patch(
     validate(updateAdminProfileSchema),
     adminController.updateAdminProfile);
 
-// swagger apis
-// also filter in query too, like filter= daily/weekly/monthly
 
 /**
  * @swagger
@@ -97,12 +95,7 @@ router.patch(
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: filter
- *         schema:
- *           type: string
- *           enum: [daily, weekly, monthly]
- *         description: Filter type
+ *       - $ref: '#/components/parameters/Period'
  *     responses:
  *       200:
  *         description: Stats retrieved successfully
@@ -121,12 +114,7 @@ router.get("/stats", adminController.getStats);
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: filter
- *         schema:
- *           type: string
- *           enum: [daily, weekly, monthly]
- *         description: Filter type
+ *       - $ref: '#/components/parameters/Period'
  *     responses:
  *       200:
  *         description: Sales report retrieved successfully
@@ -143,12 +131,7 @@ router.get("/sales-report", adminController.getSalesReport);
  *     summary: Get sales by region (Admin Only)
  *     tags: [Admin]
  *     parameters:
- *       - in: query
- *         name: filter
- *         schema:
- *           type: string
- *           enum: [daily, weekly, monthly]
- *         description: Filter type
+ *       - $ref: '#/components/parameters/Period'
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -167,12 +150,7 @@ router.get("/sales-by-region", adminController.getSalesByRegion);
  *     summary: Get top categories (Admin Only)
  *     tags: [Admin]
  *     parameters:
- *       - in: query
- *         name: filter
- *         schema:
- *           type: string
- *           enum: [daily, weekly, monthly]
- *         description: Filter type
+ *       - $ref: '#/components/parameters/Period'
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -192,12 +170,7 @@ router.get("/top-categories", adminController.getTopCategories);
  *     summary: Get financial stats (Admin Only)
  *     tags: [Admin]
  *     parameters:
- *       - in: query
- *         name: filter
- *         schema:
- *           type: string
- *           enum: [daily, weekly, monthly, yearly, all-time]
- *         description: Filter type
+ *       - $ref: '#/components/parameters/Period'
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -217,12 +190,7 @@ router.get("/financial-stats", adminController.getFinancialStats);
  *     summary: Get financials (Admin Only)
  *     tags: [Admin]
  *     parameters:
- *       - in: query
- *         name: filter
- *         schema:
- *           type: string
- *           enum: [daily, weekly, monthly]
- *         description: Filter type
+ *       - $ref: '#/components/parameters/Period'
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -241,12 +209,7 @@ router.get("/financials", adminController.getFinancials);
  *     summary: Get top products (Admin Only)
  *     tags: [Admin]
  *     parameters:
- *       - in: query
- *         name: filter
- *         schema:
- *           type: string
- *           enum: [daily, weekly, monthly]
- *         description: Filter type
+ *       - $ref: '#/components/parameters/Period'
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -265,12 +228,7 @@ router.get("/top-products", adminController.getTopProducts);
  *     summary: Get dashboard summary (Admin Only)
  *     tags: [Admin]
  *     parameters:
- *       - in: query
- *         name: filter
- *         schema:
- *           type: string
- *           enum: [daily, weekly, monthly]
- *         description: Filter type
+ *       - $ref: '#/components/parameters/Period'
  *     security:
  *       - bearerAuth: []
  *     responses:

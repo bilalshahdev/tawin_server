@@ -5,8 +5,8 @@ import * as reviewService from "./review.service";
 import { STATUS_CODE } from "../../config/constants";
 
 export const getReviewDashboard = asyncHandler(async (req: Request, res: Response) => {
-    const period = (req.query.period as any) || 'month';
-    const stats = await reviewService.getReviewStats(period);
+    const filter = (req.query.filter as any) || 'monthly';
+    const stats = await reviewService.getReviewStats(filter);
     console.log({stats})
 
     res.status(STATUS_CODE.OK).json(

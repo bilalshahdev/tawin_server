@@ -1,17 +1,15 @@
-import { Review } from "./review.model";
-import { ApiError } from "../../utils/apiError";
 import { STATUS_CODE } from "../../config/constants";
+import { Period } from "../../types/global.types";
+import { ApiError } from "../../utils/apiError";
+import { fillBuckets, getTimelineBuckets } from "../../utils/graphHelper";
 import { getPaginationOptions } from "../../utils/pagination";
 import { User } from "../user/user.model";
-import {
-    subHours, eachHourOfInterval,
-    subDays, eachDayOfInterval,
-    subMonths, eachMonthOfInterval,
-    format, isSameHour, isSameDay, isSameMonth
-} from "date-fns";
+import { Review } from "./review.model";
 import { IReview } from "./review.types";
 
-export const getReviewStats = async (filter: 'day' | 'week' | 'month' | 'year' = 'month') => {
+export const getReviewStats = async (period: Period = 'monthly') => {
+    const buckets = getTimelineBuckets(period);
+    const startDate = buckets[0].timestamp;
     const stats = await Review.aggregate([
         {
             $facet: {
@@ -51,7 +49,13 @@ export const getReviewStats = async (filter: 'day' | 'week' | 'month' | 'year' =
         ? (reviewersCount / totalVerifiedUsers) * 100
         : 0;
 
-    const graphData = await generateTimelineData(filter);
+        
+
+    const reviews = await Review.find({
+        createdAt: { $gte: startDate }
+    }) as unknown as IReview[];
+
+    const graphData = fillBuckets(buckets, reviews, 'createdAt', period);
 
     return {
         totalReviews,
@@ -59,51 +63,9 @@ export const getReviewStats = async (filter: 'day' | 'week' | 'month' | 'year' =
         userReviewRate: Number(userReviewRate.toFixed(2)),
         starStats,
         graphData,
-        filter
+        period
     };
 };
-
-async function generateTimelineData(filter: string) {
-    const now = new Date();
-    let start: Date;
-    let intervals: Date[];
-    let dateFormat: string;
-
-    if (filter === 'day') {
-        start = subHours(now, 23);
-        intervals = eachHourOfInterval({ start, end: now });
-        dateFormat = "HH:00";
-    } else if (filter === 'week') {
-        start = subDays(now, 6);
-        intervals = eachDayOfInterval({ start, end: now });
-        dateFormat = "EEE";
-    } else if (filter === 'month') {
-        start = subDays(now, 29);
-        intervals = eachDayOfInterval({ start, end: now });
-        dateFormat = "dd MMM";
-    } else {
-        start = subMonths(now, 11);
-        intervals = eachMonthOfInterval({ start, end: now });
-        dateFormat = "MMM yyyy";
-    }
-
-    const reviews = await Review.find({
-        createdAt: { $gte: start }
-    }).select('createdAt') as unknown as IReview[];
-
-    return intervals.map(interval => {
-        const count = reviews.filter(rev => {
-            if (filter === 'day') return isSameHour(rev.createdAt, interval);
-            if (filter === 'year') return isSameMonth(rev.createdAt, interval);
-            return isSameDay(rev.createdAt, interval);
-        }).length;
-
-        return {
-            label: format(interval, dateFormat),
-            count
-        };
-    });
-}
 
 export const addReview = async (userId: string, data: any) => {
     const existingReview = await Review.findOne({ user: userId, product: data.product });

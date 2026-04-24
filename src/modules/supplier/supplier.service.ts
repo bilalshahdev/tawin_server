@@ -4,6 +4,7 @@ import { Product } from '../product/product.model';
 import mongoose from 'mongoose';
 import { ApiError } from '../../utils/apiError';
 import { getPaginationOptions } from '../../utils/pagination';
+import { Period } from '../../types/global.types';
 
 import {
     subDays, subHours, subMonths,
@@ -11,7 +12,7 @@ import {
     format, isSameDay, isSameHour, isSameMonth
 } from "date-fns";
 
-export const getSupplierStats = async (period: 'day' | 'week' | 'month' | 'year' = 'month') => {
+export const getSupplierStats = async (period: Period = 'monthly') => {
 
     const [totalSuppliers, activeSuppliers, inactiveSuppliers] = await Promise.all([
         Supplier.countDocuments(),
@@ -95,21 +96,21 @@ export const getSupplierStats = async (period: 'day' | 'week' | 'month' | 'year'
     };
 };
 
-async function generateSupplierTimeline(period: string) {
+async function generateSupplierTimeline(period: Period) {
     const now = new Date();
     let start: Date;
     let intervals: Date[];
     let dateFormat: string;
 
-    if (period === 'day') {
+    if (period === 'daily') {
         start = subHours(now, 23);
         intervals = eachHourOfInterval({ start, end: now });
         dateFormat = "HH:00";
-    } else if (period === 'week') {
+    } else if (period === 'weekly') {
         start = subDays(now, 6);
         intervals = eachDayOfInterval({ start, end: now });
         dateFormat = "EEE";
-    } else if (period === 'month') {
+    } else if (period === 'monthly') {
         start = subDays(now, 29);
         intervals = eachDayOfInterval({ start, end: now });
         dateFormat = "dd MMM";
@@ -123,9 +124,9 @@ async function generateSupplierTimeline(period: string) {
 
     return intervals.map(interval => {
         const periodLogs = logs.filter(log => {
-            if (period === 'day') return isSameHour(log.createdAt, interval);
-            if (period === 'year') return isSameMonth(log.createdAt, interval);
-            return isSameDay(log.createdAt, interval);
+            if (period === 'daily') return isSameHour(log.createdAt, interval);
+            if (period === 'weekly') return isSameDay(log.createdAt, interval);
+            return isSameMonth(log.createdAt, interval);
         });
 
         return {

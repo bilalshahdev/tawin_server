@@ -19,12 +19,7 @@ const router = Router();
  *       - bearerAuth: []
  *     description: Get user statistics
  *     parameters:
- *       - in: query
- *         name: filter
- *         schema:
- *           type: string
- *           enum: [daily, weekly, monthly, yearly, all-time]
- *         default: daily
+ *       - $ref: '#/components/parameters/Period'
  *     responses:
  *       200:
  *         description: User statistics retrieved successfully

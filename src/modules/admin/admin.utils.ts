@@ -3,13 +3,14 @@ import {
     subDays, subMonths, subWeeks, subYears,
     endOfDay, endOfMonth, endOfWeek, endOfYear
 } from 'date-fns';
+import { Period } from '../../types/global.types';
 
-export const getDateRange = (filter: string) => {
+export const getDateRange = (period: Period) => {
     const now = new Date();
     let currentStart: Date, prevStart: Date, prevEnd: Date;
     const currentEnd = now;
 
-    switch (filter) {
+    switch (period) {
         case 'daily':
             currentStart = startOfDay(now);
             prevStart = startOfDay(subDays(now, 1));

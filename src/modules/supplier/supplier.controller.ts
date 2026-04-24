@@ -2,9 +2,10 @@ import { Request, Response } from 'express';
 import * as supplierService from './supplier.service';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { ApiResponse } from '../../utils/apiResponse';
+import { Period } from '../../types/global.types';
 
 export const getStats = asyncHandler(async (req: Request, res: Response) => {
-    const period = (req.query.period as 'day' | 'week' | 'month' | 'year') || 'month';
+    const period = (req.query.period) as Period
     const stats = await supplierService.getSupplierStats(period);
     return res.status(200).json(new ApiResponse(req.t('supplier.stats_fetched'), stats));
 });

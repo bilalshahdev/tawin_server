@@ -5,16 +5,17 @@ import { AUTH_CONSTANTS, STATUS_CODE } from "../../config/constants";
 import bcrypt from "bcryptjs";
 import * as adminService from "./admin.service";
 import { updateUser } from "../user/user.service";
+import { Period } from "../../types/global.types";
 
 export const getStats = asyncHandler(async (req: Request, res: Response) => {
-    const filter = (req.query.filter as string) || 'daily';
-    const data = await adminService.getStats(filter);
+    const period = (req.query.period as Period) || 'daily';
+    const data = await adminService.getStats(period);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.stats_retrieved"), data));
 });
 
 export const getSalesReport = asyncHandler(async (req: Request, res: Response) => {
-    const filter = (req.query.filter as string) || 'daily';
-    const data = await adminService.getSalesReport(filter);
+    const period = (req.query.period as Period) || 'daily';
+    const data = await adminService.getSalesReport(period);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.report_retrieved"), data));
 });
 
@@ -34,8 +35,8 @@ export const getFinancials = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const getFinancialStats = asyncHandler(async (req: Request, res: Response) => {
-    const filter = (req.query.filter as string) || 'monthly';
-    const data = await adminService.getFinancialStats(filter);
+    const period = (req.query.period as Period) || 'monthly';
+    const data = await adminService.getFinancialStats(period);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.financial_stats_retrieved"), data));
 });
 
@@ -45,8 +46,8 @@ export const getTopProducts = asyncHandler(async (req: Request, res: Response) =
 });
 
 export const getDashboardSummary = asyncHandler(async (req: Request, res: Response) => {
-    const filter = (req.query.filter as string) || 'daily';
-    const data = await adminService.getFullSummary(filter);
+    const period = (req.query.period as Period) || 'daily';
+    const data = await adminService.getFullSummary(period);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.summary_retrieved"), data));
 });
 

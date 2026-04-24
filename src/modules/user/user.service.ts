@@ -7,102 +7,60 @@ import generateOTP from "../../utils/generateOtp";
 import { getPaginationOptions } from "../../utils/pagination";
 import { User } from "./user.model";
 import { ConstructionBasketStatus } from "./user.types";
+import { fillBuckets, getTimelineBuckets } from "../../utils/graphHelper";
+import { Period } from "../../types/global.types";
 
-export const getUserStats = async (filter: string = 'all-time') => {
-    const now = new Date();
-    let startDate: Date | null = null;
-    let groupByFormat = "%Y-%m-%d";
+export const getUserStats = async (period: Period = 'daily') => {
+    const buckets = getTimelineBuckets(period);
+    const startDate = buckets[0].timestamp;
+    const users = await User.find({
+        role: 'customer',
+        createdAt: { $gte: startDate }
+    }).select('createdAt').lean();
 
-    const filterLabel = filter.charAt(0).toUpperCase() + filter.slice(1);
-
-    switch (filter) {
-        case 'daily':
-            startDate = startOfDay(now);
-            groupByFormat = "%H:00";
-            break;
-        case 'weekly':
-            startDate = subDays(now, 7);
-            break;
-        case 'monthly':
-            startDate = startOfMonth(now);
-            break;
-        case 'yearly':
-            startDate = startOfYear(now);
-            groupByFormat = "%Y-%m";
-            break;
-        default:
-            startDate = null;
-    }
-
-    const matchQuery: any = { role: 'customer' };
-    if (startDate) {
-        matchQuery.createdAt = { $gte: startDate };
-    }
+    const graphData = fillBuckets(buckets, users, 'createdAt', period);
 
     const stats = await User.aggregate([
         {
-            $facet: {
-                cards: [
-                    { $match: matchQuery },
-                    {
-                        $group: {
-                            _id: null,
-                            total: { $sum: 1 },
-                            verified: { $sum: { $cond: ["$isVerified", 1, 0] } },
-                            unverified: { $sum: { $cond: ["$isVerified", 0, 1] } }
-                        }
-                    }
-                ],
-                graph: [
-                    { $match: matchQuery },
-                    {
-                        $group: {
-                            _id: { $dateToString: { format: groupByFormat, date: "$createdAt" } },
-                            count: { $sum: 1 }
-                        }
-                    },
-                    { $sort: { "_id": 1 } }
-                ]
+            $match: {
+                role: 'customer',
+                createdAt: { $gte: startDate }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                total: { $sum: 1 },
+                verified: { $sum: { $cond: ["$isVerified", 1, 0] } },
+                unverified: { $sum: { $cond: ["$isVerified", 0, 1] } }
             }
         }
     ]);
 
-    const rawCards = stats[0].cards[0] || { total: 0, verified: 0, unverified: 0 };
+    const rawCards = stats[0] || { total: 0, verified: 0, unverified: 0 };
 
     return {
         summary: {
-            filter: filterLabel,
+            period,
             cards: [
                 {
                     title: "Total Customers",
                     value: rawCards.total,
-                    change: {
-                        type: "increase",
-                        percentage: 100
-                    }
+                    change: { type: "increase", percentage: 100 }
                 },
                 {
                     title: "Verified Customers",
                     value: rawCards.verified,
-                    change: {
-                        type: "increase",
-                        percentage: 100
-                    }
+                    change: { type: "increase", percentage: 100 }
                 },
                 {
                     title: "Unverified Customers",
                     value: rawCards.unverified,
-                    change: {
-                        type: "increase",
-                        percentage: 0
-                    }
+                    change: { type: "increase", percentage: 0 }
                 }
             ]
         },
-        graph: stats[0].graph.map((item: any) => ({
-            label: item._id,
-            customers: item.count
-        }))
+        graph: graphData
     };
 };
 
@@ -157,12 +115,12 @@ export const updateUser = async (id: string, updateData: any, isAdmin?: boolean)
     const user = await User.findById(id);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
-    
+
     if (updateData.profileImage && user.profileImage && user.profileImage !== 'default-avatar.png') {
         await deleteFile(user.profileImage);
     }
 
-    
+
     if (!isAdmin && updateData.email && updateData.email !== user.email) {
         const emailExists = await User.findOne({ email: updateData.email });
         if (emailExists) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.user_exists");

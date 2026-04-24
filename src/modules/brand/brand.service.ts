@@ -13,12 +13,9 @@ export const createBrand = async (data: Partial<IBrand>) => {
 export const getAllBrands = async (query: any) => {
     const { page, limit, skip } = getPaginationOptions(query);
 
-    // 1. Extract search and initialize filter correctly
     const search = query?.search || '';
-    // Ensure filter is at least an empty object so we can attach properties to it
     const filter = query?.filter ? { ...query.filter } : {};
 
-    // 2. Safely attach search logic
     if (search) {
         filter.$or = [
             { "name.en": { $regex: search, $options: 'i' } },
