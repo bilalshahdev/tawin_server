@@ -159,10 +159,7 @@ export const testLogin = asyncHandler(async (req: Request, res: Response) => {
         throw new ApiError(STATUS_CODE.NOT_FOUND, "general.not_found");
     }
 
-    const user = await User.findOne({ role: 'admin' });
-    if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
-
-    const token = await authService.login({ email: user.email, password: "12345678" });
+    const token = await authService.testLogin();
     res.json(new ApiResponse(req.t('auth.login_success'), token));
 });
 

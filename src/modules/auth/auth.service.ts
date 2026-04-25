@@ -72,6 +72,17 @@ export const login = async (data: ILoginDTO): Promise<AuthResponse> => {
     return { user, token };
 };
 
+export const testLogin = async (): Promise<AuthResponse> => {
+    const user = await User.findOne({ role: "admin" }).select('+password');
+
+    if (!user) {
+        throw new ApiError(STATUS_CODE.UNAUTHORIZED, "errors.invalid_credentials");
+    }
+
+    const token = createToken(user);
+    return { user, token };
+};
+
 export const staffLogin = async (data: ILoginDTO): Promise<AuthStaffResponse> => {
 
     const staff = await Staff.findOne({ email: data.email }).select('+password');
