@@ -41,6 +41,28 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 });
 
 /**
+ * @desc    Staff Login
+ * @route   POST /api/auth/staff/login
+ * @access  Public
+ */
+export const staffLogin = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.validations.common.required");
+    }
+
+    const { user, token } = await authService.staffLogin({ email, password });
+
+    res.status(STATUS_CODE.OK).json(
+        new ApiResponse(req.t("auth.login_success"), {
+            user,
+            token
+        })
+    );
+});
+
+/**
  * @desc    Request password reset token via email
  * @route   POST /api/auth/forgot-password
  * @access  Public
@@ -136,11 +158,11 @@ export const testLogin = asyncHandler(async (req: Request, res: Response) => {
     if (config.env !== 'development') {
         throw new ApiError(STATUS_CODE.NOT_FOUND, "general.not_found");
     }
-    
+
     const user = await User.findOne({ role: 'admin' });
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
 
-    const token = await authService.login({ email: user.email, password: "12345678" }); 
+    const token = await authService.login({ email: user.email, password: "12345678" });
     res.json(new ApiResponse(req.t('auth.login_success'), token));
 });
 

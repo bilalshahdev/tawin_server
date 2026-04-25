@@ -115,6 +115,29 @@ router.post("/login", authRateLimiter, validate(schemas.loginSchema), authContro
 
 /**
  * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Staff login
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AuthLogin'
+ *     responses:
+ *       200:
+ *         description: Staff logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
+router.post("/login/staff", authRateLimiter, validate(schemas.loginSchema), authController.staffLogin);
+
+
+/**
+ * @swagger
  * /auth/forgot-password:
  *   post:
  *     summary: Request password reset

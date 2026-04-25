@@ -2,11 +2,12 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { AUTH_CONSTANTS, STATUS_CODE } from '../../config/constants';
 import { sendEmail } from '../../services/email.service';
-import { createToken } from '../../services/jwt.service';
+import { createStaffToken, createToken } from '../../services/jwt.service';
 import { ApiError } from '../../utils/apiError';
 import { User } from '../user/user.model';
-import { AuthResponse, ILoginDTO, IRegisterDTO } from './auth.types';
+import { AuthResponse, AuthStaffResponse, ILoginDTO, IRegisterDTO } from './auth.types';
 import generateOTP from '../../utils/generateOtp';
+import { Staff } from '../staff/staff.model';
 
 export const register = async (data: IRegisterDTO, isAdminRequest: boolean = false): Promise<AuthResponse> => {
     const existing = await User.findOne({
@@ -69,6 +70,20 @@ export const login = async (data: ILoginDTO): Promise<AuthResponse> => {
 
     const token = createToken(user);
     return { user, token };
+};
+
+export const staffLogin = async (data: ILoginDTO): Promise<AuthStaffResponse> => {
+
+    const staff = await Staff.findOne({ email: data.email }).select('+password');
+    if (!staff || !(await bcrypt.compare(data.password!, staff.password!))) {
+        throw new ApiError(STATUS_CODE.UNAUTHORIZED, "errors.invalid_credentials");
+    }
+    if (!staff.isActive) {
+        throw new ApiError(STATUS_CODE.FORBIDDEN, "errors.account_deactivated");
+    }
+    const token = createStaffToken(staff);
+
+    return { user: staff, token };
 };
 
 export const forgotPassword = async (email: string) => {
