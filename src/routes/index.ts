@@ -15,6 +15,7 @@ import orderRoutes from "../modules/order/order.routes";
 import supplierRoutes from "../modules/supplier/supplier.routes";
 import brandRoutes from "../modules/brand/brand.routes";
 import staffRoutes from "../modules/staff/staff.routes";
+import notificationRoutes from "../modules/notification/notification.routes";
 
 const router = Router();
 
@@ -41,6 +42,7 @@ router.use("/suppliers", supplierRoutes);
 router.use("/settings", settingsRoutes);
 router.use("/contact", contactRoutes);
 router.use("/brands", brandRoutes);
+router.use("/notifications", notificationRoutes);
 
 router.use("/staff", staffRoutes);
 

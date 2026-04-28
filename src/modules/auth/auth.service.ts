@@ -8,6 +8,7 @@ import { User } from '../user/user.model';
 import { AuthResponse, AuthStaffResponse, ILoginDTO, IRegisterDTO } from './auth.types';
 import generateOTP from '../../utils/generateOtp';
 import { Staff } from '../staff/staff.model';
+import * as notificationService from '../notification/notification.service';
 
 export const register = async (data: IRegisterDTO, isAdminRequest: boolean = false): Promise<AuthResponse> => {
     const existing = await User.findOne({
@@ -21,7 +22,7 @@ export const register = async (data: IRegisterDTO, isAdminRequest: boolean = fal
         const user = await User.create({
             ...data,
             password: hashedPassword,
-            isVerified: true, // Auto-verify
+            isVerified: true,
         });
 
         const token = createToken(user);
@@ -37,6 +38,12 @@ export const register = async (data: IRegisterDTO, isAdminRequest: boolean = fal
         verificationOtp: otp,
         verificationOtpExpires: new Date(Date.now() + 10 * 60 * 1000),
         verificationOtpLastSent: new Date()
+    });
+
+    await notificationService.notifyAdmins({
+        title: 'NOTIF_NEW_USER_TITLE',
+        message: 'NOTIF_NEW_USER_MSG',
+        type: 'auth'
     });
 
     await sendEmail(user.email, "Verify Your Account", `Your OTP is: <b>${otp}</b>`);

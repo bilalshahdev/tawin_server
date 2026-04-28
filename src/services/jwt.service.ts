@@ -15,7 +15,7 @@ const createToken = (user: IUser) => {
 
 const createStaffToken = (user: IStaff) => {
     return jwt.sign(
-        { id: user._id, role: user.role, isActive: user.isActive },
+        { id: user._id, role: user.role, isActive: user.isActive, permissions: user.permissions || [] },
         AUTH_CONSTANTS.JWT_ACCESS_SECRET,
         { expiresIn: AUTH_CONSTANTS.JWT_ACCESS_EXPIRY }
     );

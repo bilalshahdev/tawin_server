@@ -115,7 +115,7 @@ router.post("/login", authRateLimiter, validate(schemas.loginSchema), authContro
 
 /**
  * @swagger
- * /auth/login:
+ * /auth/login/staff:
  *   post:
  *     summary: Staff login
  *     tags: [Auth]

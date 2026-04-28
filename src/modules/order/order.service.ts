@@ -6,6 +6,8 @@ import { Cart } from '../cart/cart.model';
 import { Coupon } from '../coupon/coupon.model';
 import { validateCoupon } from '../coupon/coupon.service';
 import { Order } from './order.model';
+import * as notificationService from '../notification/notification.service';
+import { STATUS_CODE } from '../../config/constants';
 
 export const getOrderStats = async () => {
     const stats = await Order.aggregate([
@@ -48,10 +50,13 @@ export const getOrderStats = async () => {
 export const placeOrder = async (userId: string, orderData: any) => {
     const session = await mongoose.startSession();
     session.startTransaction();
+
     try {
-        // 1. Fetch Address (Ensure it belongs to the user)
+        // 1. Fetch and Verify Address
         const userAddress = await Address.findOne({ _id: orderData.addressId, user: userId });
-        if (!userAddress) throw new ApiError(404, "Address not found or unauthorized");
+        if (!userAddress) {
+            throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.address_not_found");
+        }
 
         const addressSnapshot = {
             label: userAddress.label,
@@ -62,9 +67,11 @@ export const placeOrder = async (userId: string, orderData: any) => {
             country: userAddress.country
         };
 
-        // 2. Fetch Cart
+        // 2. Fetch and Verify Cart
         const cart = await Cart.findOne({ user: userId }).populate('items.product');
-        if (!cart || cart.items.length === 0) throw new ApiError(400, "Cart is empty");
+        if (!cart || cart.items.length === 0) {
+            throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.cart_empty");
+        }
 
         let totalAmount = 0;
         const orderItems = [];
@@ -72,12 +79,15 @@ export const placeOrder = async (userId: string, orderData: any) => {
         // 3. Process Items & Update Stock
         for (const item of cart.items) {
             const product = item.product as any;
-            if (!product) throw new ApiError(404, "One of the products in your cart no longer exists");
-
-            if (product.remainingPieces < item.quantity) {
-                throw new ApiError(400, `Insufficient stock for ${product.title.en}`);
+            if (!product) {
+                throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
             }
 
+            if (product.remainingPieces < item.quantity) {
+                throw new ApiError(STATUS_CODE.BAD_REQUEST, `Insufficient stock for ${product.title.en}`);
+            }
+
+            // Decrement stock within the transaction
             product.remainingPieces -= item.quantity;
             await product.save({ session });
 
@@ -89,11 +99,18 @@ export const placeOrder = async (userId: string, orderData: any) => {
             });
         }
 
-        // 4. Handle Coupon
+        // 4. Handle Coupon Validation and Usage
         let discountAmount = 0;
         if (orderData.couponCode) {
-            const { coupon, discountAmount: disc } = await validateCoupon(orderData.couponCode, orderData.type as 'fixed' | 'percentage', totalAmount, userId);
-            discountAmount = disc;
+            const { coupon, discountAmount: calculatedDiscount } = await validateCoupon(
+                orderData.couponCode,
+                orderData.type as 'fixed' | 'percentage',
+                totalAmount,
+                userId
+            );
+
+            discountAmount = calculatedDiscount;
+
             await Coupon.findByIdAndUpdate(
                 coupon._id,
                 { $inc: { usedCount: 1 }, $push: { usedBy: userId } },
@@ -101,8 +118,8 @@ export const placeOrder = async (userId: string, orderData: any) => {
             );
         }
 
-        // 5. Create Order
-        const order = await Order.create([{
+        // 5. Create the Order document
+        const orderResult = await Order.create([{
             user: userId,
             items: orderItems,
             totalAmount,
@@ -115,14 +132,51 @@ export const placeOrder = async (userId: string, orderData: any) => {
             couponCode: orderData.couponCode
         }], { session });
 
-        // 6. Clear Cart
+        const finalOrder = orderResult[0];
+
+        // 6. Clear the User's Cart
         await Cart.findOneAndUpdate({ user: userId }, { items: [] }, { session });
 
+        // Commit all changes
         await session.commitTransaction();
-        return order[0];
-    } catch (e) {
+
+        // ---------------------------------------------------------
+        // POST-TRANSACTION NOTIFICATIONS
+        // ---------------------------------------------------------
+
+        // A. Notify Admins about the New Order
+        await notificationService.notifyAdmins({
+            title: 'NOTIF_NEW_ORDER_TITLE',
+            message: 'NOTIF_NEW_ORDER_MSG',
+            type: 'order',
+            metadata: { orderId: finalOrder._id }
+        });
+
+        // B. Notify the Customer about their placement
+        await notificationService.createNotification({
+            recipient: finalOrder.user,
+            recipientType: 'User',
+            title: 'NOTIF_ORDER_PLACED_TITLE',
+            message: 'NOTIF_ORDER_PLACED_MSG',
+            type: 'order',
+            metadata: { orderId: finalOrder._id }
+        });
+
+        if (finalOrder.couponCode) {
+            await notificationService.notifyAdmins({
+                title: 'NOTIF_COUPON_USAGE_TITLE',
+                message: 'NOTIF_COUPON_USAGE_MSG',
+                type: 'coupon',
+                metadata: { orderId: finalOrder._id }
+            });
+        }
+
+        return finalOrder;
+
+    } catch (error) {
+        // Rollback all changes if any step fails
         await session.abortTransaction();
-        throw e;
+        throw error;
     } finally {
         session.endSession();
     }
@@ -159,8 +213,22 @@ export const getOrderDetails = async (id: string, userId?: string) => {
     return await Order.findOne(filter).populate('items.product user');
 };
 
-export const updateStatus = async (id: string, status: string) =>
-    Order.findByIdAndUpdate(id, { status }, { new: true });
+export const updateStatus = async (id: string, status: string) => {
+    const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+
+    if (order) {
+        await notificationService.createNotification({
+            recipient: order.user as any,
+            recipientType: 'User',
+            title: 'NOTIF_ORDER_UPDATE_TITLE',
+            message: `NOTIF_ORDER_${status.toUpperCase()}_MSG`,
+            type: 'order',
+            metadata: { orderId: order._id as any }
+        });
+    }
+
+    return order;
+};
 
 export const getAllOrders = async (query: any) => {
     const { page, limit, skip } = getPaginationOptions(query);

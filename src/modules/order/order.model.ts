@@ -3,7 +3,7 @@ import { Schema, model, Document } from 'mongoose';
 export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
 export interface IOrder extends Document {
-    user: Schema.Types.ObjectId;
+    user: any;
     items: Array<{
         product: Schema.Types.ObjectId;
         quantity: number;

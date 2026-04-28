@@ -1,14 +1,15 @@
-import { startOfDay, startOfMonth, startOfYear, subDays } from "date-fns";
 import { STATUS_CODE } from "../../config/constants";
 import { sendEmail } from "../../services/email.service";
+import { Period } from "../../types/global.types";
 import { ApiError } from "../../utils/apiError";
 import { deleteFile } from "../../utils/deleteFile";
 import generateOTP from "../../utils/generateOtp";
+import { fillBuckets, getTimelineBuckets } from "../../utils/graphHelper";
 import { getPaginationOptions } from "../../utils/pagination";
+import * as notificationService from '../notification/notification.service';
+import { Staff } from "../staff/staff.model";
 import { User } from "./user.model";
 import { ConstructionBasketStatus } from "./user.types";
-import { fillBuckets, getTimelineBuckets } from "../../utils/graphHelper";
-import { Period } from "../../types/global.types";
 
 export const getUserStats = async (period: Period = 'daily') => {
     const buckets = getTimelineBuckets(period);
@@ -105,7 +106,13 @@ export const getAllUsersService = async (query: any) => {
     };
 };
 
-export const getUser = async (id: string) => {
+export const getUser = async (id: string, role?: string) => {
+    const isStaff = role === 'staff';
+    if (isStaff) {
+        const user = await Staff.findById(id);
+        if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
+        return user;
+    }
     const user = await User.findById(id);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
     return user;
@@ -155,9 +162,19 @@ export const updateProfilePicture = async (id: string, newImagePath: string) => 
 export const verifyUser = async (id: string) => {
     const user = await User.findById(id);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
+
     user.isVerified = !user.isVerified;
     await user.save();
-    return user
+
+    await notificationService.createNotification({
+        recipient: user._id,
+        recipientType: 'User',
+        title: 'NOTIF_ACCOUNT_VERIFIED_TITLE',
+        message: user.isVerified ? 'NOTIF_ACCOUNT_VERIFIED_MSG' : 'NOTIF_ACCOUNT_DEACTIVATED_MSG',
+        type: 'auth'
+    });
+
+    return user;
 };
 
 export const deleteUser = async (userId: string) => {
@@ -172,6 +189,7 @@ export const deleteUser = async (userId: string) => {
 
     return await User.findByIdAndDelete(userId);
 };
+
 
 export const applyForBasket = async (userId: string, basketData: any) => {
     const user = await User.findById(userId);
@@ -194,7 +212,14 @@ export const applyForBasket = async (userId: string, basketData: any) => {
         status: 'pending'
     };
 
-    return await user.save();
+    const savedUser = await user.save();
+    await notificationService.notifyAdmins({
+        title: 'NOTIF_BASKET_APPLIED_TITLE',
+        message: 'NOTIF_BASKET_APPLIED_MSG',
+        type: 'basket'
+    });
+
+    return savedUser;
 };
 
 export const fetchAllBasketRequests = async (query: any) => {
@@ -232,6 +257,7 @@ export const fetchAllBasketRequests = async (query: any) => {
     };
 };
 
+
 export const updateBasketRequestStatus = async (userId: string, status: string) => {
     const user = await User.findById(userId);
     if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
@@ -249,7 +275,17 @@ export const updateBasketRequestStatus = async (userId: string, status: string) 
     }
 
     user.constructionBasket.status = status as ConstructionBasketStatus;
-    return await user.save();
+    const updatedUser = await user.save();
+
+    await notificationService.createNotification({
+        recipient: user._id,
+        recipientType: 'User',
+        title: 'NOTIF_BASKET_STATUS_TITLE',
+        message: `NOTIF_BASKET_${status.toUpperCase()}_MSG`,
+        type: 'basket'
+    });
+
+    return updatedUser;
 };
 
 

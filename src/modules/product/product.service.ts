@@ -5,7 +5,7 @@ import { STATUS_CODE } from "../../config/constants";
 import { Review } from "../review/review.model";
 import { getPaginationOptions } from "../../utils/pagination";
 import { config } from "../../config/env.config";
-
+import * as notificationService from '../notification/notification.service';
 
 export const createProduct = async (data: any) => {
     return await Product.create(data);
@@ -76,12 +76,35 @@ export const updateProduct = async (id: string, updateData: any) => {
     const product = await Product.findById(id);
     if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
 
-    // If a new photo is provided, delete the old one from storage
     if (updateData.photo && product.photo) {
         deleteFile(product.photo);
     }
 
-    return await Product.findByIdAndUpdate(id, updateData, { new: true });
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (updatedProduct) {
+        // If the product was just marked as a New Arrival
+        if (updateData.isNewArrival === true && product.isNewArrival !== true) {
+            await notificationService.notifyAllCustomers({
+                title: 'NOTIF_NEW_ARRIVAL_TITLE',
+                message: 'NOTIF_NEW_ARRIVAL_MSG',
+                type: 'promotion',
+                metadata: { productId: updatedProduct._id }
+            });
+        }
+
+        // If the product was just marked as Featured
+        if (updateData.isFeatured === true && product.isFeatured !== true) {
+            await notificationService.notifyAllCustomers({
+                title: 'NOTIF_FEATURED_PRODUCT_TITLE',
+                message: 'NOTIF_FEATURED_PRODUCT_MSG',
+                type: 'promotion',
+                metadata: { productId: updatedProduct._id }
+            });
+        }
+    }
+
+    return updatedProduct;
 };
 
 
@@ -98,16 +121,35 @@ export const getLowStockProducts = async (query: any) => {
     return { data: products, meta: { page, limit, totalDocs, totalPages: Math.ceil(totalDocs / limit) } };
 };
 
-// Update only the remainingPieces field for a specific product
+
 export const updateProductStock = async (productId: string, quantity: number) => {
-    return await Product.findByIdAndUpdate(
+    const product = await Product.findByIdAndUpdate(
         productId,
         { remainingPieces: quantity },
         { new: true, runValidators: true }
     );
+
+    if (product) {
+        // Trigger Admin Notification for Stock
+        if (product.remainingPieces === 0) {
+            await notificationService.notifyAdmins({
+                title: 'NOTIF_OUT_OF_STOCK_TITLE',
+                message: 'NOTIF_OUT_OF_STOCK_MSG',
+                type: 'stock',
+                metadata: { productId: product._id }
+            });
+        } else if (product.remainingPieces <= config.lowStockThreshold) {
+            await notificationService.notifyAdmins({
+                title: 'NOTIF_LOW_STOCK_TITLE',
+                message: 'NOTIF_LOW_STOCK_MSG',
+                type: 'stock',
+                metadata: { productId: product._id }
+            });
+        }
+    }
+
+    return product;
 };
-
-
 
 export const updateStock = async (id: string, quantity: number, isAddition: boolean = false) => {
     const product = await Product.findById(id);
@@ -119,10 +161,27 @@ export const updateStock = async (id: string, quantity: number, isAddition: bool
         product.remainingPieces = quantity;
     }
 
-    return await product.save();
+    const savedProduct = await product.save();
+
+    // Trigger Admin Notification for Stock
+    if (savedProduct.remainingPieces === 0) {
+        await notificationService.notifyAdmins({
+            title: 'NOTIF_OUT_OF_STOCK_TITLE',
+            message: 'NOTIF_OUT_OF_STOCK_MSG',
+            type: 'stock',
+            metadata: { productId: savedProduct._id }
+        });
+    } else if (savedProduct.remainingPieces <= config.lowStockThreshold) {
+        await notificationService.notifyAdmins({
+            title: 'NOTIF_LOW_STOCK_TITLE',
+            message: 'NOTIF_LOW_STOCK_MSG',
+            type: 'stock',
+            metadata: { productId: savedProduct._id }
+        });
+    }
+
+    return savedProduct;
 };
-
-
 
 export const deleteProduct = async (id: string) => {
     const product = await Product.findById(id);

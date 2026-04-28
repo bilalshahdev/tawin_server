@@ -23,6 +23,7 @@ export const authMiddleware = (
     try {
         const decoded = jwt.verify(token, AUTH_CONSTANTS.JWT_ACCESS_SECRET) as TokenPayload;
         req.user = decoded;
+        console.log({decoded})
         next();
     } catch {
         next(new ApiError(STATUS_CODE.UNAUTHORIZED, req.t("auth.invalid_token")));

@@ -35,7 +35,8 @@ export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
  */
 
 export const getUser = asyncHandler(async (req: Request, res: Response) => {
-    const user = await userService.getUser(req.user!.id);
+    const role = req.user!.role;
+    const user = await userService.getUser(req.user!.id, role);
     res.json(new ApiResponse(req.t('user.profile_retrieved'), user));
 });
 

@@ -1,0 +1,26 @@
+import { Request, Response } from 'express';
+import { asyncHandler } from '../../utils/asyncHandler';
+import { ApiResponse } from '../../utils/apiResponse';
+import { STATUS_CODE } from '../../config/constants';
+import * as notificationService from './notification.service';
+
+export const getNotifications = asyncHandler(async (req: Request, res: Response) => {
+    const result = await notificationService.getMyNotifications(req.user!.id, req.query);
+    return res.status(STATUS_CODE.OK).json(
+        new ApiResponse(req.t('NOTIFICATIONS_FETCHED'), result)
+    );
+});
+
+export const markAsRead = asyncHandler(async (req: Request, res: Response) => {
+    const notification = await notificationService.markRead(req.params.id as string, req.user!.id);
+    return res.status(STATUS_CODE.OK).json(
+        new ApiResponse(req.t('NOTIFICATION_MARKED_READ'), notification)
+    );
+});
+
+export const markAllAsRead = asyncHandler(async (req: Request, res: Response) => {
+    await notificationService.markAllRead(req.user!.id);
+    return res.status(STATUS_CODE.OK).json(
+        new ApiResponse(req.t('ALL_NOTIFICATIONS_MARKED_READ'), null)
+    );
+});
