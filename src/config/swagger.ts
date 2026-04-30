@@ -217,9 +217,9 @@ const options: swaggerJsdoc.Options = {
                         module: {
                             type: 'string',
                             enum: [
-                                'dashboard', 'orders', 'users', 'staff', 'products',
+                                'dashboard', 'orders', 'users', 'staff', 'products', 'sales',
                                 'construction-basket', 'reviews', 'suppliers',
-                                'coupon codes', 'financial transfers', 'brand', 'stock'
+                                'coupons', 'financial', 'brand', 'stock'
                             ]
                         },
                         operations: {

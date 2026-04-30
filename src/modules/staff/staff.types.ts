@@ -1,9 +1,9 @@
 export type Operation = 'get' | 'post' | 'patch' | 'put' | 'delete';
 
 export type StaffModule = 
-    | 'dashboard' | 'orders' | 'users' | 'staff' | 'products' 
-    | 'construction-basket' | 'reviews' | 'suppliers' | 'coupon codes' 
-    | 'financial transfers' | 'brand' | 'stock';
+    | 'dashboard' | 'orders' | 'users' | 'staff' | 'products' | 'sales'
+    | 'construction-basket' | 'reviews' | 'suppliers' | 'coupon' 
+    | 'financial' | 'brand' | 'stock';
 
 export interface IPermission {
     module: StaffModule;

@@ -7,9 +7,9 @@ const permissionSchema = new Schema({
         type: String,
         required: true,
         enum: [
-            'dashboard', 'orders', 'users', 'staff', 'products',
+            'dashboard', 'orders', 'users', 'staff', 'products', 'sales',
             'construction-basket', 'reviews', 'suppliers',
-            'coupon codes', 'financial transfers', 'brand', 'stock'
+            'coupon', 'financial', 'brand', 'stock'
         ]
     },
     operations: {

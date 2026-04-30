@@ -88,7 +88,7 @@ router.patch(
 
 /**
  * @swagger
- * /admin/stats:
+ * /admin/dashboard/stats:
  *   get:
  *     summary: Get stats (Admin Only)
  *     tags: [Admin]
@@ -104,7 +104,7 @@ router.patch(
  *             schema:
  *               $ref: '#/components/schemas/ApiResponse'
  */
-router.get("/stats", adminController.getStats);
+router.get("/dashboard/stats", adminController.getStats);
 /**
  * @swagger
  * /admin/sales-report:
@@ -223,7 +223,7 @@ router.get("/financials", adminController.getFinancials);
 router.get("/top-products", adminController.getTopProducts);
 /**
  * @swagger
- * /admin/summary:
+ * /admin/dashboard:
  *   get:
  *     summary: Get dashboard summary (Admin Only)
  *     tags: [Admin]
@@ -239,7 +239,7 @@ router.get("/top-products", adminController.getTopProducts);
  *             schema:
  *               $ref: '#/components/schemas/ApiResponse'
  */
-router.get("/summary", adminController.getDashboardSummary);
+router.get("/dashboard", adminController.getDashboardSummary);
 
 // ==========================================
 // USER MANAGEMENT
