@@ -20,13 +20,13 @@ export const checkout = asyncHandler(async (req: Request, res: Response) => {
 
 export const listOrders = asyncHandler(async (req: Request, res: Response) => {
     // If user is not admin, only fetch their own orders
-    const userId = req.user!.role === 'admin' ? undefined : req.user!.id;
+    const userId = req.user!.role === 'admin' || req.user!.role === 'staff' ? undefined : req.user!.id;
     const { data, meta } = await orderService.getOrders(req.query, userId);
     return res.status(200).json(new ApiResponse(req.t('orders_fetched'), data, meta));
 });
 
 export const getOrder = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user!.role === 'admin' ? undefined : req.user!.id;
+    const userId = req.user!.role === 'admin' || req.user!.role === 'staff' ? undefined : req.user!.id;
     const order = await orderService.getOrderDetails(req.params.id as string, userId);
     if (!order) throw new ApiError(404, "Order not found");
     return res.status(200).json(new ApiResponse(req.t('order_fetched'), order));

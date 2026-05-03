@@ -46,6 +46,7 @@ export const getTopProducts = asyncHandler(async (req: Request, res: Response) =
 });
 
 export const getDashboardSummary = asyncHandler(async (req: Request, res: Response) => {
+    console.log("API HIT", new Date().toISOString());
     const period = (req.query.period as Period) || 'daily';
     const data = await adminService.getFullSummary(period);
     res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("admin.summary_retrieved"), data));
