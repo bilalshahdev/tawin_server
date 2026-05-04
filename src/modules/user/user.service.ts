@@ -187,6 +187,10 @@ export const deleteUser = async (userId: string) => {
         throw new ApiError(STATUS_CODE.FORBIDDEN, "errors.admin_deletion_prohibited");
     }
 
+    if (user.profileImage && user.profileImage !== 'default-avatar.png') {
+        deleteFile(user.profileImage);
+    }
+
     return await User.findByIdAndDelete(userId);
 };
 

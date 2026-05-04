@@ -1,64 +1,62 @@
-// src/config/multer.config.ts
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import type { Request } from 'express';
 import { UPLOAD_PATHS, STATUS_CODE } from './constants';
 import { ApiError } from '../utils/apiError';
 
+// Routes uploaded files to a per-domain folder under /uploads.
+//
+// Resolution order:
+//   1. Document fields (resume / documents) — always go to /uploads/documents,
+//      independent of the route they came in on.
+//   2. URL-based routing — picks the folder by inspecting `req.baseUrl + req.path`,
+//      so /api/products/* uploads land in /uploads/products, etc.
+//   3. Fallback — anything we can't classify lands in /uploads/others.
+const resolveDestination = (req: Request, file: Express.Multer.File): string => {
+    if (file.fieldname === 'resume' || file.fieldname === 'documents') {
+        return UPLOAD_PATHS.DOCUMENTS;
+    }
+
+    const url = `${req.baseUrl || ''}${req.path || ''}` || req.originalUrl || '';
+
+    if (/\/(users|staff|auth|admin)(\/|$)/.test(url)) return UPLOAD_PATHS.PROFILES;
+    if (/\/categories(\/|$)/.test(url)) return UPLOAD_PATHS.CATEGORIES;
+    if (/\/products(\/|$)/.test(url)) return UPLOAD_PATHS.PRODUCTS;
+    if (/\/brands(\/|$)/.test(url)) return UPLOAD_PATHS.BRANDS;
+    if (/\/settings(\/|$)/.test(url)) return UPLOAD_PATHS.SETTINGS;
+
+    return UPLOAD_PATHS.OTHERS;
+};
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        let folder: string;
-        switch (file.fieldname) {
-            case 'avatar':
-            case 'profileImage':
-            case 'profile_pic':
-                folder = UPLOAD_PATHS.PROFILE_PICS;
-                break;
-            case 'images':
-            case 'productImage':
-                folder = UPLOAD_PATHS.PRODUCTS;
-                break;
-            case 'resume':
-                folder = UPLOAD_PATHS.RESUMES;
-                break;
-            case 'documents':
-                folder = UPLOAD_PATHS.DOCUMENTS;
-                break;
-            default:
-                folder = UPLOAD_PATHS.OTHERS;
-        }
-
+        const folder = resolveDestination(req as Request, file);
         if (!fs.existsSync(folder)) {
             fs.mkdirSync(folder, { recursive: true });
         }
-
         cb(null, folder);
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
-    }
+    },
 });
 
-const fileFilter = (req: any, file: any, cb: any) => {
+const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
     if (file.fieldname === 'resume' || file.fieldname === 'documents') {
-        if (file.mimetype === 'application/pdf') {
-            cb(null, true);
-        } else {
-            // Pass the KEY, not the string
-            cb(new ApiError(STATUS_CODE.BAD_REQUEST, 'errors.only_pdf'), false);
-        }
-    } else if (allowedImageTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new ApiError(STATUS_CODE.BAD_REQUEST, 'errors.invalid_image'), false);
+        if (file.mimetype === 'application/pdf') return cb(null, true);
+        return cb(new ApiError(STATUS_CODE.BAD_REQUEST, 'errors.only_pdf'));
     }
+
+    if (allowedImageTypes.includes(file.mimetype)) return cb(null, true);
+    return cb(new ApiError(STATUS_CODE.BAD_REQUEST, 'errors.invalid_image'));
 };
 
 export const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 }
+    limits: { fileSize: 5 * 1024 * 1024 },
 });

@@ -80,6 +80,12 @@ export const updateProduct = async (id: string, updateData: any) => {
         deleteFile(product.photo);
     }
 
+    // When the client uploads new images, the controller passes the full new array.
+    // Treat that as a full replacement and remove the old image files from disk.
+    if (updateData.images && Array.isArray(product.images) && product.images.length > 0) {
+        product.images.forEach((oldImg: string) => deleteFile(oldImg));
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
 
     if (updatedProduct) {

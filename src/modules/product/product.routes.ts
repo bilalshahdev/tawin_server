@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as productController from "./product.controller";
 import { authMiddleware, authorize } from "../../middlewares/auth.middleware";
-import { upload } from "../../middlewares/upload.middleware";
+import { upload } from "../../config/multer.config";
 import { validate } from "../../middlewares/validate.middleware";
 import * as schemas from "./product.validation";
 import { trackUploadedFiles } from "../../middlewares/trackUploadedFiles.middleware";
@@ -315,6 +315,7 @@ router.patch(
     authMiddleware,
     authorize("admin"),
     upload.fields([{ name: "images", maxCount: 10 }, { name: "photo", maxCount: 1 }]),
+    trackUploadedFiles,
     validate(schemas.updateProductSchema),
     productController.update
 );

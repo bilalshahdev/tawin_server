@@ -5,6 +5,7 @@ import { ICategory } from "./category.types";
 import { FilterQuery, Types } from "mongoose";
 import { getPaginationOptions } from "../../utils/pagination";
 import { PaginatedResponse } from "../../types/response.interface";
+import { deleteFile } from "../../utils/deleteFile";
 
 export const createCategory = async (data: Partial<ICategory>) => {
     const existing = await Category.findOne({ "name.en": data.name?.en });
@@ -120,13 +121,21 @@ export const getCategoryBySlug = async (slug: string, isAdmin: boolean = false) 
 };
 
 export const updateCategory = async (id: string, data: Partial<ICategory>) => {
-    const category = await Category.findByIdAndUpdate(id, data, { new: true });
-    if (!category) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.category_not_found");
-    return category;
+    const existing = await Category.findById(id);
+    if (!existing) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.category_not_found");
+
+    if (data.thumbnail && existing.thumbnail && data.thumbnail !== existing.thumbnail) {
+        deleteFile(existing.thumbnail);
+    }
+
+    return await Category.findByIdAndUpdate(id, data, { new: true });
 };
 
 export const deleteCategory = async (id: string) => {
     const category = await Category.findByIdAndDelete(id);
     if (!category) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.category_not_found");
+
+    if (category.thumbnail) deleteFile(category.thumbnail);
+
     return category;
 };

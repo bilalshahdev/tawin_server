@@ -3,6 +3,7 @@ import * as brandController from "./brand.controller";
 import { authMiddleware, authorize } from "../../middlewares/auth.middleware";
 import { upload } from "../../config/multer.config";
 import { validate } from "../../middlewares/validate.middleware";
+import { trackUploadedFiles } from "../../middlewares/trackUploadedFiles.middleware";
 import { createBrandSchema, updateBrandSchema } from "./brand.validation";
 
 const router = Router();
@@ -90,6 +91,7 @@ router.route("/")
         authMiddleware,
         authorize("admin"),
         upload.single("image"),
+        trackUploadedFiles,
         validate(createBrandSchema),
         brandController.createBrand
     );
@@ -155,6 +157,7 @@ router.route("/:id")
         authMiddleware,
         authorize("admin"),
         upload.single("image"),
+        trackUploadedFiles,
         validate(updateBrandSchema),
         brandController.updateBrand
     )

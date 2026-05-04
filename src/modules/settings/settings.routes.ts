@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as C from './settings.controller';
 import { authMiddleware, authorize } from '../../middlewares/auth.middleware';
-import { upload } from '../../middlewares/upload.middleware';
+import { upload } from '../../config/multer.config';
 import { validate } from '../../middlewares/validate.middleware';
 import {
     updateSettingsSchema,
@@ -121,7 +121,7 @@ const settingUploads = upload.fields([
  *       200:
  *         description: Updated
  */
-router.patch('/', settingUploads, validate(updateSettingsSchema), trackUploadedFiles, C.updateAppConfig);
+router.patch('/', settingUploads, trackUploadedFiles, validate(updateSettingsSchema), C.updateAppConfig);
 
 /**
  * @swagger

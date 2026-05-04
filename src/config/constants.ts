@@ -36,11 +36,16 @@ export type MailConstants = typeof MAIL_CONSTANTS;
 
 export const PROPERTY_TYPES = ['Freehold', 'Leasehold'] as const;
 
+// Each domain owns a top-level folder under /uploads. The multer destination
+// resolver picks the folder based on the request URL (see src/config/multer.config.ts).
+// Document fields (resume / documents) override URL routing to land in DOCUMENTS regardless.
 export const UPLOAD_PATHS = {
-    PROFILE_PICS: 'uploads/profiles',
+    PROFILES: 'uploads/profiles',
+    CATEGORIES: 'uploads/categories',
+    PRODUCTS: 'uploads/products',
+    BRANDS: 'uploads/brands',
+    SETTINGS: 'uploads/settings',
     DOCUMENTS: 'uploads/documents',
-    PRODUCTS: 'uploads/images',
-    RESUMES: 'uploads/resumes',
     OTHERS: 'uploads/others',
 } as const;
 

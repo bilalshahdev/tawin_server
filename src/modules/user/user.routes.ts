@@ -87,6 +87,7 @@ router.patch(
     "/profile-picture",
     authMiddleware,
     upload.fields([{ name: "profileImage", maxCount: 1 }]),
+    trackUploadedFiles,
     C.updateProfilePicture
 );
 

@@ -6,7 +6,7 @@ import * as settingsService from './settings.service';
 
 export const getAppConfig = asyncHandler(async (req: Request, res: Response) => {
     const settings = await settingsService.getSettings();
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t('settings.settings_retrieved'), settings));
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t('settings.retrieved'), settings));
 });
 
 export const updateAppConfig = asyncHandler(async (req: Request, res: Response) => {
@@ -27,15 +27,11 @@ export const updateAppConfig = asyncHandler(async (req: Request, res: Response) 
             }
         });
     }
-    
-    if (updateData['header']) {
-        delete updateData['header'];
-    }
 
     const updated = await settingsService.updateSettings(updateData);
 
     res.status(200).json(
-        new ApiResponse(req.t('settings.settings_updated'), updated)
+        new ApiResponse(req.t('settings.updated'), updated)
     );
 });
 

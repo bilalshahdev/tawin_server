@@ -3,6 +3,7 @@ import { ApiError } from "../../utils/apiError";
 import { STATUS_CODE } from "../../config/constants";
 import { IBrand } from "./brand.types";
 import { getPaginationOptions } from "../../utils/pagination";
+import { deleteFile } from "../../utils/deleteFile";
 
 export const createBrand = async (data: Partial<IBrand>) => {
     const existing = await Brand.findOne({ "name.en": data.name?.en });
@@ -51,13 +52,21 @@ export const getBrandById = async (id: string) => {
 };
 
 export const updateBrand = async (id: string, data: Partial<IBrand>) => {
-    const brand = await Brand.findByIdAndUpdate(id, data, { new: true });
-    if (!brand) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.brand_not_found");
-    return brand;
+    const existing = await Brand.findById(id);
+    if (!existing) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.brand_not_found");
+
+    if (data.image && existing.image && data.image !== existing.image) {
+        deleteFile(existing.image);
+    }
+
+    return await Brand.findByIdAndUpdate(id, data, { new: true });
 };
 
 export const deleteBrand = async (id: string) => {
     const brand = await Brand.findByIdAndDelete(id);
     if (!brand) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.brand_not_found");
+
+    if (brand.image) deleteFile(brand.image);
+
     return brand;
 };
