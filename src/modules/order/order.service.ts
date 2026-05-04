@@ -104,9 +104,8 @@ export const placeOrder = async (userId: string, orderData: any) => {
         if (orderData.couponCode) {
             const { coupon, discountAmount: calculatedDiscount } = await validateCoupon(
                 orderData.couponCode,
-                orderData.type as 'fixed' | 'percentage',
-                totalAmount,
-                userId
+                cart.items as any,
+                userId,
             );
 
             discountAmount = calculatedDiscount;

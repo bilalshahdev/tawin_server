@@ -44,10 +44,19 @@ router.get(
  *         name: rating
  *         schema:
  *           type: number
- *         minimum: 1
- *         maximum: 5
+ *           minimum: 1
+ *           maximum: 5
  *         description: Filter reviews by rating
- * 
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: List of all reviews retrieved
@@ -75,6 +84,16 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: Reviews retrieved successfully

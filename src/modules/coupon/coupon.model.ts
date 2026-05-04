@@ -1,4 +1,6 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
+
+export type CouponAppliesTo = 'all' | 'category' | 'product';
 
 export interface ICoupon extends Document {
     code: string;
@@ -9,7 +11,10 @@ export interface ICoupon extends Document {
     usageLimit: number;
     usedCount: number;
     isActive: boolean;
-    usedBy: Schema.Types.ObjectId[];
+    usedBy: Types.ObjectId[];
+    appliesTo: CouponAppliesTo;
+    categories: Types.ObjectId[];
+    products: Types.ObjectId[];
 }
 
 const couponSchema = new Schema<ICoupon>({
@@ -21,7 +26,10 @@ const couponSchema = new Schema<ICoupon>({
     usageLimit: { type: Number, required: true },
     usedCount: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
-    usedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+    usedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    appliesTo: { type: String, enum: ['all', 'category', 'product'], default: 'all' },
+    categories: [{ type: Schema.Types.ObjectId, ref: 'Category', default: [] }],
+    products: [{ type: Schema.Types.ObjectId, ref: 'Product', default: [] }]
 }, { timestamps: true });
 
 export const Coupon = model<ICoupon>('Coupon', couponSchema);

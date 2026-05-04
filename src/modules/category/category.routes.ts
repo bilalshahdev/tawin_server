@@ -58,7 +58,6 @@ router.post(
     categoryController.createCategory
 );
 
-// indentation fix
 /**
  * @swagger
  * /categories:
@@ -125,9 +124,9 @@ router.get("/slug/:slug", categoryController.getCategory);
  *         name: admin
  *         schema: { type: boolean }
  *         description: Set to true for flat doc (Admin view)
- * responses:
- *   200:
- *     description: Category details retrieved
+ *     responses:
+ *       200:
+ *         description: Category details retrieved
  */
 router.get("/id/:id", categoryController.getCategoryById);
 

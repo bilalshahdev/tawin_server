@@ -13,8 +13,6 @@ const contactValidation = z.object({
     }),
 });
 
-// indentation
-
 /**
  * @swagger
  * /contact:
@@ -27,23 +25,20 @@ const contactValidation = z.object({
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Contact'
- * responses:
- *   201:
- *     description: Message sent successfully
- *     content:
- *       application/json:
- *         schema:
- *           type: object
- *           properties:
- *             success:
- *               type: boolean
- *               example: true
- *             message:
- *               type: string
- *             data:
- *               $ref: '#/components/schemas/Contact'
- *   400:
- *     description: Validation error
+ *     responses:
+ *       201:
+ *         description: Message sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Contact'
+ *       400:
+ *         description: Validation error
  */
 router.post('/', validate(contactValidation), contactController.submitContactForm);
 

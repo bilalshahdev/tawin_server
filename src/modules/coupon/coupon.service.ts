@@ -1,7 +1,19 @@
 import { Coupon, ICoupon } from './coupon.model';
 import { ApiError } from '../../utils/apiError';
 import { getPaginationOptions } from '../../utils/pagination';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
+import { Cart } from '../cart/cart.model';
+
+// Shape of a cart item once `items.product` is populated.
+// `product.category` is the populated category ObjectId or document.
+export interface ValidatableCartItem {
+    product: {
+        _id: Types.ObjectId | string;
+        price: number;
+        category: Types.ObjectId | string | { _id: Types.ObjectId | string };
+    } | any;
+    quantity: number;
+}
 
 // --- Admin Side ---
 export const createCoupon = async (data: any) => {
@@ -21,6 +33,8 @@ export const getAllCoupons = async (query: any) => {
     const [coupons, totalDocs] = await Promise.all([
 
         Coupon.find(filter)
+            .populate('categories', 'name slug')
+            .populate('products', 'title price photo')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit),
@@ -32,7 +46,43 @@ export const getAllCoupons = async (query: any) => {
 
 };
 
-export const validateCoupon = async (code: string, type: 'percentage' | 'fixed', orderAmount: number, userId: string) => {
+const idToString = (v: any): string => {
+    if (!v) return '';
+    if (typeof v === 'string') return v;
+    if (v._id) return v._id.toString();
+    return v.toString();
+};
+
+const computeEligibleSubtotal = (coupon: ICoupon, items: ValidatableCartItem[]): number => {
+    if (coupon.appliesTo === 'all') {
+        return items.reduce((sum, it) => sum + (it.product?.price || 0) * it.quantity, 0);
+    }
+
+    if (coupon.appliesTo === 'product') {
+        const allowed = new Set(coupon.products.map(p => p.toString()));
+        return items.reduce((sum, it) => {
+            const productId = idToString(it.product?._id);
+            return allowed.has(productId) ? sum + it.product.price * it.quantity : sum;
+        }, 0);
+    }
+
+    // appliesTo === 'category'
+    const allowed = new Set(coupon.categories.map(c => c.toString()));
+    return items.reduce((sum, it) => {
+        const categoryId = idToString(it.product?.category);
+        return allowed.has(categoryId) ? sum + it.product.price * it.quantity : sum;
+    }, 0);
+};
+
+export const validateCoupon = async (
+    code: string,
+    items: ValidatableCartItem[],
+    userId: string,
+) => {
+    if (!items || items.length === 0) {
+        throw new ApiError(400, "Cart is empty");
+    }
+
     const coupon = await Coupon.findOne({ code: code.toUpperCase(), isActive: true });
 
     if (!coupon) throw new ApiError(404, "Coupon not found or inactive");
@@ -45,17 +95,30 @@ export const validateCoupon = async (code: string, type: 'percentage' | 'fixed',
 
     if (new Date() > coupon.expiryDate) throw new ApiError(400, "Coupon has expired");
     if (coupon.usedCount >= coupon.usageLimit) throw new ApiError(400, "Coupon limit reached");
-    if (orderAmount < coupon.minOrderAmount) {
+
+    const cartTotal = items.reduce((sum, it) => sum + (it.product?.price || 0) * it.quantity, 0);
+    if (cartTotal < coupon.minOrderAmount) {
         throw new ApiError(400, `Minimum order of ${coupon.minOrderAmount} required`);
     }
 
+    const eligibleSubtotal = computeEligibleSubtotal(coupon, items);
+    if (eligibleSubtotal <= 0) {
+        throw new ApiError(400, "Coupon is not applicable to items in your cart");
+    }
+
     let discountAmount = 0;
-    if (type === 'percentage') {
-        discountAmount = (orderAmount * coupon.value) / 100;
+    if (coupon.type === 'percentage') {
+        discountAmount = (eligibleSubtotal * coupon.value) / 100;
     } else {
         discountAmount = coupon.value;
     }
-    return { coupon, discountAmount: Math.min(discountAmount, orderAmount) };
+
+    return {
+        coupon,
+        discountAmount: Math.min(discountAmount, eligibleSubtotal),
+        eligibleSubtotal,
+        cartTotal,
+    };
 };
 
 // --- Stats API ---
@@ -92,4 +155,14 @@ export const toggleCouponStatus = async (id: string) => {
 
     coupon.isActive = !coupon.isActive;
     return await coupon.save();
+};
+
+// Loads the user's cart with populated products (and product.category) for coupon validation.
+export const loadValidatableCart = async (userId: string): Promise<ValidatableCartItem[]> => {
+    const cart = await Cart.findOne({ user: userId }).populate({
+        path: 'items.product',
+        select: 'price category title',
+    });
+    if (!cart) return [];
+    return cart.items as unknown as ValidatableCartItem[];
 };

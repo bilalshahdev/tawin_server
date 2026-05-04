@@ -133,6 +133,14 @@ router.get(
  * /coupons/validate:
  *   post:
  *     summary: Validate coupon and calculate discount (User)
+ *     description: |
+ *       Validates a coupon against the authenticated user's current cart (server-side).
+ *       The discount is computed only on items the coupon scope applies to:
+ *       - `appliesTo: all` → entire cart
+ *       - `appliesTo: category` → items whose product.category is in the coupon's categories
+ *       - `appliesTo: product` → items whose product is in the coupon's products
+ *
+ *       The coupon's own `type` (percentage/fixed) and `value` are the source of truth — the client does not send them.
  *     tags: [Coupon]
  *     security:
  *       - bearerAuth: []
@@ -142,18 +150,11 @@ router.get(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [code, value, type]
+ *             required: [code]
  *             properties:
  *               code:
  *                 type: string
  *                 example: "SAVE20"
- *               value:
- *                 type: number
- *                 example: 500
- *               type:
- *                 type: string
- *                 enum: ["percentage", "fixed"]
- *                 example: "percentage"
  *     responses:
  *       200:
  *         description: Coupon applied successfully
@@ -165,13 +166,11 @@ router.get(
  *                 - type: object
  *                   properties:
  *                     data:
- *                       type: object
- *                       properties:
- *                         coupon:
- *                           $ref: '#/components/schemas/Coupon'
- *                         discountAmount:
- *                           type: number
- *                           example: 100
+ *                       $ref: '#/components/schemas/CouponValidationResponse'
+ *       400:
+ *         description: Coupon not applicable (expired, min-order not met, scope mismatch, already used, etc.)
+ *       404:
+ *         description: Coupon not found or inactive
  */
 router.post(
     '/validate',

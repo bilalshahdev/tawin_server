@@ -124,6 +124,12 @@ router.get(
  *     tags: [Staff]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       content:
  *         multipart/form-data:
@@ -151,6 +157,12 @@ router.patch(
  *     tags: [Staff]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Status toggled successfully
@@ -170,6 +182,12 @@ router.patch(
  *     tags: [Staff]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Staff deleted successfully
