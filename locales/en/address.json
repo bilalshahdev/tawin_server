@@ -1,0 +1,7 @@
+{
+    "created": "Address created successfully.",
+    "updated": "Address updated successfully.",
+    "deleted": "Address deleted successfully.",
+    "retrieved": "Addresses retrieved successfully.",
+    "default_set": "Default address set successfully."
+}

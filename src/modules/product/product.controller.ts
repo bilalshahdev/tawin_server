@@ -32,7 +32,7 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
 
 export const list = asyncHandler(async (req: Request, res: Response) => {
     const { data, meta } = await productService.getAllProducts(req.query);
-    res.json(new ApiResponse(req.t('product.products_retrieved'), data, meta));
+    res.json(new ApiResponse(req.t('product.list_retrieved'), data, meta));
 });
 
 /**
@@ -72,7 +72,7 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
         data.photo = files.photo[0].path;
     }
     const product = await productService.updateProduct(req.params.id as string, data);
-    res.json(new ApiResponse(req.t('product.product_updated'), product));
+    res.json(new ApiResponse(req.t('product.updated'), product));
 });
 
 export const getLowStock = asyncHandler(async (req: Request, res: Response) => {
@@ -87,7 +87,7 @@ export const updateStock = asyncHandler(async (req: Request, res: Response) => {
 
 export const remove = asyncHandler(async (req: Request, res: Response) => {
     await productService.deleteProduct(req.params.id as string);
-    res.json(new ApiResponse(req.t('product.product_deleted')));
+    res.json(new ApiResponse(req.t('product.deleted')));
 });
 
 export const exportProducts = asyncHandler(async (req: Request, res: Response) => {

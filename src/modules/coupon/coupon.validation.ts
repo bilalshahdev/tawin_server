@@ -32,8 +32,10 @@ const scopeRefinement = (data: any, ctx: z.RefinementCtx) => {
     }
 };
 
+// `usedCount` and `usedBy` are server-managed counters and must NEVER be accepted from
+// client input — `.strict()` rejects them (along with `_id`, `createdAt`, etc.) with a 400.
 export const createCouponSchema = z.object({
-    body: z.object(couponBodyShape).superRefine(scopeRefinement),
+    body: z.object(couponBodyShape).strict().superRefine(scopeRefinement),
 });
 
 export const updateCouponSchema = z.object({
@@ -48,7 +50,7 @@ export const updateCouponSchema = z.object({
         appliesTo: couponBodyShape.appliesTo.optional(),
         categories: z.array(objectId).optional(),
         products: z.array(objectId).optional(),
-    }).superRefine((data, ctx) => {
+    }).strict().superRefine((data, ctx) => {
         if (data.appliesTo) scopeRefinement(data, ctx);
     }),
 });
@@ -56,5 +58,5 @@ export const updateCouponSchema = z.object({
 export const validateCouponSchema = z.object({
     body: z.object({
         code: z.string().min(1),
-    }),
+    }).strict(),
 });

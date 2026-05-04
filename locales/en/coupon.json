@@ -1,0 +1,17 @@
+{
+    "created": "Coupon created successfully.",
+    "updated": "Coupon updated successfully.",
+    "deleted": "Coupon deleted successfully.",
+    "retrieved": "Coupon retrieved successfully.",
+    "list_retrieved": "Coupons fetched successfully.",
+    "stats_retrieved": "Coupon statistics retrieved successfully.",
+    "applied": "Coupon applied successfully.",
+    "status_toggled": "Coupon status updated successfully.",
+    "not_found": "Coupon not found.",
+    "not_found_or_inactive": "Coupon not found or inactive.",
+    "already_used": "You have already used this coupon.",
+    "expired": "This coupon has expired.",
+    "limit_reached": "This coupon has reached its usage limit.",
+    "minimum_order_required": "A minimum order of {{amount}} is required to use this coupon.",
+    "not_applicable": "This coupon is not applicable to items in your cart."
+}

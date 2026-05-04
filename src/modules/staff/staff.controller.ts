@@ -26,7 +26,7 @@ export const createStaff = asyncHandler(async (req: Request, res: Response) => {
     delete staffResponse.password;
 
     res.status(STATUS_CODE.CREATED).json(
-        new ApiResponse(req.t('staff.staff_created'), staffResponse)
+        new ApiResponse(req.t('staff.created'), staffResponse)
     );
 });
 
@@ -37,7 +37,7 @@ export const createStaff = asyncHandler(async (req: Request, res: Response) => {
  */
 export const getAllStaff = asyncHandler(async (req: Request, res: Response) => {
     const { data, meta } = await staffService.getAllStaffService(req.query);
-    res.json(new ApiResponse(req.t('staff.staff_retrieved'), data, meta));
+    res.json(new ApiResponse(req.t('staff.retrieved'), data, meta));
 });
 
 /**
@@ -47,7 +47,7 @@ export const getAllStaff = asyncHandler(async (req: Request, res: Response) => {
  */
 export const getStaffById = asyncHandler(async (req: Request, res: Response) => {
     const staff = await staffService.getStaffById(req.params.id as string);
-    res.json(new ApiResponse(req.t('staff.staff_details_retrieved'), staff));
+    res.json(new ApiResponse(req.t('staff.details_retrieved'), staff));
 });
 
 /**
@@ -65,7 +65,7 @@ export const updateStaff = asyncHandler(async (req: Request, res: Response) => {
     }
 
     const updatedStaff = await staffService.updateStaff(req.params.id as string, updateData);
-    res.json(new ApiResponse(req.t('staff.staff_updated'), updatedStaff));
+    res.json(new ApiResponse(req.t('staff.updated'), updatedStaff));
 });
 
 /**
@@ -90,5 +90,5 @@ export const deleteStaff = asyncHandler(async (req: Request, res: Response) => {
     // The service handles the check, but we pass the adminId to verify
     await staffService.deleteStaff(targetStaffId, adminId);
 
-    res.json(new ApiResponse(req.t('staff.staff_deleted')));
+    res.json(new ApiResponse(req.t('staff.deleted')));
 });

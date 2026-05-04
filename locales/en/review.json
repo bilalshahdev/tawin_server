@@ -1,0 +1,9 @@
+{
+    "created": "Review created successfully.",
+    "updated": "Review updated successfully.",
+    "deleted": "Review deleted successfully.",
+    "retrieved": "Review retrieved successfully.",
+    "list_retrieved": "Reviews retrieved successfully.",
+    "stats_retrieved": "Review statistics retrieved successfully.",
+    "visibility_updated": "Review visibility updated successfully."
+}

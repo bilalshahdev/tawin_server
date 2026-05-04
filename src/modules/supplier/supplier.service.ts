@@ -154,7 +154,7 @@ export const getSuppliers = async (query: any) => {
 
 export const getSupplierById = async (id: string) => {
     const supplier = await Supplier.findById(id).populate('suppliedProducts', 'title price');
-    if (!supplier) throw new ApiError(404, "Supplier not found");
+    if (!supplier) throw new ApiError(404, "supplier.not_found");
     return supplier;
 };
 
@@ -163,7 +163,7 @@ export const updateSupplier = async (id: string, data: any) =>
 
 export const deleteSupplier = async (id: string) => {
     const supplier = await Supplier.findById(id);
-    if (!supplier) throw new ApiError(404, "Supplier not found");
+    if (!supplier) throw new ApiError(404, "supplier.not_found");
     return await supplier.deleteOne();
 };
 
@@ -172,14 +172,14 @@ export const addStockInflow = async (data: any) => {
     session.startTransaction();
     try {
         const supplier = await Supplier.findById(data.supplier);
-        if (!supplier?.isActive) throw new ApiError(400, "Cannot add stock from inactive supplier");
+        if (!supplier?.isActive) throw new ApiError(400, "supplier.inactive");
         const log = await SupplyLog.create([data], { session });
         const product = await Product.findByIdAndUpdate(
             data.product,
             { $inc: { remainingPieces: data.stockIncrement } },
             { session, new: true }
         );
-        if (!product) throw new ApiError(404, "Product not found");
+        if (!product) throw new ApiError(404, "errors.product_not_found");
 
 
         await Supplier.findByIdAndUpdate(data.supplier, {

@@ -1,0 +1,6 @@
+{
+    "created": "Supply log recorded successfully.",
+    "retrieved": "Log details retrieved successfully.",
+    "deleted": "Log entry deleted successfully.",
+    "not_found": "Supply record not found."
+}

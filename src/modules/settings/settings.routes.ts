@@ -3,7 +3,11 @@ import * as C from './settings.controller';
 import { authMiddleware, authorize } from '../../middlewares/auth.middleware';
 import { upload } from '../../middlewares/upload.middleware';
 import { validate } from '../../middlewares/validate.middleware';
-import { updateSettingsSchema } from './settings.validation';
+import {
+    updateSettingsSchema,
+    updateSocialLinksSchema,
+    updatePagesSchema,
+} from './settings.validation';
 import { trackUploadedFiles } from '../../middlewares/trackUploadedFiles.middleware';
 
 const router = Router();
@@ -137,7 +141,7 @@ router.patch('/', settingUploads, validate(updateSettingsSchema), trackUploadedF
  *       200:
  *         description: Social links updated
  */
-router.patch('/social-links', C.updateAppConfig);
+router.patch('/social-links', validate(updateSocialLinksSchema), C.updateSocialLinks);
 
 /**
  * @swagger
@@ -158,6 +162,6 @@ router.patch('/social-links', C.updateAppConfig);
  *         description: Pages updated
  */
 
-router.patch('/pages', C.updatePages);
+router.patch('/pages', validate(updatePagesSchema), C.updatePages);
 
 export default router;

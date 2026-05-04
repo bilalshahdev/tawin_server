@@ -18,7 +18,7 @@ export const createBrandSchema = z.object({
         name: localizedSchema("name"),
         description: localizedSchema("description").optional(),
         isActive: toBoolean.optional(),
-    }),
+    }).strict(),
 });
 
 // Schema for updating a Brand (all fields optional)
@@ -27,5 +27,5 @@ export const updateBrandSchema = z.object({
         name: localizedSchema("name").optional(),
         description: localizedSchema("description").optional(),
         isActive: toBoolean.optional(),
-    }),
+    }).strict(),
 });

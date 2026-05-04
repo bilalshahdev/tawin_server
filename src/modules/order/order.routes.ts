@@ -1,6 +1,12 @@
 import { Router } from 'express';
 import * as orderController from './order.controller';
 import { authMiddleware, authorize } from '../../middlewares/auth.middleware';
+import { validate } from '../../middlewares/validate.middleware';
+import {
+    checkoutSchema,
+    updateOrderStatusSchema,
+    orderIdParamSchema,
+} from './order.validation';
 
 const router = Router();
 
@@ -117,7 +123,7 @@ router.get(
 router
     .route('/')
     .get(authMiddleware, orderController.listOrders)
-    .post(authMiddleware, orderController.checkout);
+    .post(authMiddleware, validate(checkoutSchema), orderController.checkout);
 
 /**
  * @swagger
@@ -177,8 +183,8 @@ router
  */
 router
     .route('/:id')
-    .get(authMiddleware, orderController.getOrder)
-    .patch(authMiddleware, authorize('admin'), orderController.changeStatus)
-    .delete(authMiddleware, authorize('admin'), orderController.removeOrder);
+    .get(authMiddleware, validate(orderIdParamSchema), orderController.getOrder)
+    .patch(authMiddleware, authorize('admin'), validate(updateOrderStatusSchema), orderController.changeStatus)
+    .delete(authMiddleware, authorize('admin'), validate(orderIdParamSchema), orderController.removeOrder);
 
 export default router;

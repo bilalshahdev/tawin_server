@@ -84,7 +84,11 @@ export const placeOrder = async (userId: string, orderData: any) => {
             }
 
             if (product.remainingPieces < item.quantity) {
-                throw new ApiError(STATUS_CODE.BAD_REQUEST, `Insufficient stock for ${product.title.en}`);
+                throw new ApiError(
+                    STATUS_CODE.BAD_REQUEST,
+                    "order.insufficient_stock_for_product",
+                    { product: product.title?.en ?? "" }
+                );
             }
 
             // Decrement stock within the transaction

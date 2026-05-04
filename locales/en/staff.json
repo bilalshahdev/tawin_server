@@ -1,0 +1,10 @@
+{
+    "created": "Staff member created successfully.",
+    "updated": "Staff member updated successfully.",
+    "deleted": "Staff member deleted successfully.",
+    "retrieved": "Staff list retrieved successfully.",
+    "details_retrieved": "Staff details retrieved successfully.",
+    "stats_retrieved": "Staff statistics retrieved successfully.",
+    "status_toggled": "Staff status toggled successfully.",
+    "not_found": "Staff member not found."
+}

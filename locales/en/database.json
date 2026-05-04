@@ -1,0 +1,5 @@
+{
+    "connected": "Database connected.",
+    "error": "Database error.",
+    "connection_failed": "Database connection failed."
+}

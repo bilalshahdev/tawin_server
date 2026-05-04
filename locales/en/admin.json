@@ -1,0 +1,11 @@
+{
+    "stats_retrieved": "Dashboard statistics retrieved successfully.",
+    "report_retrieved": "Report retrieved successfully.",
+    "region_retrieved": "Regional data retrieved successfully.",
+    "categories_retrieved": "Categories retrieved successfully.",
+    "products_retrieved": "Products retrieved successfully.",
+    "financials_retrieved": "Financial records retrieved successfully.",
+    "financial_stats_retrieved": "Financial statistics retrieved successfully.",
+    "summary_retrieved": "Summary retrieved successfully.",
+    "profile_updated": "Admin profile updated successfully."
+}

@@ -1,0 +1,19 @@
+{
+    "users_retrieved": "Users list retrieved successfully.",
+    "profile_retrieved": "Profile details retrieved successfully.",
+    "profile_fetched": "Profile data retrieved successfully.",
+    "profile_updated": "Profile updated successfully.",
+    "profile_picture_updated": "Profile picture updated successfully.",
+    "user_verified": "User verification status updated successfully.",
+    "account_deleted": "Account deleted successfully.",
+    "stats_retrieved": "User statistics retrieved successfully.",
+    "basket_applied": "Application for construction basket submitted successfully.",
+    "basket_requests_retrieved": "All basket requests retrieved successfully.",
+    "basket_request_status_updated": "Request status updated successfully.",
+    "basket_request_deleted": "Basket request deleted successfully.",
+    "favorite_toggled": "Wishlist updated successfully.",
+    "favorites_retrieved": "Your favorite products have been loaded.",
+    "not_found": "User not found.",
+    "admin_created": "Protected admin created successfully.",
+    "password_mismatch": "Old password does not match."
+}

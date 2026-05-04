@@ -1,0 +1,13 @@
+{
+    "created": "Supplier profile created successfully.",
+    "updated": "Supplier details updated successfully.",
+    "deleted": "Supplier removed from the system.",
+    "retrieved": "Supplier data retrieved successfully.",
+    "list_retrieved": "List of suppliers loaded successfully.",
+    "fetched": "Supplier data fetched successfully.",
+    "stats_fetched": "Supplier and procurement statistics retrieved successfully.",
+    "stock_added": "Stock inflow recorded and inventory updated successfully.",
+    "history_fetched": "Supply history for this supplier retrieved successfully.",
+    "not_found": "The requested supplier could not be found.",
+    "inactive": "Cannot perform actions with an inactive supplier."
+}

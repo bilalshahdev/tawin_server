@@ -16,12 +16,12 @@ export const getReviewDashboard = asyncHandler(async (req: Request, res: Respons
 
 export const createReview = asyncHandler(async (req: Request, res: Response) => {
     const review = await reviewService.addReview(req.user!.id, req.body);
-    res.status(STATUS_CODE.CREATED).json(new ApiResponse(req.t("review.review_created"), review));
+    res.status(STATUS_CODE.CREATED).json(new ApiResponse(req.t("review.created"), review));
 });
 
 export const getProductReviews = asyncHandler(async (req: Request, res: Response) => {
     const { data, meta } = await reviewService.getReviewsByProduct(req.params.productId as string, req.query);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.reviews_retrieved"), data, meta));
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.list_retrieved"), data, meta));
 });
 
 /**
@@ -30,7 +30,7 @@ export const getProductReviews = asyncHandler(async (req: Request, res: Response
  */
 export const getAllReviews = asyncHandler(async (req: Request, res: Response) => {
     const { data, meta } = await reviewService.getAllReviews(req.query);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.reviews_retrieved"), data, meta));
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.list_retrieved"), data, meta));
 });
 
 /**
@@ -43,5 +43,5 @@ export const removeReview = asyncHandler(async (req: Request, res: Response) => 
         req.user!.id,
         req.user!.role === 'admin'
     );
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.review_deleted")));
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("review.deleted")));
 });

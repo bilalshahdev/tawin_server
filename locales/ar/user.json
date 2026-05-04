@@ -1,0 +1,19 @@
+{
+    "users_retrieved": "تم جلب قائمة المستخدمين بنجاح.",
+    "profile_retrieved": "تم جلب تفاصيل الملف الشخصي بنجاح.",
+    "profile_fetched": "تم جلب بيانات الملف الشخصي بنجاح.",
+    "profile_updated": "تم تحديث الملف الشخصي بنجاح.",
+    "profile_picture_updated": "تم تحديث صورة الملف الشخصي بنجاح.",
+    "user_verified": "تم تحديث حالة التحقق من المستخدم بنجاح.",
+    "account_deleted": "تم حذف الحساب بنجاح.",
+    "stats_retrieved": "تم جلب إحصائيات المستخدمين بنجاح.",
+    "basket_applied": "تم تقديم طلب سلة البناء بنجاح.",
+    "basket_requests_retrieved": "تم جلب جميع طلبات السلة بنجاح.",
+    "basket_request_status_updated": "تم تحديث حالة الطلب بنجاح.",
+    "basket_request_deleted": "تم حذف طلب السلة بنجاح.",
+    "favorite_toggled": "تم تحديث قائمة الأمنيات بنجاح.",
+    "favorites_retrieved": "تم تحميل منتجاتك المفضلة.",
+    "not_found": "المستخدم غير موجود.",
+    "admin_created": "تم إنشاء مسؤول محمي بنجاح.",
+    "password_mismatch": "كلمة المرور القديمة غير متطابقة."
+}

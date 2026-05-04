@@ -80,30 +80,30 @@ export const validateCoupon = async (
     userId: string,
 ) => {
     if (!items || items.length === 0) {
-        throw new ApiError(400, "Cart is empty");
+        throw new ApiError(400, "errors.cart_empty");
     }
 
     const coupon = await Coupon.findOne({ code: code.toUpperCase(), isActive: true });
 
-    if (!coupon) throw new ApiError(404, "Coupon not found or inactive");
+    if (!coupon) throw new ApiError(404, "coupon.not_found_or_inactive");
 
     // Check if THIS specific user has already used it
     const hasUsed = coupon.usedBy.some(id => id.toString() === userId);
     if (hasUsed) {
-        throw new ApiError(400, "You have already used this coupon");
+        throw new ApiError(400, "coupon.already_used");
     }
 
-    if (new Date() > coupon.expiryDate) throw new ApiError(400, "Coupon has expired");
-    if (coupon.usedCount >= coupon.usageLimit) throw new ApiError(400, "Coupon limit reached");
+    if (new Date() > coupon.expiryDate) throw new ApiError(400, "coupon.expired");
+    if (coupon.usedCount >= coupon.usageLimit) throw new ApiError(400, "coupon.limit_reached");
 
     const cartTotal = items.reduce((sum, it) => sum + (it.product?.price || 0) * it.quantity, 0);
     if (cartTotal < coupon.minOrderAmount) {
-        throw new ApiError(400, `Minimum order of ${coupon.minOrderAmount} required`);
+        throw new ApiError(400, "coupon.minimum_order_required", { amount: coupon.minOrderAmount });
     }
 
     const eligibleSubtotal = computeEligibleSubtotal(coupon, items);
     if (eligibleSubtotal <= 0) {
-        throw new ApiError(400, "Coupon is not applicable to items in your cart");
+        throw new ApiError(400, "coupon.not_applicable");
     }
 
     let discountAmount = 0;

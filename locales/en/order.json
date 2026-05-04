@@ -1,0 +1,12 @@
+{
+    "placed": "Order placed successfully.",
+    "updated": "Order updated successfully.",
+    "deleted": "Order deleted successfully.",
+    "retrieved": "Order retrieved successfully.",
+    "list_retrieved": "Orders retrieved successfully.",
+    "fetched": "Order fetched successfully.",
+    "stats_retrieved": "Order statistics retrieved successfully.",
+    "not_found": "Order not found.",
+    "cart_empty": "Your cart is empty.",
+    "insufficient_stock_for_product": "Insufficient stock for {{product}}."
+}

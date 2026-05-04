@@ -1,38 +1,76 @@
 import { z } from 'zod';
 
+// Form-data sends localized fields with bracket notation: `businessName[en]`.
+// The settings controller converts these to dot-notation paths before saving.
+// Validate them in their incoming bracket form, then `.strict()` rejects any
+// key that isn't explicitly whitelisted here.
+
+const optionalString = z.string().optional();
+const optionalUrl = z.string().url().optional().or(z.literal(''));
+const optionalBoolFromForm = z
+    .preprocess((val) => val === 'true' || val === true, z.boolean())
+    .optional();
+
 export const updateSettingsSchema = z.object({
     body: z.object({
-        // Boolean conversion for form-data
-        enableContactEmail: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
+        enableContactEmail: optionalBoolFromForm,
 
-        // Dot notation mapping for Business Info
-        "businessName.en": z.string().optional(),
-        "businessName.ar": z.string().optional(),
-        "tagline.en": z.string().optional(),
-        "tagline.ar": z.string().optional(),
-        "about.en": z.string().optional(),
-        "about.ar": z.string().optional(),
-        "currency": z.string().optional(),
-        "currencySymbol": z.string().optional(),
+        // Business info
+        "businessName[en]": optionalString,
+        "businessName[ar]": optionalString,
+        "tagline[en]": optionalString,
+        "tagline[ar]": optionalString,
+        "about[en]": optionalString,
+        "about[ar]": optionalString,
+        currency: optionalString,
+        currencySymbol: optionalString,
 
-        // Dot notation mapping for Header Section
-        "header.landing_page.text.en": z.string().optional(),
-        "header.landing_page.text.ar": z.string().optional(),
-        "header.home.text.en": z.string().optional(),
-        "header.home.text.ar": z.string().optional(),
+        // Header sections
+        "header[landing_page][text][en]": optionalString,
+        "header[landing_page][text][ar]": optionalString,
+        "header[home][text][en]": optionalString,
+        "header[home][text][ar]": optionalString,
 
-        // Dot notation mapping for Pages
-        "pages.privacyPolicy.en": z.string().optional(),
-        "pages.privacyPolicy.ar": z.string().optional(),
-        "pages.termsAndConditions.en": z.string().optional(),
-        "pages.termsAndConditions.ar": z.string().optional(),
-        "pages.about.en": z.string().optional(),
-        "pages.about.ar": z.string().optional(),
+        // Pages content
+        "pages[privacyPolicy][en]": optionalString,
+        "pages[privacyPolicy][ar]": optionalString,
+        "pages[termsAndConditions][en]": optionalString,
+        "pages[termsAndConditions][ar]": optionalString,
+        "pages[about][en]": optionalString,
+        "pages[about][ar]": optionalString,
 
-        // Social Links
-        "socialLinks.whatsapp": z.string().url().optional().or(z.literal('')),
-        "socialLinks.facebook": z.string().url().optional().or(z.literal('')),
-        "socialLinks.instagram": z.string().url().optional().or(z.literal('')),
-        "socialLinks.twitter": z.string().url().optional().or(z.literal('')),
-    }).passthrough(),
+        // Social links
+        "socialLinks[whatsapp]": optionalUrl,
+        "socialLinks[facebook]": optionalUrl,
+        "socialLinks[instagram]": optionalUrl,
+        "socialLinks[twitter]": optionalUrl,
+        "socialLinks[youtube]": optionalUrl,
+    }).strict(),
+});
+
+export const updateSocialLinksSchema = z.object({
+    body: z.object({
+        facebook: optionalUrl,
+        instagram: optionalUrl,
+        whatsapp: optionalUrl,
+        youtube: optionalUrl,
+        twitter: optionalUrl,
+    }).strict(),
+});
+
+export const updatePagesSchema = z.object({
+    body: z.object({
+        privacyPolicy: z.object({
+            en: optionalString,
+            ar: optionalString,
+        }).strict().optional(),
+        termsAndConditions: z.object({
+            en: optionalString,
+            ar: optionalString,
+        }).strict().optional(),
+        about: z.object({
+            en: optionalString,
+            ar: optionalString,
+        }).strict().optional(),
+    }).strict(),
 });

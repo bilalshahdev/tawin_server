@@ -1,0 +1,7 @@
+{
+    "created": "Category created successfully.",
+    "updated": "Category updated successfully.",
+    "deleted": "Category deleted successfully.",
+    "retrieved": "Category retrieved successfully.",
+    "list_retrieved": "Categories retrieved successfully."
+}

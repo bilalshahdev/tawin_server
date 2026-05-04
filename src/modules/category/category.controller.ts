@@ -6,19 +6,19 @@ import { STATUS_CODE } from "../../config/constants";
 
 export const getCategories = asyncHandler(async (req: Request, res: Response) => {
     const { data, meta } = await categoryService.getAllCategories(req.query);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.categories_retrieved"), data, meta));
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.list_retrieved"), data, meta));
 });
 
 export const getCategory = asyncHandler(async (req: Request, res: Response) => {
     const isAdmin = req.query.admin === 'true';
     const category = await categoryService.getCategoryBySlug(req.params.slug as string, isAdmin);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.category_retrieved"), category));
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.retrieved"), category));
 });
 
 export const getCategoryById = asyncHandler(async (req: Request, res: Response) => {
     const isAdmin = req.query.admin === 'true';
     const category = await categoryService.getCategoryById(req.params.id as string, isAdmin);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.category_retrieved"), category));
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.retrieved"), category));
 });
 
 
@@ -33,7 +33,7 @@ export const createCategory = asyncHandler(async (req: Request, res: Response) =
         thumbnail: req.files && (req.files as any).thumbnail ? (req.files as any).thumbnail[0].path : undefined,
     };
     const category = await categoryService.createCategory(data);
-    res.status(STATUS_CODE.CREATED).json(new ApiResponse(req.t("category.category_created"), category));
+    res.status(STATUS_CODE.CREATED).json(new ApiResponse(req.t("category.created"), category));
 });
 
 
@@ -55,11 +55,11 @@ export const updateCategory = asyncHandler(async (req: Request, res: Response) =
     const category = await categoryService.updateCategory(req.params.id as string, updateData);
 
     res.status(STATUS_CODE.OK).json(
-        new ApiResponse(req.t("category.category_updated"), category)
+        new ApiResponse(req.t("category.updated"), category)
     );
 });
 
 export const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
     const category = await categoryService.deleteCategory(req.params.id as string);
-    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.category_deleted"), category));
+    res.status(STATUS_CODE.OK).json(new ApiResponse(req.t("category.deleted"), category));
 });

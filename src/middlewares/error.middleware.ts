@@ -23,13 +23,16 @@ export const globalErrorHandler = (
 
     const statusCode = err.statusCode || STATUS_CODE.INTERNAL_SERVER_ERROR;
     let message = err.message;
-    if (!(err instanceof ApiError) && config.env === 'production') {
+    let params: Record<string, unknown> | undefined;
+    if (err instanceof ApiError) {
+        params = err.params;
+    } else if (config.env === 'production') {
         message = 'general.internal_error';
     }
 
     return res.status(statusCode).json({
         success: false,
-        message: req.t(message),
+        message: req.t(message, params as any),
         ...(config.env === 'development' && { stack: err.stack }),
     });
 };

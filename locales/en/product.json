@@ -1,0 +1,12 @@
+{
+    "created": "Product created successfully.",
+    "updated": "Product updated successfully.",
+    "deleted": "Product deleted successfully.",
+    "retrieved": "Product retrieved successfully.",
+    "list_retrieved": "Products retrieved successfully.",
+    "fetched": "Products fetched successfully.",
+    "exported": "Products exported successfully.",
+    "low_stock_retrieved": "Low-stock products retrieved successfully.",
+    "stock_updated": "Stock updated successfully.",
+    "reviews_synced": "Product ratings and review counts have been successfully synchronized."
+}

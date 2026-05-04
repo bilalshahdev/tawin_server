@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+// Profile updates explicitly do NOT accept `role`, `isVerified`, `password`, or `_id`.
+// `.strict()` enforces this — any extra key (including those) returns 400.
+// Password changes go through the dedicated change-password endpoint.
 export const updateProfileSchema = z.object({
   body: z.object({
     firstName: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
@@ -7,7 +10,7 @@ export const updateProfileSchema = z.object({
     username: z.string().min(3, { message: "errors.validations.auth.username_short" }).optional(),
     email: z.string().email({ message: "errors.validations.common.invalid_email" }).optional(),
     phone: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
-  })
+  }).strict()
 });
 
 export const updateAdminProfileSchema = z.object({
@@ -17,7 +20,7 @@ export const updateAdminProfileSchema = z.object({
     username: z.string().min(3, { message: "errors.validations.auth.username_short" }).optional(),
     email: z.string().email({ message: "errors.validations.common.invalid_email" }).optional(),
     phone: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
-  })
+  }).strict()
 });
 
 export const applyForBasketSchema = z.object({
@@ -35,5 +38,5 @@ export const applyForBasketSchema = z.object({
       message: "errors.validations.common.required"
     }),
     country: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
-  })
+  }).strict()
 });

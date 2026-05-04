@@ -1,0 +1,4 @@
+FINDSTR: Cannot open \.t\(
+FINDSTR: Cannot open src*.ts
+FINDSTR: Cannot open src**.ts
+FINDSTR: Cannot open src***.ts

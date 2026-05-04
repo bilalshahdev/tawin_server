@@ -1,0 +1,100 @@
+{
+    "internal_error": "A server error occurred.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "forbidden": "You do not have the required permissions.",
+    "too_many_requests": "Too many requests from this IP, please try again later.",
+    "only_pdf": "Only PDF documents are allowed.",
+    "invalid_image": "Invalid file type. Only JPEGs, PNGs, and WebPs are allowed.",
+    "image_required": "An image is required.",
+
+    "user_exists": "An account already exists with this email or username.",
+    "user_not_found": "No user found with those details.",
+    "email_exists": "This email is already associated with another account.",
+    "email_taken": "This email is already associated with another account.",
+    "invalid_credentials": "The email or password you entered is incorrect.",
+    "verify_email_first": "Please verify your email before logging in.",
+    "already_verified": "This account is already verified.",
+    "otp_invalid": "The verification code is incorrect.",
+    "otp_expired": "The code has expired. Please request a new one.",
+    "otp_cooldown": "Please wait before requesting another code.",
+    "token_invalid": "The reset token is invalid or has expired.",
+    "old_password_incorrect": "Your current password was entered incorrectly.",
+    "admin_already_exists": "Admin already exists.",
+    "admin_deletion_prohibited": "Admin accounts cannot be deleted.",
+    "admin_cannot_be_deleted": "Admin accounts cannot be deleted.",
+    "cannot_delete_self": "You cannot delete your own account.",
+
+    "address_not_found": "No address found with those details.",
+    "already_applied": "You have already applied for the construction basket.",
+    "no_construction_basket": "No construction basket application found.",
+    "not_applied": "You have not applied for this yet.",
+
+    "category_exists": "A category with this name already exists.",
+    "category_not_found": "The requested category could not be found.",
+    "parent_category_required": "A parent category is required for subcategories.",
+
+    "product_not_found": "The requested product could not be found.",
+    "product_not_available": "Product is not available.",
+    "insufficient_stock": "The requested quantity exceeds available stock.",
+    "out_of_stock": "This product is out of stock.",
+    "stock_updated": "Product stock has been updated successfully.",
+
+    "brand_exists": "A brand with this name already exists.",
+    "brand_not_found": "Brand not found.",
+
+    "supplier_inactive": "Cannot perform actions with an inactive supplier.",
+    "supplier_not_found": "Supplier not found.",
+
+    "review_not_found": "Review not found.",
+    "already_reviewed": "You have already reviewed this product.",
+
+    "cart_empty": "Your cart is empty.",
+    "cart_not_found": "Cart not found.",
+    "item_not_in_cart": "Item not found in your cart.",
+
+    "order_not_found": "Order not found.",
+    "invalid_status": "Invalid status value.",
+    "invalid_id_format": "The provided ID is not a valid identifier.",
+
+    "staff_not_found": "Staff member not found.",
+
+    "validations": {
+        "failed": "The data provided is incorrect or missing.",
+
+        "common": {
+            "required": "{{field}} is required.",
+            "invalid_email": "Please enter a valid email address.",
+            "min_length": "{{field}} must be at least {{min}} characters.",
+            "max_length": "{{field}} cannot exceed {{max}} characters.",
+            "invalid_id": "Invalid {{field}}.",
+            "positive": "{{field}} must be a positive number.",
+            "non_negative": "{{field}} cannot be negative.",
+            "invalid_enum": "Invalid {{field}} selected.",
+            "invalid_format": "{{field}} format is invalid.",
+            "too_short": "{{field}} is too short.",
+            "too_long": "{{field}} is too long.",
+            "empty_update": "At least one field must be provided for update."
+        },
+
+        "auth": {
+            "username_short": "Username must be at least 3 characters.",
+            "password_too_weak": "Password must be at least 8 characters.",
+            "otp_length": "OTP must be exactly 6 characters."
+        },
+
+        "category": {
+            "invalid_hierarchy": "A subcategory must reference a parent category."
+        },
+
+        "required": "{{field}} is required.",
+        "invalid_email": "Please enter a valid email address.",
+        "invalid_id": "Invalid identifier.",
+        "invalid_enum": "Invalid value selected.",
+        "too_short": "Value is too short.",
+        "too_small": "{{field}} is too small.",
+        "too_big": "{{field}} is too large.",
+        "invalid_type": "{{field}} format is invalid.",
+        "invalid_string": "{{field}} format is invalid.",
+        "custom": "{{field}} is invalid."
+    }
+}

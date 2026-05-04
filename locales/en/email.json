@@ -1,0 +1,8 @@
+{
+    "contact": {
+        "admin_subject": "New Contact Form",
+        "admin_body": "You have a new message from {{name}} ({{email}}):",
+        "customer_subject": "We received your message",
+        "customer_body": "Hi {{name}}, thank you for reaching out to us. We have received your message and will get back to you soon."
+    }
+}

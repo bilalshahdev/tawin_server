@@ -1,0 +1,8 @@
+{
+    "retrieved": "Cart retrieved successfully.",
+    "carts_retrieved": "Carts retrieved successfully.",
+    "item_added": "Item added to cart successfully.",
+    "item_removed": "Item removed from cart successfully.",
+    "quantity_updated": "Item quantity updated successfully.",
+    "cleared": "Cart cleared successfully."
+}
