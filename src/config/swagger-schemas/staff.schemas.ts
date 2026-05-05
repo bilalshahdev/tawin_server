@@ -6,9 +6,9 @@ export const staffSchemas = {
             module: {
                 type: 'string',
                 enum: [
-                    'dashboard', 'orders', 'users', 'staff', 'products', 'sales',
+                    'dashboard', 'orders', 'users', 'categories', 'brands', 'staff', 'products', 'sales',
                     'construction-basket', 'reviews', 'suppliers',
-                    'coupons', 'financial', 'brand', 'stock',
+                    'coupons', 'financial', 'stock',
                 ],
             },
             operations: {

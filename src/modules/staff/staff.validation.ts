@@ -3,9 +3,9 @@ import { z } from "zod";
 // Helper for reusable Enums
 const OperationEnum = z.enum(['get', 'post', 'patch', 'put', 'delete']);
 const ModuleEnum = z.enum([
-    'dashboard', 'orders', 'users', 'staff', 'products', 'sales',
+    'dashboard', 'orders', 'users', 'categories', 'brands', 'staff', 'products', 'sales',
     'construction-basket', 'reviews', 'suppliers',
-    'coupon', 'financial', 'brand', 'stock'
+    'coupon', 'financial', 'stock'
 ]);
 
 const permissionSchema = z.object({

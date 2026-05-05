@@ -7,9 +7,9 @@ const permissionSchema = new Schema({
         type: String,
         required: true,
         enum: [
-            'dashboard', 'orders', 'users', 'staff', 'products', 'sales',
+            'dashboard', 'orders', 'users', 'categories', 'brands', 'staff', 'products', 'sales',
             'construction-basket', 'reviews', 'suppliers',
-            'coupon', 'financial', 'brand', 'stock'
+            'coupon', 'financial', 'stock'
         ]
     },
     operations: {
@@ -33,8 +33,8 @@ const userSchema = new Schema<IStaff>({
     role: { 
         type: String, 
         default: 'staff', 
-        enum: ['staff'], // Restricts it strictly to 'staff'
-        immutable: true  // Prevents updates from changing this field
+        enum: ['staff'],
+        immutable: true 
     },
 
     // Use the sub-schema here
