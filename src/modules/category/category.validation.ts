@@ -45,10 +45,8 @@ export const updateCategorySchema = z.object({
         id: z.string().regex(objectIdRegex, "errors.validations.invalid_id")
     }),
     body: z.object({
-        "name[en]": z.string().min(2, "errors.validations.too_short").optional(),
-        "name[ar]": z.string().min(2, "errors.validations.too_short").optional(),
-        "description[en]": z.string().optional(),
-        "description[ar]": z.string().optional(),
+        name: localizedStringSchema.partial().optional(),
+        description: localizedStringSchema.partial().optional(),
         type: z.nativeEnum(CategoryType).optional(),
         parentCategory: parentCategorySchema,
         thumbnail: z.string().optional(),

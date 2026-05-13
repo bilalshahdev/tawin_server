@@ -48,6 +48,8 @@ export const updateProductSchema = z.object({
         title: localizedSchema().partial().optional(),
         description: localizedSchema().partial().optional(),
         category: z.string().regex(objectIdRegex).optional(),
+        photo: z.string().optional(),
+        images: z.array(z.string()).optional(),
         price: toNumber.pipe(z.number().positive()).optional(),
         originalPrice: toNumber.pipe(z.number().positive()).optional(),
         discount: toNumber.pipe(z.number().min(0)).optional(),
@@ -55,6 +57,7 @@ export const updateProductSchema = z.object({
         remainingPieces: toNumber.pipe(z.number().min(0)).optional(),
         isNewArrival: toBoolean.pipe(z.boolean()).optional(),
         isFeatured: toBoolean.pipe(z.boolean()).optional(),
+        
     }).strict().refine((data) => Object.keys(data).length > 0, { message: "empty_update" }),
 });
 

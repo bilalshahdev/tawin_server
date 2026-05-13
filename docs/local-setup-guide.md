@@ -24,8 +24,8 @@ npm -v
 Clone the backend repository:
 
 ```bash
-git clone <BACKEND_REPO_URL>
-cd <backend-folder>
+git clone https://github.com/bilalshahdev/tawin_server.git
+cd tawin_server
 ```
 
 1. Create a file named `.env.development` in the project root.
@@ -56,24 +56,25 @@ Keep this terminal open. The backend is now live at:
 Clone the frontend repository:
 
 ```bash
-git clone <FRONTEND_REPO_URL>
-cd <frontend-folder>
+git clone https://github.com/bilalshahdev/tawin-web.git
+cd tawin-web
 ```
 
-1. Create a file named `.env.local` in the project root.
-2. Paste the contents shared with you privately. The key value is:
+1. Create a file named `.env` in the project root.
+2. Paste the following in that
 
    ```
-   NEXT_PUBLIC_API_BASE_URL=http://localhost:3520/api
+   NEXT_PUBLIC_API_BASE_URL=http://localhost:3520
    ```
 
    Adjust the port if your backend ended up on a different one.
 
-3. Install + run:
+3. Install + build + run:
 
    ```bash
    npm install
-   npm run dev
+   npm run build
+   npm run start
    ```
 
 The frontend will open at <http://localhost:3000> (or the next available port — the terminal will tell you).
@@ -128,7 +129,3 @@ The backend writes uploaded files into `uploads/` at the project root. The folde
 | Frontend | <http://localhost:3000>              |
 
 ---
-
-## Need help?
-
-If anything trips up, ping me with a copy of the terminal output and I'll guide you through it.

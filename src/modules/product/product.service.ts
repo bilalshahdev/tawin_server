@@ -76,7 +76,7 @@ export const updateProduct = async (id: string, updateData: any) => {
     const product = await Product.findById(id);
     if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_found");
 
-    if (updateData.photo && product.photo) {
+    if (updateData.photo && product.photo && updateData.photo !== product.photo) {
         deleteFile(product.photo);
     }
 

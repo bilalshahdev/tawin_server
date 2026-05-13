@@ -16,6 +16,7 @@ import supplierRoutes from "../modules/supplier/supplier.routes";
 import brandRoutes from "../modules/brand/brand.routes";
 import staffRoutes from "../modules/staff/staff.routes";
 import notificationRoutes from "../modules/notification/notification.routes";
+import reportRoutes from "../modules/report/report.routes";
 
 const router = Router();
 
@@ -38,6 +39,7 @@ router.use("/cart", cartRoutes);
 router.use("/coupons", couponRoutes);
 router.use("/orders", orderRoutes);
 router.use("/suppliers", supplierRoutes);
+router.use("/reports", reportRoutes);
 
 router.use("/settings", settingsRoutes);
 router.use("/contact", contactRoutes);
