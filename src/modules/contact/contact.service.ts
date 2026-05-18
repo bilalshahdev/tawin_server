@@ -3,9 +3,12 @@ import { Settings } from '../settings/settings.model';
 import { sendEmail } from '../../services/email.service';
 import { t } from 'i18next';
 
-export const createContactEntry = async (contactData: any, lng: string = 'en') => {
+export const createContactEntry = async (contactData: any, userId: string | null, lng: string = 'en') => {
     // 1. Store in DB
-    const newContact = await Contact.create(contactData);
+    const newContact = await Contact.create({
+        ...contactData,
+        userId
+    });
 
     // 2. Fetch Settings
     const settings = await Settings.findOne();
@@ -34,4 +37,19 @@ export const createContactEntry = async (contactData: any, lng: string = 'en') =
     }
 
     return newContact;
+};
+
+// fetch contacts (paginated, with user data populated)
+
+export const getContacts = async (page: number = 1, limit: number = 10) => {
+    const skip = (page - 1) * limit;
+    const contacts = await Contact.find().populate('userId').skip(skip).limit(limit).sort({ createdAt: -1 });
+    const total = await Contact.countDocuments();
+    return {
+        contacts,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+    };
 };

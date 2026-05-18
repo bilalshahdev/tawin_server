@@ -42,4 +42,38 @@ const contactValidation = z.object({
  */
 router.post('/', validate(contactValidation), contactController.submitContactForm);
 
+/**
+ * @swagger
+ * /contact:
+ *   get:
+ *     summary: Get contacts
+ *     tags: [Contact]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Limit per page
+ *     responses:
+ *       200:
+ *         description: Contacts fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Contact'
+ *       400:
+ *         description: Validation error
+ */
+router.get('/', contactController.getContacts);
+
 export default router;
