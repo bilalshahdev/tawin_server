@@ -34,6 +34,8 @@ export const couponSchemas = {
                     'Users who have already redeemed this coupon (each user can use a coupon at most once).',
             },
             isActive: { type: 'boolean', example: true },
+            isPromotional: { type: 'boolean', example: false },
+            thumbnail: { type: 'string', example: '' },
             appliesTo: {
                 type: 'string',
                 enum: ['all', 'category', 'product'],

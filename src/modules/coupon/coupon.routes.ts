@@ -7,6 +7,8 @@ import {
     updateCouponSchema,
     validateCouponSchema,
 } from './coupon.validation';
+import { upload } from '../../config/multer.config';
+import { trackUploadedFiles } from '../../middlewares/trackUploadedFiles.middleware';
 
 const router = Router();
 
@@ -88,12 +90,14 @@ const router = Router();
  *       201:
  *         description: Coupon created successfully
  */
+
 router
     .route('/admin')
     .get(authMiddleware, authorize('admin'), couponController.getAdminCoupons)
     .post(
         authMiddleware,
         authorize('admin'),
+        upload.single('thumbnail'),
         validate(createCouponSchema),
         couponController.adminCreateCoupon,
     );
@@ -127,6 +131,27 @@ router.get(
 );
 
 // --- User Routes ---
+
+/**
+ * @swagger
+ * /coupons/promotional:
+ *   get:
+ *     summary: Get promotional coupon (User)
+ *     tags: [Coupon]
+ *     responses:
+ *       200:
+ *         description: Promotional coupon retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Coupon'
+ */
+router.get('/promotional', couponController.getPromotionalCoupon);
 
 /**
  * @swagger
@@ -181,6 +206,61 @@ router.post(
 
 /**
  * @swagger
+ * /coupons/admin/toggle-status/{id}:
+ *   patch:
+ *     summary: Toggle coupon active/inactive status (Admin)
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon status toggled successfully
+ *       404:
+ *         description: Coupon not found
+ */
+router.patch(
+    '/admin/toggle-status/:id',
+    authMiddleware,
+    authorize('admin'),
+    couponController.toggleStatus,
+);
+
+/**
+ * @swagger
+ * /coupons/admin/toggle-promotional/{id}:
+ *   patch:
+ *     summary: Toggle coupon promotional status (Admin)
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon promotional status toggled successfully
+ *       404:
+ *         description: Coupon not found
+ */
+router.patch(
+    '/admin/toggle-promotional/:id',
+    authMiddleware,
+    authorize('admin'),
+    couponController.togglePromotional,
+);
+
+
+/**
+ * @swagger
  * /coupons/admin/{id}:
  *   patch:
  *     summary: Update coupon details (Admin)
@@ -226,36 +306,12 @@ router
     .patch(
         authMiddleware,
         authorize('admin'),
+        upload.single('thumbnail'),
+        trackUploadedFiles,
         validate(updateCouponSchema),
         couponController.updateCoupon,
     )
     .delete(authMiddleware, authorize('admin'), couponController.deleteCoupon);
 
-/**
- * @swagger
- * /coupons/admin/toggle-status/{id}:
- *   patch:
- *     summary: Toggle coupon active/inactive status (Admin)
- *     tags: [Coupon]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Coupon status toggled successfully
- *       404:
- *         description: Coupon not found
- */
-router.patch(
-    '/admin/toggle-status/:id',
-    authMiddleware,
-    authorize('admin'),
-    couponController.toggleStatus,
-);
 
 export default router;

@@ -28,14 +28,20 @@ export const getStats = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const updateCoupon = asyncHandler(async (req: Request, res: Response) => {
-    const coupon = await couponService.updateCoupon(req.params.id as string, req.body);
+    const updatedData = { ...req.body }
+    // handle thumbnail
+    if (req.file) {
+        updatedData.thumbnail = req.file.path;
+    }
+
+
+    const coupon = await couponService.updateCoupon(req.params.id as string, updatedData);
     if (!coupon) throw new ApiError(404, 'coupon.not_found');
     return res.status(200).json(new ApiResponse(req.t('coupon.updated'), coupon));
 });
 
 export const deleteCoupon = asyncHandler(async (req: Request, res: Response) => {
-    const coupon = await couponService.deleteCoupon(req.params.id as string);
-    if (!coupon) throw new ApiError(404, 'coupon.not_found');
+    await couponService.deleteCoupon(req.params.id as string);
     return res.status(200).json(new ApiResponse(req.t('coupon.deleted')));
 });
 
@@ -43,4 +49,17 @@ export const toggleStatus = asyncHandler(async (req: Request, res: Response) => 
     const coupon = await couponService.toggleCouponStatus(req.params.id as string);
     if (!coupon) throw new ApiError(404, 'coupon.not_found');
     return res.status(200).json(new ApiResponse(req.t('coupon.status_toggled'), coupon));
+});
+
+
+export const togglePromotional = asyncHandler(async (req: Request, res: Response) => {
+    const coupon = await couponService.togglePromotional(req.params.id as string);
+    if (!coupon) throw new ApiError(404, 'coupon.not_found');
+    return res.status(200).json(new ApiResponse(req.t('coupon.promotional_toggled'), coupon));
+});
+
+export const getPromotionalCoupon = asyncHandler(async (req: Request, res: Response) => {
+    const coupon = await couponService.fetchPromotionalCoupon();
+    if (!coupon) throw new ApiError(404, 'coupon.not_found');
+    return res.status(200).json(new ApiResponse(req.t('coupon.promotional_retrieved'), coupon));
 });

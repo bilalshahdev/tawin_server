@@ -7,13 +7,11 @@ import { User } from "../user/user.model";
 import { calculateGrowth, formatChange, getDateRange } from "./admin.utils";
 
 
-export const getStats = async (period: Period = 'daily') => {
-    const { currentStart, prevStart, prevEnd } = getDateRange(period);
+export const getStats = async (period: Period = 'monthly') => {
+    const { currentStart, currentEnd, prevStart, prevEnd } = getDateRange(period);
 
-    const getMetrics = async (start: Date, end?: Date) => {
-        const query: any = { createdAt: { $gte: start } };
-        if (end) query.createdAt.$lte = end;
-
+    const getPeriodMetrics = async (start: Date, end: Date) => {
+        const query = { createdAt: { $gte: start, $lte: end } };
         const [users, orders, salesAgg] = await Promise.all([
             User.countDocuments({ ...query, role: 'customer' }),
             Order.countDocuments(query),
@@ -25,13 +23,21 @@ export const getStats = async (period: Period = 'daily') => {
         return { users, orders, sales: salesAgg[0]?.total || 0 };
     };
 
-    const current = await getMetrics(currentStart);
-    const previous = await getMetrics(prevStart, prevEnd);
+    const [current, previous, totalUsersCount, totalOrdersCount, totalSalesAgg] = await Promise.all([
+        getPeriodMetrics(currentStart, currentEnd),
+        getPeriodMetrics(prevStart, prevEnd),
+        User.countDocuments({ role: 'customer' }),
+        Order.countDocuments({}),
+        Order.aggregate([
+            { $match: { status: 'delivered' } },
+            { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+        ])
+    ]);
 
     return {
-        totalUsers: { value: current.users, growth: calculateGrowth(current.users, previous.users) },
-        totalOrders: { value: current.orders, growth: calculateGrowth(current.orders, previous.orders) },
-        totalSales: { value: current.sales, growth: calculateGrowth(current.sales, previous.sales) }
+        totalUsers: { value: totalUsersCount, growth: calculateGrowth(current.users, previous.users) },
+        totalOrders: { value: totalOrdersCount, growth: calculateGrowth(current.orders, previous.orders) },
+        totalSales: { value: totalSalesAgg[0]?.total || 0, growth: calculateGrowth(current.sales, previous.sales) }
     };
 };
 

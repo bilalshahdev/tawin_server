@@ -1,22 +1,20 @@
 import { Document, Types } from 'mongoose';
 
-export interface LocalizedString {
-    en: string;
-    ar?: string;
-}
+export type CouponAppliesTo = 'all' | 'category' | 'product';
 
-export enum CategoryType {
-    CATEGORY = 'category',
-    SUB_CATEGORY = 'subCategory'
-}
-
-export interface ICategory extends Document {
-    name: LocalizedString;
-    slug: string;
+export interface ICoupon extends Document {
+    code: string;
+    type: 'percentage' | 'fixed';
+    value: number;
+    minOrderAmount: number;
+    expiryDate: Date;
+    usageLimit: number;
+    usedCount: number;
+    isActive: boolean;
+    isPromotional: boolean;
     thumbnail?: string;
-    description?: LocalizedString;
-    type: CategoryType;
-    parentCategory?: Types.ObjectId | null;
-    createdAt: Date;
-    updatedAt: Date;
+    usedBy: Types.ObjectId[];
+    appliesTo: CouponAppliesTo;
+    categories: Types.ObjectId[];
+    products: Types.ObjectId[];
 }
