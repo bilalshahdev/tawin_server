@@ -1,7 +1,8 @@
 import {
     startOfDay, startOfMonth, startOfWeek, startOfYear,
     subDays, subMonths, subWeeks, subYears,
-    endOfDay, endOfMonth, endOfWeek, endOfYear
+    endOfDay, endOfMonth, endOfWeek, endOfYear,
+    subHours
 } from 'date-fns';
 import { Period } from '../../types/global.types';
 
@@ -54,4 +55,62 @@ export const formatChange = (current: number, previous: number) => {
 export const calculateGrowth = (current: number, previous: number): number => {
     if (previous === 0) return current > 0 ? 100 : 0;
     return parseFloat(((current - previous) / previous * 100).toFixed(2));
+};
+
+export const getRollingDateRange = (period: Period) => {
+    const now = new Date();
+
+    let currentStart: Date;
+    let currentEnd: Date = now;
+    let prevStart: Date | null = null;
+    let prevEnd: Date | null = null;
+
+    switch (period) {
+        case 'daily': {
+            // Last 24 hours
+            currentStart = subHours(now, 24);
+            prevStart = subHours(currentStart, 24);
+            prevEnd = currentStart;
+            break;
+        }
+
+        case 'weekly': {
+            // Last 7 days
+            currentStart = subDays(now, 7);
+            prevStart = subDays(currentStart, 7);
+            prevEnd = currentStart;
+            break;
+        }
+
+        case 'monthly': {
+            // Last 30 days
+            currentStart = subDays(now, 30);
+            prevStart = subDays(currentStart, 30);
+            prevEnd = currentStart;
+            break;
+        }
+
+        case 'yearly': {
+            // Last 12 months
+            currentStart = subMonths(now, 12);
+            prevStart = subMonths(currentStart, 12);
+            prevEnd = currentStart;
+            break;
+        }
+
+        case 'all-time':
+        default: {
+            currentStart = new Date(0);
+            prevStart = null;
+            prevEnd = null;
+            break;
+        }
+    }
+
+    return {
+        currentStart,
+        currentEnd,
+        prevStart,
+        prevEnd,
+    };
 };

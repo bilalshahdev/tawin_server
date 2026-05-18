@@ -35,7 +35,7 @@ export const couponSchemas = {
             },
             isActive: { type: 'boolean', example: true },
             isPromotional: { type: 'boolean', example: false },
-            thumbnail: { type: 'string', example: '' },
+            thumbnail: { type: 'string', format: 'binary' },
             appliesTo: {
                 type: 'string',
                 enum: ['all', 'category', 'product'],

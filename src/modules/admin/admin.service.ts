@@ -4,40 +4,71 @@ import { getPaginationOptions } from "../../utils/pagination";
 import { Order, OrderStatus } from "../order/order.model";
 import { Product } from "../product/product.model";
 import { User } from "../user/user.model";
-import { calculateGrowth, formatChange, getDateRange } from "./admin.utils";
+import { calculateGrowth, formatChange, getDateRange, getRollingDateRange } from "./admin.utils";
 
 
-export const getStats = async (period: Period = 'monthly') => {
-    const { currentStart, currentEnd, prevStart, prevEnd } = getDateRange(period);
+export const getStats = async (period: Period = 'daily') => {
+    const { currentStart, currentEnd, prevStart, prevEnd } = getRollingDateRange(period);
 
-    const getPeriodMetrics = async (start: Date, end: Date) => {
-        const query = { createdAt: { $gte: start, $lte: end } };
+    const getMetrics = async (start: Date, end: Date) => {
+        const dateQuery = {
+            createdAt: {
+                $gte: start,
+                $lt: end,
+            },
+        };
+
         const [users, orders, salesAgg] = await Promise.all([
-            User.countDocuments({ ...query, role: 'customer' }),
-            Order.countDocuments(query),
+            User.countDocuments({
+                ...dateQuery,
+                role: 'customer',
+            }),
+
+            Order.countDocuments(dateQuery),
+
             Order.aggregate([
-                { $match: { ...query, status: 'delivered' } },
-                { $group: { _id: null, total: { $sum: "$totalAmount" } } }
-            ])
+                {
+                    $match: {
+                        ...dateQuery,
+                        status: 'delivered',
+                    },
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: '$totalAmount' },
+                    },
+                },
+            ]),
         ]);
-        return { users, orders, sales: salesAgg[0]?.total || 0 };
+
+        return {
+            users,
+            orders,
+            sales: salesAgg[0]?.total || 0,
+        };
     };
 
-    const [current, previous, totalUsersCount, totalOrdersCount, totalSalesAgg] = await Promise.all([
-        getPeriodMetrics(currentStart, currentEnd),
-        getPeriodMetrics(prevStart, prevEnd),
-        User.countDocuments({ role: 'customer' }),
-        Order.countDocuments({}),
-        Order.aggregate([
-            { $match: { status: 'delivered' } },
-            { $group: { _id: null, total: { $sum: "$totalAmount" } } }
-        ])
-    ]);
+    const current = await getMetrics(currentStart, currentEnd);
+
+    const previous =
+        prevStart && prevEnd
+            ? await getMetrics(prevStart, prevEnd)
+            : { users: 0, orders: 0, sales: 0 };
 
     return {
-        totalUsers: { value: totalUsersCount, growth: calculateGrowth(current.users, previous.users) },
-        totalOrders: { value: totalOrdersCount, growth: calculateGrowth(current.orders, previous.orders) },
-        totalSales: { value: totalSalesAgg[0]?.total || 0, growth: calculateGrowth(current.sales, previous.sales) }
+        totalUsers: {
+            value: current.users,
+            growth: calculateGrowth(current.users, previous.users),
+        },
+        totalOrders: {
+            value: current.orders,
+            growth: calculateGrowth(current.orders, previous.orders),
+        },
+        totalSales: {
+            value: current.sales,
+            growth: calculateGrowth(current.sales, previous.sales),
+        },
     };
 };
 

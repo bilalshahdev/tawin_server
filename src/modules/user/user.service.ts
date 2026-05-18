@@ -6,6 +6,7 @@ import { deleteFile } from "../../utils/deleteFile";
 import generateOTP from "../../utils/generateOtp";
 import { fillBuckets, getTimelineBuckets } from "../../utils/graphHelper";
 import { getPaginationOptions } from "../../utils/pagination";
+import { getRollingDateRange } from "../admin/admin.utils";
 import * as notificationService from '../notification/notification.service';
 import { Staff } from "../staff/staff.model";
 import { User } from "./user.model";
@@ -13,11 +14,17 @@ import { ConstructionBasketStatus } from "./user.types";
 
 export const getUserStats = async (period: Period = 'daily') => {
     const buckets = getTimelineBuckets(period);
-    const startDate = buckets[0].timestamp;
+    const { currentStart, currentEnd } = getRollingDateRange(period);
+
     const users = await User.find({
         role: 'customer',
-        createdAt: { $gte: startDate }
-    }).select('createdAt').lean();
+        createdAt: {
+            $gte: currentStart,
+            $lt: currentEnd,
+        },
+    })
+        .select('createdAt')
+        .lean();
 
     const graphData = fillBuckets(buckets, users, 'createdAt', period);
 
@@ -25,43 +32,58 @@ export const getUserStats = async (period: Period = 'daily') => {
         {
             $match: {
                 role: 'customer',
-                createdAt: { $gte: startDate }
-            }
+                createdAt: {
+                    $gte: currentStart,
+                    $lt: currentEnd,
+                },
+            },
         },
         {
             $group: {
                 _id: null,
                 total: { $sum: 1 },
-                verified: { $sum: { $cond: ["$isVerified", 1, 0] } },
-                unverified: { $sum: { $cond: ["$isVerified", 0, 1] } }
-            }
-        }
+                verified: {
+                    $sum: {
+                        $cond: ['$isVerified', 1, 0],
+                    },
+                },
+                unverified: {
+                    $sum: {
+                        $cond: ['$isVerified', 0, 1],
+                    },
+                },
+            },
+        },
     ]);
 
-    const rawCards = stats[0] || { total: 0, verified: 0, unverified: 0 };
+    const rawCards = stats[0] || {
+        total: 0,
+        verified: 0,
+        unverified: 0,
+    };
 
     return {
         summary: {
             period,
             cards: [
                 {
-                    title: "Total Customers",
+                    title: 'Total Customers',
                     value: rawCards.total,
-                    change: { type: "increase", percentage: 100 }
+                    change: { type: 'increase', percentage: 100 },
                 },
                 {
-                    title: "Verified Customers",
+                    title: 'Verified Customers',
                     value: rawCards.verified,
-                    change: { type: "increase", percentage: 100 }
+                    change: { type: 'increase', percentage: 100 },
                 },
                 {
-                    title: "Unverified Customers",
+                    title: 'Unverified Customers',
                     value: rawCards.unverified,
-                    change: { type: "increase", percentage: 0 }
-                }
-            ]
+                    change: { type: 'increase', percentage: 0 },
+                },
+            ],
         },
-        graph: graphData
+        graph: graphData,
     };
 };
 
