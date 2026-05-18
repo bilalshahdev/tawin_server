@@ -53,3 +53,9 @@ export const getContacts = async (page: number = 1, limit: number = 10) => {
         totalPages: Math.ceil(total / limit)
     };
 };
+
+// delete contact
+export const deleteContact = async (id: string) => {
+    const contact = await Contact.findByIdAndDelete(id);
+    return contact;
+};

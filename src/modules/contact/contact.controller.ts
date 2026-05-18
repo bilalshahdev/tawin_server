@@ -16,3 +16,8 @@ export const getContacts = asyncHandler(async (req: Request, res: Response) => {
     const result = await contactService.getContacts(page, limit);
     return res.status(STATUS_CODE.OK).json(new ApiResponse("Contacts fetched successfully", result));
 });
+
+export const deleteContactById = asyncHandler(async (req: Request, res: Response) => {
+    const result = await contactService.deleteContact(req.params.id as string);
+    return res.status(STATUS_CODE.OK).json(new ApiResponse("Contact deleted successfully", result));
+});
