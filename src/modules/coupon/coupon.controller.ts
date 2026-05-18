@@ -10,7 +10,11 @@ export const getAdminCoupons = asyncHandler(async (req: Request, res: Response) 
 });
 
 export const adminCreateCoupon = asyncHandler(async (req: Request, res: Response) => {
-    const coupon = await couponService.createCoupon(req.body);
+    const couponData = { ...req.body };
+    if (req.file) {
+        couponData.thumbnail = req.file.path;
+    }
+    const coupon = await couponService.createCoupon(couponData);
     return res.status(201).json(new ApiResponse(req.t('coupon.created'), coupon));
 });
 
@@ -29,12 +33,9 @@ export const getStats = asyncHandler(async (req: Request, res: Response) => {
 
 export const updateCoupon = asyncHandler(async (req: Request, res: Response) => {
     const updatedData = { ...req.body }
-    // handle thumbnail
     if (req.file) {
         updatedData.thumbnail = req.file.path;
     }
-
-
     const coupon = await couponService.updateCoupon(req.params.id as string, updatedData);
     if (!coupon) throw new ApiError(404, 'coupon.not_found');
     return res.status(200).json(new ApiResponse(req.t('coupon.updated'), coupon));
