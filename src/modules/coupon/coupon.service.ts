@@ -150,28 +150,34 @@ export const getCouponStats = async () => {
 
 export const updateCoupon = async (id: string, updateData: any) => {
     const existing = await Coupon.findById(id);
-    if (!existing) throw new ApiError(404, "Coupon not found");
 
-    if (updateData.thumbnail && existing.thumbnail && updateData.thumbnail !== existing.thumbnail) {
+    if (!existing) {
+        throw new ApiError(404, "Coupon not found");
+    }
+
+    if (
+        updateData.thumbnail &&
+        existing.thumbnail &&
+        updateData.thumbnail !== existing.thumbnail
+    ) {
         deleteFile(existing.thumbnail);
     }
 
-    return await Coupon.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
-};
+    if (updateData.isPromotional === true) {
+        await Coupon.updateMany(
+            { _id: { $ne: id } },
+            { isPromotional: false }
+        );
+    }
 
-export const deleteCoupon = async (id: string) => {
-    const coupon = await Coupon.findByIdAndDelete(id);
-    if (!coupon) throw new ApiError(404, "Coupon not found");
-
-    if (coupon.thumbnail) deleteFile(coupon.thumbnail);
-};
-
-export const toggleCouponStatus = async (id: string) => {
-    const coupon = await Coupon.findById(id);
-    if (!coupon) return null;
-
-    coupon.isActive = !coupon.isActive;
-    return await coupon.save();
+    return await Coupon.findByIdAndUpdate(
+        id,
+        updateData,
+        {
+            new: true,
+            runValidators: true,
+        }
+    );
 };
 
 export const togglePromotional = async (id: string) => {
@@ -186,6 +192,21 @@ export const togglePromotional = async (id: string) => {
     }
 
     return await coupon.save();
+};
+
+export const toggleCouponStatus = async (id: string) => {
+    const coupon = await Coupon.findById(id);
+    if (!coupon) return null;
+
+    coupon.isActive = !coupon.isActive;
+    return await coupon.save();
+};
+
+export const deleteCoupon = async (id: string) => {
+    const coupon = await Coupon.findByIdAndDelete(id);
+    if (!coupon) throw new ApiError(404, "Coupon not found");
+
+    if (coupon.thumbnail) deleteFile(coupon.thumbnail);
 };
 
 // Loads the user's cart with populated products (and product.category) for coupon validation.
