@@ -14,7 +14,7 @@ import {
 import generateOTP from "../../utils/generateOtp";
 import { Staff } from "../staff/staff.model";
 import * as notificationService from "../notification/notification.service";
-import { env } from "process";
+import { config } from "../../config/env.config";
 
 export const register = async (
   data: IRegisterDTO,
@@ -142,7 +142,7 @@ export const forgotPassword = async (email: string) => {
   user.passwordResetExpires = new Date(Date.now() + 30 * 60 * 1000);
   await user.save();
 
-  const frontendBaseUrl = env.frontendUrl || "http://localhost:3000";
+  const frontendBaseUrl = config.frontendUrl || "http://localhost:3000";
   const resetUrl = `${frontendBaseUrl}/reset-password?token=${resetToken}`;
 
   const emailSubject = "Password Reset Request";
