@@ -27,8 +27,6 @@ export const MAIL_CONSTANTS = {
     MAIL_FROM_ADDRESS: process.env.MAIL_FROM_ADDRESS || 'test@dcodax.com',
 };
 
-// define auth_constants type and export
-
 export type AuthConstants = typeof AUTH_CONSTANTS;
 export type BasketStatus = 'pending' | 'approved' | 'rejected';
 export type MailConstants = typeof MAIL_CONSTANTS;
@@ -36,9 +34,6 @@ export type MailConstants = typeof MAIL_CONSTANTS;
 
 export const PROPERTY_TYPES = ['Freehold', 'Leasehold'] as const;
 
-// Each domain owns a top-level folder under /uploads. The multer destination
-// resolver picks the folder based on the request URL (see src/config/multer.config.ts).
-// Document fields (resume / documents) override URL routing to land in DOCUMENTS regardless.
 export const UPLOAD_PATHS = {
     PROFILES: 'uploads/profiles',
     CATEGORIES: 'uploads/categories',
