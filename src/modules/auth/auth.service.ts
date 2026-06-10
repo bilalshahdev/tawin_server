@@ -143,7 +143,7 @@ export const forgotPassword = async (email: string) => {
   await user.save();
 
   const frontendBaseUrl = config.frontendUrl || "http://localhost:3000";
-  const resetUrl = `${frontendBaseUrl}/reset-password?token=${resetToken}`;
+  const resetUrl = `${frontendBaseUrl}/auth/reset-password?token=${resetToken}`;
 
   const emailSubject = "Password Reset Request";
   const emailMessage = `
