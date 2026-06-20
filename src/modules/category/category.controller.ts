@@ -23,7 +23,6 @@ export const getCategoryById = asyncHandler(async (req: Request, res: Response) 
 
 
 export const createCategory = asyncHandler(async (req: Request, res: Response) => {
-    console.log({ body: req.body })
     const { parentCategory = "" } = req.body || {}
     const data = {
         ...req.body,
@@ -39,14 +38,6 @@ export const createCategory = asyncHandler(async (req: Request, res: Response) =
 
 export const updateCategory = asyncHandler(async (req: Request, res: Response) => {
     const updateData: any = { ...req.body };
-
-    // Map flattened names/descriptions back to objects
-    if (req.body['name[en]'] || req.body['name[ar]']) {
-        updateData.name = {
-            en: req.body['name[en]'],
-            ar: req.body['name[ar]']
-        };
-    }
 
     // Handle uploaded files
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };

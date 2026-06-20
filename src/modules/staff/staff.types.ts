@@ -3,7 +3,7 @@ export type Operation = 'get' | 'post' | 'patch' | 'put' | 'delete';
 export type StaffModule = 
     | 'dashboard' | 'orders' | 'users' | 'staff' | 'products' | 'sales'
     | 'construction-basket' | 'reviews' | 'suppliers' | 'coupon' 
-    | 'financial' | 'brand' | 'stock';
+    | 'financial' | 'brand' | 'stock' | 'categories' | 'settings';
 
 export interface IPermission {
     module: StaffModule;

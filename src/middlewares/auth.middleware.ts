@@ -20,6 +20,22 @@ export interface TokenPayload {
     permissions?: IPermission[];
 }
 
+const modulePathAliases: Record<string, string[]> = {
+    "coupon-codes": ["coupon", "coupons"],
+    coupon: ["coupon", "coupons"],
+    "financial-transfers": ["financial", "financials", "financial-stats"],
+    financial: ["financial", "financials", "financial-stats"],
+    brand: ["brand", "brands"],
+    categories: ["category", "categories"],
+    settings: ["settings"],
+};
+
+const hasModuleInPath = (moduleName: string, path: string) => {
+    const normalizedModuleName = moduleName.toLowerCase().replace(/\s+/g, '-');
+    const aliases = modulePathAliases[normalizedModuleName] || [normalizedModuleName];
+    return aliases.some((alias) => path.includes(alias));
+};
+
 export const authMiddleware = (
     req: Request,
     res: Response,
@@ -75,8 +91,7 @@ export const authorize = (...roles: string[]) => {
              * We find if any of the staff's allowed modules are present in the URL path.
              */
             const modulePermission = user.permissions.find(p => {
-                const normalizedModuleName = p.module.toLowerCase().replace(/\s+/g, '-');
-                return currentPath.includes(normalizedModuleName);
+                return hasModuleInPath(p.module, currentPath);
             });
 
             if (modulePermission && modulePermission.operations.includes(requiredOperation)) {

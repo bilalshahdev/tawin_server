@@ -30,6 +30,8 @@ export const updateSettingsSchema = z.object({
         "header[landing_page][text][ar]": optionalString,
         "header[home][text][en]": optionalString,
         "header[home][text][ar]": optionalString,
+        "header[shop][text][en]": optionalString,
+        "header[shop][text][ar]": optionalString,
 
         // Pages content
         "pages[privacyPolicy][en]": optionalString,
@@ -40,7 +42,7 @@ export const updateSettingsSchema = z.object({
         "pages[about][ar]": optionalString,
 
         // Social links
-        "socialLinks[whatsapp]": optionalUrl,
+        "socialLinks[whatsapp]": optionalString,
         "socialLinks[facebook]": optionalUrl,
         "socialLinks[instagram]": optionalUrl,
         "socialLinks[twitter]": optionalUrl,
@@ -52,7 +54,7 @@ export const updateSocialLinksSchema = z.object({
     body: z.object({
         facebook: optionalUrl,
         instagram: optionalUrl,
-        whatsapp: optionalUrl,
+        whatsapp: optionalString,
         youtube: optionalUrl,
         twitter: optionalUrl,
     }).strict(),
