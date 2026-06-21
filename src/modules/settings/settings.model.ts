@@ -1,8 +1,5 @@
 import { Schema, model } from 'mongoose';
 
-// Validator for URL fields
-const urlValidator = (v: string) => /^https?:\/\/.+$/.test(v);
-
 // sectionSchema
 
 const sectionSchema = {
@@ -62,10 +59,10 @@ const settingsSchema = new Schema({
     },
 
     socialLinks: {
-        facebook: { type: String, validate: { validator: urlValidator, message: (v: any) => `${v.value} is not a valid URL!` } },
-        instagram: { type: String, validate: { validator: urlValidator, message: (v: any) => `${v.value} is not a valid URL!` } },
+        facebook: String,
+        instagram: String,
         whatsapp: String,
-        youtube: { type: String, validate: { validator: urlValidator, message: (v: any) => `${v.value} is not a valid URL!` } },
+        youtube: String,
     }
 }, { timestamps: true });
 

@@ -5,8 +5,9 @@ import { z } from 'zod';
 // Validate them in their incoming bracket form, then `.strict()` rejects any
 // key that isn't explicitly whitelisted here.
 
-const optionalString = z.string().optional();
-const optionalUrl = z.string().url().optional().or(z.literal(''));
+const optionalString = z
+    .preprocess((val) => (val == null || val === 'undefined' || val === 'null' ? '' : val), z.string())
+    .optional();
 const optionalBoolFromForm = z
     .preprocess((val) => val === 'true' || val === true, z.boolean())
     .optional();
@@ -43,20 +44,20 @@ export const updateSettingsSchema = z.object({
 
         // Social links
         "socialLinks[whatsapp]": optionalString,
-        "socialLinks[facebook]": optionalUrl,
-        "socialLinks[instagram]": optionalUrl,
-        "socialLinks[twitter]": optionalUrl,
-        "socialLinks[youtube]": optionalUrl,
+        "socialLinks[facebook]": optionalString,
+        "socialLinks[instagram]": optionalString,
+        "socialLinks[twitter]": optionalString,
+        "socialLinks[youtube]": optionalString,
     }).strict(),
 });
 
 export const updateSocialLinksSchema = z.object({
     body: z.object({
-        facebook: optionalUrl,
-        instagram: optionalUrl,
+        facebook: optionalString,
+        instagram: optionalString,
         whatsapp: optionalString,
-        youtube: optionalUrl,
-        twitter: optionalUrl,
+        youtube: optionalString,
+        twitter: optionalString,
     }).strict(),
 });
 
