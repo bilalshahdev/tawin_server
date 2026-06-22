@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
-// Form-data sends localized fields with bracket notation: `businessName[en]`.
-// The settings controller converts these to dot-notation paths before saving.
-// Validate them in their incoming bracket form, then `.strict()` rejects any
-// key that isn't explicitly whitelisted here.
+// Multer can parse multipart fields with bracket notation like
+// `businessName[en]` into nested objects. Keep support for both the raw bracket
+// keys and the nested object shape so older and newer clients both validate.
 
 const optionalString = z
     .preprocess((val) => (val == null || val === 'undefined' || val === 'null' ? '' : val), z.string())
@@ -12,9 +11,39 @@ const optionalBoolFromForm = z
     .preprocess((val) => val === 'true' || val === true, z.boolean())
     .optional();
 
+const localizedStringSchema = z.object({
+    en: optionalString,
+    ar: optionalString,
+}).strict().optional();
+
+const headerSectionSchema = z.object({
+    text: localizedStringSchema,
+}).strict().optional();
+
 export const updateSettingsSchema = z.object({
     body: z.object({
         enableContactEmail: optionalBoolFromForm,
+
+        businessName: localizedStringSchema,
+        tagline: localizedStringSchema,
+        about: localizedStringSchema,
+        socialLinks: z.object({
+            whatsapp: optionalString,
+            facebook: optionalString,
+            instagram: optionalString,
+            twitter: optionalString,
+            youtube: optionalString,
+        }).strict().optional(),
+        header: z.object({
+            landing_page: headerSectionSchema,
+            home: headerSectionSchema,
+            shop: headerSectionSchema,
+        }).strict().optional(),
+        pages: z.object({
+            privacyPolicy: localizedStringSchema,
+            termsAndConditions: localizedStringSchema,
+            about: localizedStringSchema,
+        }).strict().optional(),
 
         // Business info
         "businessName[en]": optionalString,
