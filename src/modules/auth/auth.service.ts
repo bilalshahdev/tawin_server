@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { AUTH_CONSTANTS, STATUS_CODE } from "../../config/constants";
 import { sendEmail } from "../../services/email.service";
+import { sendSms } from "../../services/sms.service";
 import { createStaffToken, createToken } from "../../services/jwt.service";
 import { ApiError } from "../../utils/apiError";
 import { User } from "../user/user.model";
@@ -16,13 +17,28 @@ import { Staff } from "../staff/staff.model";
 import * as notificationService from "../notification/notification.service";
 import { config } from "../../config/env.config";
 
+const ensureSmsOtpConfigured = () => {
+  if (
+    config.smsService !== "true" ||
+    !config.twilioAccountSid ||
+    !config.twilioAuthToken ||
+    !config.twilioFromNumber
+  ) {
+    throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.sms_not_configured");
+  }
+};
+
 export const register = async (
   data: IRegisterDTO,
   isAdminRequest: boolean = false,
 ): Promise<AuthResponse> => {
-  const existing = await User.findOne({
-    $or: [{ email: data.email }, { username: data.username }],
-  });
+  const uniquenessChecks = [
+    { username: data.username },
+    ...(data.email ? [{ email: data.email }] : []),
+    ...(data.phone ? [{ phone: data.phone }] : []),
+  ];
+
+  const existing = await User.findOne({ $or: uniquenessChecks });
 
   if (existing)
     throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.user_exists");
@@ -44,10 +60,16 @@ export const register = async (
 
   const otp = generateOTP();
 
+  const verificationChannel = data.phone && !data.email ? "phone" : "email";
+  if (verificationChannel === "phone") {
+    ensureSmsOtpConfigured();
+  }
+
   const user = await User.create({
     ...data,
     password: hashedPassword,
     isVerified: false,
+    verificationChannel,
     verificationOtp: otp,
     verificationOtpExpires: new Date(Date.now() + 10 * 60 * 1000),
     verificationOtpLastSent: new Date(),
@@ -59,20 +81,26 @@ export const register = async (
     type: "auth",
   });
 
-  await sendEmail(
-    user.email,
-    "Verify Your Account",
-    `Your OTP is: <b>${otp}</b>`,
-  );
+  if (verificationChannel === "phone" && user.phone) {
+    ensureSmsOtpConfigured();
+    await sendSms(user.phone, `Your Tawin verification OTP is: ${otp}`);
+  } else if (user.email) {
+    await sendEmail(
+      user.email,
+      "Verify Your Account",
+      `Your OTP is: <b>${otp}</b>`,
+    );
+  }
   const token = createToken(user);
   return { user, token };
 };
 
 export const verifyOtp = async (
-  email: string,
+  identifier: { email?: string; phone?: string },
   otp: string,
 ): Promise<AuthResponse> => {
-  const user = await User.findOne({ email }).select(
+  const lookup = identifier.email ? { email: identifier.email } : { phone: identifier.phone };
+  const user = await User.findOne(lookup).select(
     "+verificationOtp +verificationOtpExpires",
   );
 
@@ -94,7 +122,8 @@ export const verifyOtp = async (
 };
 
 export const login = async (data: ILoginDTO): Promise<AuthResponse> => {
-  const user = await User.findOne({ email: data.email }).select("+password");
+  const lookup = data.email ? { email: data.email } : { phone: data.phone };
+  const user = await User.findOne(lookup).select("+password");
 
   if (!user || !(await bcrypt.compare(data.password!, user.password!))) {
     throw new ApiError(STATUS_CODE.UNAUTHORIZED, "errors.invalid_credentials");
@@ -133,6 +162,7 @@ export const staffLogin = async (
 export const forgotPassword = async (email: string) => {
   const user = await User.findOne({ email });
   if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
+  if (!user.email) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.email_required");
 
   const resetToken = crypto.randomBytes(32).toString("hex");
   user.passwordResetToken = crypto
@@ -214,9 +244,10 @@ export const changeEmail = async (userId: string, newEmail: string) => {
   return { user, token };
 };
 
-export const resendOtp = async (email: string) => {
-  const user = await User.findOne({ email }).select(
-    "+verificationOtpLastSent +isVerified",
+export const resendOtp = async (identifier: { email?: string; phone?: string }) => {
+  const lookup = identifier.email ? { email: identifier.email } : { phone: identifier.phone };
+  const user = await User.findOne(lookup).select(
+    "+verificationOtpLastSent +isVerified +verificationChannel",
   );
 
   if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
@@ -231,17 +262,26 @@ export const resendOtp = async (email: string) => {
     throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.otp_cooldown");
   }
 
+  if (user.verificationChannel === "phone" && user.phone) {
+    ensureSmsOtpConfigured();
+  }
+
   const newOtp = generateOTP();
   user.verificationOtp = newOtp;
   user.verificationOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
   user.verificationOtpLastSent = new Date();
   await user.save();
 
-  await sendEmail(
-    user.email,
-    "New Verification Code",
-    `Your new code is: <b>${newOtp}</b>`,
-  );
+  if (user.verificationChannel === "phone" && user.phone) {
+    ensureSmsOtpConfigured();
+    await sendSms(user.phone, `Your new Tawin verification OTP is: ${newOtp}`);
+  } else if (user.email) {
+    await sendEmail(
+      user.email,
+      "New Verification Code",
+      `Your new code is: <b>${newOtp}</b>`,
+    );
+  }
 };
 
 export const deleteUser = async (userId: string) => {

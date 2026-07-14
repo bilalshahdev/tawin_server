@@ -128,7 +128,26 @@ export const updateCategory = async (id: string, data: Partial<ICategory>) => {
         deleteFile(existing.thumbnail);
     }
 
-    return await Category.findByIdAndUpdate(id, data, { new: true });
+    const updateData: any = { ...data };
+
+    if (updateData.name) {
+        existing.name = {
+            ...((existing.name as any)?.toObject?.() ?? existing.name),
+            ...updateData.name,
+        };
+        delete updateData.name;
+    }
+
+    if (updateData.description) {
+        existing.description = {
+            ...((existing.description as any)?.toObject?.() ?? existing.description ?? {}),
+            ...updateData.description,
+        };
+        delete updateData.description;
+    }
+
+    Object.assign(existing, updateData);
+    return await existing.save();
 };
 
 export const deleteCategory = async (id: string) => {

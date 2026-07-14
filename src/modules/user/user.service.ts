@@ -3,6 +3,7 @@ import { sendEmail } from "../../services/email.service";
 import { Period } from "../../types/global.types";
 import { ApiError } from "../../utils/apiError";
 import { deleteFile } from "../../utils/deleteFile";
+import { secureCardNumber } from "../../utils/cardSecurity";
 import generateOTP from "../../utils/generateOtp";
 import { fillBuckets, getTimelineBuckets } from "../../utils/graphHelper";
 import { getPaginationOptions } from "../../utils/pagination";
@@ -225,6 +226,10 @@ export const applyForBasket = async (userId: string, basketData: any) => {
         throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.already_applied");
     }
 
+    const securedCard = basketData.masterCardNumber
+        ? secureCardNumber(basketData.masterCardNumber)
+        : {};
+
     user.constructionBasket = {
         fullRegistrationName: basketData.fullRegistrationName,
         phoneNumber: basketData.phoneNumber,
@@ -232,6 +237,7 @@ export const applyForBasket = async (userId: string, basketData: any) => {
         occupation: basketData.occupation,
         unifiedCard: basketData.unifiedCard,
         residenceCard: basketData.residenceCard,
+        ...securedCard,
         propertyArea: basketData.propertyArea,
         propertyType: basketData.propertyType,
         isApplied: true,

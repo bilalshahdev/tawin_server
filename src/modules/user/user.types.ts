@@ -15,6 +15,9 @@ export interface IConstructionBasket {
   occupation?: string;
   unifiedCard?: string;
   residenceCard?: string;
+  masterCardLast4?: string;
+  masterCardHash?: string;
+  masterCardEncrypted?: string;
   propertyArea?: string;
   propertyType?: PropertyType;
   country?: string;
@@ -24,10 +27,10 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   username: string;
-  email: string;
+  email?: string;
   isVerified: boolean;
   password?: string;
-  phone: string;
+  phone?: string;
   profileImage: string;
   country: string;
   role: UserRole;
@@ -35,6 +38,7 @@ export interface IUser extends Document {
   verificationOtp?: string;
   verificationOtpExpires?: Date;
   verificationOtpLastSent?: Date;
+  verificationChannel?: 'email' | 'phone';
 
   lastLogout?: Date;
 

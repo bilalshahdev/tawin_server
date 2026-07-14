@@ -33,6 +33,12 @@ export const applyForBasketSchema = z.object({
     occupation: z.string().min(1, { message: "errors.validations.common.required" }),
     unifiedCard: z.string().min(1, { message: "errors.validations.common.required" }),
     residenceCard: z.string().min(1, { message: "errors.validations.common.required" }),
+    masterCardNumber: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string()
+        .regex(/^\d{16}$/, { message: "errors.validations.common.required" })
+        .optional()
+    ),
     propertyArea: z.string().min(1, { message: "errors.validations.common.required" }),
     propertyType: z.enum(['Freehold', 'Leasehold'], {
       message: "errors.validations.common.required"

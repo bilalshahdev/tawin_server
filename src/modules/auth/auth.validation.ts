@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+const emptyStringToUndefined = (value: unknown) => (
+    typeof value === "string" && value.trim() === "" ? undefined : value
+);
+
+const optionalEmailSchema = z.preprocess(
+    emptyStringToUndefined,
+    z.string().email({ message: "errors.validations.invalid_email" }).optional()
+);
+
+const optionalPhoneSchema = z.preprocess(
+    emptyStringToUndefined,
+    z.string().optional()
+);
+
 /**
  * Reusable Helpers (Matching Product Pattern)
  */
@@ -17,23 +31,34 @@ export const registerSchema = z.object({
         firstName: z.string().min(1, { message: "errors.validations.required" }),
         lastName: z.string().min(1, { message: "errors.validations.required" }),
         username: z.string().min(3, { message: "errors.validations.auth.username_short" }),
-        email: z.string().email({ message: "errors.validations.invalid_email" }),
+        email: optionalEmailSchema,
         password: z.string().min(8, { message: "errors.validations.auth.password_too_weak" }),
-        phone: z.string().optional(),
+        phone: optionalPhoneSchema,
+    }).refine((data) => data.email || data.phone, {
+        message: "errors.validations.common.required",
+        path: ["email"],
     })
 });
 
 export const verifyOtpSchema = z.object({
     body: z.object({
-        email: z.string().email({ message: "errors.validations.invalid_email" }),
+        email: optionalEmailSchema,
+        phone: optionalPhoneSchema,
         otp: z.string().length(6, { message: "errors.validations.auth.otp_length" }),
+    }).refine((data) => data.email || data.phone, {
+        message: "errors.validations.common.required",
+        path: ["email"],
     })
 });
 
 export const loginSchema = z.object({
     body: z.object({
-        email: z.string().email({ message: "errors.validations.invalid_email" }),
+        email: optionalEmailSchema,
+        phone: optionalPhoneSchema,
         password: z.string().min(1, { message: "errors.validations.required" }),
+    }).refine((data) => data.email || data.phone, {
+        message: "errors.validations.common.required",
+        path: ["email"],
     })
 });
 
@@ -59,8 +84,16 @@ export const changePasswordSchema = z.object({
 
 export const resendOtpSchema = z.object({
     body: z.object({
-        email: z.string().email({ message: "errors.validations.invalid_email" }),
+        email: optionalEmailSchema,
+        phone: optionalPhoneSchema,
+    }).refine((data) => data.email || data.phone, {
+        message: "errors.validations.common.required",
+        path: ["email"],
     })
 });
 
-export const changeEmailSchema = resendOtpSchema;
+export const changeEmailSchema = z.object({
+    body: z.object({
+        email: z.string().email({ message: "errors.validations.invalid_email" }),
+    })
+});

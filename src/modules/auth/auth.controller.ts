@@ -26,7 +26,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
  * @access  Public
  */
 export const verifyOtp = asyncHandler(async (req: Request, res: Response) => {
-    const result = await authService.verifyOtp(req.body.email, req.body.otp);
+    const result = await authService.verifyOtp({ email: req.body.email, phone: req.body.phone }, req.body.otp);
     res.json(new ApiResponse(req.t('auth.verification_success'), result));
 });
 
@@ -108,7 +108,7 @@ export const changePassword = asyncHandler(async (req: Request, res: Response) =
  * @access  Public
  */
 export const resendOtp = asyncHandler(async (req: Request, res: Response) => {
-    await authService.resendOtp(req.body.email);
+    await authService.resendOtp({ email: req.body.email, phone: req.body.phone });
     res.json(new ApiResponse(req.t('auth.otp_resend_success')));
 });
 

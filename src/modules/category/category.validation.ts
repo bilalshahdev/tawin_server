@@ -3,10 +3,28 @@ import { CategoryType } from './category.types';
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
+const emptyStringToUndefined = (value: unknown) => (
+    typeof value === "string" && value.trim() === "" ? undefined : value
+);
+
+const emptyLocalizedToUndefined = (value: unknown) => {
+    if (!value || typeof value !== "object") return value;
+    const localized = value as Record<string, unknown>;
+    const en = emptyStringToUndefined(localized.en);
+    const ar = emptyStringToUndefined(localized.ar);
+    return en || ar ? { en, ar } : undefined;
+};
+
 const localizedStringSchema = z.object({
-    en: z.string().min(1, { message: "errors.validations.required" }),
-    ar: z.string().optional(),
-});
+    en: z.preprocess(emptyStringToUndefined, z.string().min(1, { message: "errors.validations.required" }).optional()),
+    ar: z.preprocess(emptyStringToUndefined, z.string().optional()),
+}).refine((value) => value.en || value.ar, {
+    message: "errors.validations.required",
+    path: ["en"],
+}).transform((value) => ({
+    en: value.en || value.ar || "",
+    ar: value.ar || "",
+}));
 
 const normalizeCategoryBody = (body: unknown) => {
     if (!body || typeof body !== "object") return body;
@@ -14,14 +32,20 @@ const normalizeCategoryBody = (body: unknown) => {
     const raw = body as Record<string, unknown>;
     const normalized: Record<string, unknown> = { ...raw };
 
-    if (!normalized.name && (raw["name[en]"] || raw["name[ar]"])) {
+    if (normalized.name && typeof normalized.name === "object") {
+        delete normalized["name[en]"];
+        delete normalized["name[ar]"];
+    } else if (!normalized.name && (raw["name[en]"] || raw["name[ar]"])) {
         normalized.name = {
             en: raw["name[en]"],
             ar: raw["name[ar]"],
         };
     }
 
-    if (!normalized.description && (raw["description[en]"] || raw["description[ar]"])) {
+    if (normalized.description && typeof normalized.description === "object") {
+        delete normalized["description[en]"];
+        delete normalized["description[ar]"];
+    } else if (!normalized.description && (raw["description[en]"] || raw["description[ar]"])) {
         normalized.description = {
             en: raw["description[en]"],
             ar: raw["description[ar]"],
@@ -48,7 +72,7 @@ const parentCategorySchema = z.preprocess(
 export const createCategorySchema = z.object({
     body: z.preprocess(normalizeCategoryBody, z.object({
         name: localizedStringSchema,
-        description: localizedStringSchema.optional(),
+        description: z.preprocess(emptyLocalizedToUndefined, localizedStringSchema.optional()),
         type: z.nativeEnum(CategoryType, { message: "errors.validations.invalid_enum" }),
         parentCategory: parentCategorySchema,
         thumbnail: z.string().optional(),
@@ -73,8 +97,8 @@ export const updateCategorySchema = z.object({
         id: z.string().regex(objectIdRegex, "errors.validations.invalid_id")
     }),
     body: z.preprocess(normalizeCategoryBody, z.object({
-        name: localizedStringSchema.partial().optional(),
-        description: localizedStringSchema.partial().optional(),
+        name: z.preprocess(emptyLocalizedToUndefined, localizedStringSchema.optional()),
+        description: z.preprocess(emptyLocalizedToUndefined, localizedStringSchema.optional()),
         type: z.nativeEnum(CategoryType).optional(),
         parentCategory: parentCategorySchema,
         thumbnail: z.string().optional(),

@@ -12,7 +12,12 @@ const envSchema = z.object({
     CORS_ORIGIN: z.string().default('*'),
     LOW_STOCK_THRESHOLD: z.string().default('10'),
     ADMIN_PASSWORD: z.string().default('admin'),
-    FRONTEND_URL: z.string().default('http://localhost:3000')
+    FRONTEND_URL: z.string().default('http://localhost:3000'),
+    SMS_SERVICE: z.string().default('false'),
+    TWILIO_ACCOUNT_SID: z.string().optional(),
+    TWILIO_AUTH_TOKEN: z.string().optional(),
+    TWILIO_FROM_NUMBER: z.string().optional(),
+    BASKET_CARD_ENCRYPTION_KEY: z.string().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -38,6 +43,11 @@ export const config = {
     mailPassword: process.env.MAIL_PASSWORD || '',
     mailFromAddress: process.env.MAIL_FROM_ADDRESS || '',
     lowStockThreshold: Number(process.env.LOW_STOCK_THRESHOLD) || 10,
-    adminPassword: process.env.ADMIN_PASSWORD || 'Admin@123'
+    adminPassword: process.env.ADMIN_PASSWORD || 'Admin@123',
+    smsService: process.env.SMS_SERVICE || 'false',
+    twilioAccountSid: process.env.TWILIO_ACCOUNT_SID || '',
+    twilioAuthToken: process.env.TWILIO_AUTH_TOKEN || '',
+    twilioFromNumber: process.env.TWILIO_FROM_NUMBER || '',
+    cardEncryptionKey: process.env.BASKET_CARD_ENCRYPTION_KEY || '',
 };
 
