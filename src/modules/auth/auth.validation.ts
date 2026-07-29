@@ -14,6 +14,8 @@ const optionalPhoneSchema = z.preprocess(
     z.string().optional()
 );
 
+const otpLangSchema = z.enum(['en', 'ar', 'ku']).optional();
+
 /**
  * Reusable Helpers (Matching Product Pattern)
  */
@@ -34,6 +36,7 @@ export const registerSchema = z.object({
         email: optionalEmailSchema,
         password: z.string().min(8, { message: "errors.validations.auth.password_too_weak" }),
         phone: optionalPhoneSchema,
+        lang: otpLangSchema,
     }).refine((data) => data.email || data.phone, {
         message: "errors.validations.common.required",
         path: ["email"],
@@ -86,6 +89,7 @@ export const resendOtpSchema = z.object({
     body: z.object({
         email: optionalEmailSchema,
         phone: optionalPhoneSchema,
+        lang: otpLangSchema,
     }).refine((data) => data.email || data.phone, {
         message: "errors.validations.common.required",
         path: ["email"],

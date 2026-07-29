@@ -14,9 +14,12 @@ const envSchema = z.object({
     ADMIN_PASSWORD: z.string().default('admin'),
     FRONTEND_URL: z.string().default('http://localhost:3000'),
     SMS_SERVICE: z.string().default('false'),
-    TWILIO_ACCOUNT_SID: z.string().optional(),
-    TWILIO_AUTH_TOKEN: z.string().optional(),
-    TWILIO_FROM_NUMBER: z.string().optional(),
+    RASAEL_AUTH_URL: z.string().optional(),
+    RASAEL_SEND_URL: z.string().optional(),
+    RASAEL_USERNAME: z.string().optional(),
+    RASAEL_PASSWORD: z.string().optional(),
+    RASAEL_DEFAULT_EMAIL: z.string().optional(),
+    RASAEL_DEFAULT_LANG: z.enum(['en', 'ar', 'ku']).default('en'),
     BASKET_CARD_ENCRYPTION_KEY: z.string().optional(),
 });
 
@@ -45,9 +48,12 @@ export const config = {
     lowStockThreshold: Number(process.env.LOW_STOCK_THRESHOLD) || 10,
     adminPassword: process.env.ADMIN_PASSWORD || 'Admin@123',
     smsService: process.env.SMS_SERVICE || 'false',
-    twilioAccountSid: process.env.TWILIO_ACCOUNT_SID || '',
-    twilioAuthToken: process.env.TWILIO_AUTH_TOKEN || '',
-    twilioFromNumber: process.env.TWILIO_FROM_NUMBER || '',
+    rasaelAuthUrl: process.env.RASAEL_AUTH_URL || '',
+    rasaelSendUrl: process.env.RASAEL_SEND_URL || 'https://rahmantak.rasaelapp.com/api/api/Message/Send',
+    rasaelUsername: process.env.RASAEL_USERNAME || '',
+    rasaelPassword: process.env.RASAEL_PASSWORD || '',
+    rasaelDefaultEmail: process.env.RASAEL_DEFAULT_EMAIL || '',
+    rasaelDefaultLang: (process.env.RASAEL_DEFAULT_LANG || 'en') as 'en' | 'ar' | 'ku',
     cardEncryptionKey: process.env.BASKET_CARD_ENCRYPTION_KEY || '',
 };
 

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { AUTH_CONSTANTS, STATUS_CODE } from "../../config/constants";
 import { sendEmail } from "../../services/email.service";
-import { sendSms } from "../../services/sms.service";
+import { isSmsConfigured, sendOtpSms } from "../../services/sms.service";
 import { createStaffToken, createToken } from "../../services/jwt.service";
 import { ApiError } from "../../utils/apiError";
 import { User } from "../user/user.model";
@@ -11,6 +11,7 @@ import {
   AuthStaffResponse,
   ILoginDTO,
   IRegisterDTO,
+  OtpLang,
 } from "./auth.types";
 import generateOTP from "../../utils/generateOtp";
 import { Staff } from "../staff/staff.model";
@@ -20,9 +21,7 @@ import { config } from "../../config/env.config";
 const ensureSmsOtpConfigured = () => {
   if (
     config.smsService !== "true" ||
-    !config.twilioAccountSid ||
-    !config.twilioAuthToken ||
-    !config.twilioFromNumber
+    !isSmsConfigured()
   ) {
     throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.sms_not_configured");
   }
@@ -83,7 +82,7 @@ export const register = async (
 
   if (verificationChannel === "phone" && user.phone) {
     ensureSmsOtpConfigured();
-    await sendSms(user.phone, `Your Tawin verification OTP is: ${otp}`);
+    await sendOtpSms(user.phone, otp, { email: user.email, lang: data.lang });
   } else if (user.email) {
     await sendEmail(
       user.email,
@@ -244,7 +243,7 @@ export const changeEmail = async (userId: string, newEmail: string) => {
   return { user, token };
 };
 
-export const resendOtp = async (identifier: { email?: string; phone?: string }) => {
+export const resendOtp = async (identifier: { email?: string; phone?: string; lang?: OtpLang }) => {
   const lookup = identifier.email ? { email: identifier.email } : { phone: identifier.phone };
   const user = await User.findOne(lookup).select(
     "+verificationOtpLastSent +isVerified +verificationChannel",
@@ -274,7 +273,7 @@ export const resendOtp = async (identifier: { email?: string; phone?: string }) 
 
   if (user.verificationChannel === "phone" && user.phone) {
     ensureSmsOtpConfigured();
-    await sendSms(user.phone, `Your new Tawin verification OTP is: ${newOtp}`);
+    await sendOtpSms(user.phone, newOtp, { email: user.email, lang: identifier.lang });
   } else if (user.email) {
     await sendEmail(
       user.email,

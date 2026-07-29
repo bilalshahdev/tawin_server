@@ -108,7 +108,7 @@ export const changePassword = asyncHandler(async (req: Request, res: Response) =
  * @access  Public
  */
 export const resendOtp = asyncHandler(async (req: Request, res: Response) => {
-    await authService.resendOtp({ email: req.body.email, phone: req.body.phone });
+    await authService.resendOtp({ email: req.body.email, phone: req.body.phone, lang: req.body.lang });
     res.json(new ApiResponse(req.t('auth.otp_resend_success')));
 });
 
