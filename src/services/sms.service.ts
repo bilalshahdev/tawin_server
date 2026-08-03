@@ -19,7 +19,8 @@ export const isSmsConfigured = () => (
     Boolean(config.rasaelAuthUrl) &&
     Boolean(config.rasaelSendUrl) &&
     Boolean(config.rasaelUsername) &&
-    Boolean(config.rasaelPassword)
+    Boolean(config.rasaelPassword) &&
+    Boolean(config.rasaelDefaultEmail)
 );
 
 const getRasaelAccessToken = async () => {

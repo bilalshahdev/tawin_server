@@ -68,7 +68,7 @@ export const staffLogin = asyncHandler(async (req: Request, res: Response) => {
  * @access  Public
  */
 export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
-    await authService.forgotPassword(req.body.email);
+    await authService.forgotPassword({ email: req.body.email, phone: req.body.phone, lang: req.body.lang });
     res.json(new ApiResponse(req.t('auth.reset_token_sent')));
 });
 
@@ -78,7 +78,7 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
  * @access  Public
  */
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
-    await authService.resetPassword(req.body.token, req.body.newPassword);
+    await authService.resetPassword(req.body.token, req.body.newPassword, { email: req.body.email, phone: req.body.phone });
     res.json(new ApiResponse(req.t('auth.password_reset_success')));
 });
 

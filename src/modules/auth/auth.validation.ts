@@ -67,12 +67,19 @@ export const loginSchema = z.object({
 
 export const forgotPasswordSchema = z.object({
     body: z.object({
-        email: z.string().email({ message: "errors.validations.invalid_email" }),
+        email: optionalEmailSchema,
+        phone: optionalPhoneSchema,
+        lang: otpLangSchema,
+    }).refine((data) => data.email || data.phone, {
+        message: "errors.validations.common.required",
+        path: ["email"],
     })
 });
 
 export const resetPasswordSchema = z.object({
     body: z.object({
+        email: optionalEmailSchema,
+        phone: optionalPhoneSchema,
         token: z.string().min(1, { message: "errors.validations.required" }),
         newPassword: z.string().min(8, { message: "errors.validations.auth.password_too_weak" }),
     })

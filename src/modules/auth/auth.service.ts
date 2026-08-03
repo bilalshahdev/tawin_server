@@ -158,18 +158,28 @@ export const staffLogin = async (
   return { user: staff, token };
 };
 
-export const forgotPassword = async (email: string) => {
-  const user = await User.findOne({ email });
+export const forgotPassword = async (identifier: { email?: string; phone?: string; lang?: OtpLang }) => {
+  const lookup = identifier.email ? { email: identifier.email } : { phone: identifier.phone };
+  const user = await User.findOne(lookup);
   if (!user) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.user_not_found");
-  if (!user.email) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.email_required");
+  if (identifier.phone) {
+    ensureSmsOtpConfigured();
+  }
 
-  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetToken = identifier.phone ? generateOTP() : crypto.randomBytes(32).toString("hex");
   user.passwordResetToken = crypto
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
   user.passwordResetExpires = new Date(Date.now() + 30 * 60 * 1000);
   await user.save();
+
+  if (identifier.phone && user.phone) {
+    await sendOtpSms(user.phone, resetToken, { email: user.email, lang: identifier.lang });
+    return;
+  }
+
+  if (!user.email) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.email_required");
 
   const frontendBaseUrl = config.frontendUrl || "http://localhost:3000";
   const resetUrl = `${frontendBaseUrl}/auth/reset-password?token=${resetToken}`;
@@ -186,12 +196,23 @@ export const forgotPassword = async (email: string) => {
   await sendEmail(user.email, emailSubject, emailMessage);
 };
 
-export const resetPassword = async (token: string, newPass: string) => {
+export const resetPassword = async (
+  token: string,
+  newPass: string,
+  identifier?: { email?: string; phone?: string },
+) => {
+  if (/^\d{6}$/.test(token) && !identifier?.email && !identifier?.phone) {
+    throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.validations.common.required");
+  }
+
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-  const user = await User.findOne({
+  const lookup = {
     passwordResetToken: hashedToken,
     passwordResetExpires: { $gt: new Date() },
-  });
+    ...(identifier?.email ? { email: identifier.email } : {}),
+    ...(identifier?.phone ? { phone: identifier.phone } : {}),
+  };
+  const user = await User.findOne(lookup);
 
   if (!user)
     throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.token_invalid");
