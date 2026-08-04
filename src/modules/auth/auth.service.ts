@@ -59,7 +59,7 @@ export const register = async (
 
   const otp = generateOTP();
 
-  const verificationChannel = data.phone && !data.email ? "phone" : "email";
+  const verificationChannel = data.phone ? "phone" : "email";
   if (verificationChannel === "phone") {
     ensureSmsOtpConfigured();
   }
