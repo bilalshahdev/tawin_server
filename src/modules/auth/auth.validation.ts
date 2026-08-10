@@ -1,16 +1,21 @@
 import { z } from "zod";
+import { normalizePhone } from "../../utils/normalizePhone";
 
 const emptyStringToUndefined = (value: unknown) => (
     typeof value === "string" && value.trim() === "" ? undefined : value
 );
 
+const normalizeEmail = (value: unknown) => (
+    typeof value === "string" && value.trim() !== "" ? value.trim().toLowerCase() : value
+);
+
 const optionalEmailSchema = z.preprocess(
-    emptyStringToUndefined,
+    (value) => normalizeEmail(emptyStringToUndefined(value)),
     z.string().email({ message: "errors.validations.invalid_email" }).optional()
 );
 
 const optionalPhoneSchema = z.preprocess(
-    emptyStringToUndefined,
+    (value) => normalizePhone(emptyStringToUndefined(value) as string | undefined),
     z.string().optional()
 );
 

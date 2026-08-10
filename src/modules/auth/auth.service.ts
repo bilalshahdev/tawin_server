@@ -6,6 +6,7 @@ import { isSmsConfigured, sendOtpSms } from "../../services/sms.service";
 import { createStaffToken, createToken } from "../../services/jwt.service";
 import { ApiError } from "../../utils/apiError";
 import { User } from "../user/user.model";
+import { logger } from "../../config/logger";
 import {
   AuthResponse,
   AuthStaffResponse,
@@ -24,6 +25,26 @@ const ensureSmsOtpConfigured = () => {
     !isSmsConfigured()
   ) {
     throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.sms_not_configured");
+  }
+};
+
+const rollbackUser = async (userId: unknown) => {
+  try {
+    await User.findByIdAndDelete(userId);
+  } catch (error) {
+    logger.error(`Failed to rollback user after registration delivery failure: ${error}`);
+  }
+};
+
+const notifyAdminsSafely = async () => {
+  try {
+    await notificationService.notifyAdmins({
+      title: "NOTIF_NEW_USER_TITLE",
+      message: "NOTIF_NEW_USER_MSG",
+      type: "auth",
+    });
+  } catch (error) {
+    logger.warn(`Failed to notify admins for new user registration: ${error}`);
   }
 };
 
@@ -74,22 +95,30 @@ export const register = async (
     verificationOtpLastSent: new Date(),
   });
 
-  await notificationService.notifyAdmins({
-    title: "NOTIF_NEW_USER_TITLE",
-    message: "NOTIF_NEW_USER_MSG",
-    type: "auth",
-  });
-
-  if (verificationChannel === "phone" && user.phone) {
-    ensureSmsOtpConfigured();
-    await sendOtpSms(user.phone, otp, { email: user.email, lang: data.lang });
-  } else if (user.email) {
-    await sendEmail(
-      user.email,
-      "Verify Your Account",
-      `Your OTP is: <b>${otp}</b>`,
+  try {
+    if (verificationChannel === "phone" && user.phone) {
+      ensureSmsOtpConfigured();
+      await sendOtpSms(user.phone, otp, { email: user.email, lang: data.lang });
+    } else if (user.email) {
+      await sendEmail(
+        user.email,
+        "Verify Your Account",
+        `Your OTP is: <b>${otp}</b>`,
+      );
+    } else {
+      throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.validations.common.required");
+    }
+  } catch (error) {
+    await rollbackUser(user._id);
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(
+      STATUS_CODE.BAD_REQUEST,
+      verificationChannel === "phone" ? "errors.sms_delivery_failed" : "errors.email_delivery_failed",
     );
   }
+
+  await notifyAdminsSafely();
+
   const token = createToken(user);
   return { user, token };
 };
@@ -167,15 +196,15 @@ export const forgotPassword = async (identifier: { email?: string; phone?: strin
   }
 
   const resetToken = identifier.phone ? generateOTP() : crypto.randomBytes(32).toString("hex");
-  user.passwordResetToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
-  user.passwordResetExpires = new Date(Date.now() + 30 * 60 * 1000);
-  await user.save();
 
   if (identifier.phone && user.phone) {
     await sendOtpSms(user.phone, resetToken, { email: user.email, lang: identifier.lang });
+    user.passwordResetToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+    user.passwordResetExpires = new Date(Date.now() + 30 * 60 * 1000);
+    await user.save();
     return;
   }
 
@@ -194,6 +223,12 @@ export const forgotPassword = async (identifier: { email?: string; phone?: strin
     `;
 
   await sendEmail(user.email, emailSubject, emailMessage);
+  user.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  user.passwordResetExpires = new Date(Date.now() + 30 * 60 * 1000);
+  await user.save();
 };
 
 export const resetPassword = async (
@@ -287,10 +322,6 @@ export const resendOtp = async (identifier: { email?: string; phone?: string; la
   }
 
   const newOtp = generateOTP();
-  user.verificationOtp = newOtp;
-  user.verificationOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
-  user.verificationOtpLastSent = new Date();
-  await user.save();
 
   if (user.verificationChannel === "phone" && user.phone) {
     ensureSmsOtpConfigured();
@@ -301,7 +332,14 @@ export const resendOtp = async (identifier: { email?: string; phone?: string; la
       "New Verification Code",
       `Your new code is: <b>${newOtp}</b>`,
     );
+  } else {
+    throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.validations.common.required");
   }
+
+  user.verificationOtp = newOtp;
+  user.verificationOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
+  user.verificationOtpLastSent = new Date();
+  await user.save();
 };
 
 export const deleteUser = async (userId: string) => {

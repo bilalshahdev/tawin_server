@@ -1,4 +1,14 @@
 import { z } from "zod";
+import { normalizePhone } from "../../utils/normalizePhone";
+
+const emptyStringToUndefined = (value: unknown) => (
+    typeof value === "string" && value.trim() === "" ? undefined : value
+);
+
+const optionalPhoneSchema = z.preprocess(
+    (value) => normalizePhone(emptyStringToUndefined(value) as string | undefined),
+    z.string().optional()
+);
 
 // Profile updates explicitly do NOT accept `role`, `isVerified`, `password`, or `_id`.
 // `.strict()` enforces this — any extra key (including those) returns 400.
@@ -9,7 +19,7 @@ export const updateProfileSchema = z.object({
     lastName: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
     username: z.string().min(3, { message: "errors.validations.auth.username_short" }).optional(),
     email: z.string().email({ message: "errors.validations.common.invalid_email" }).optional(),
-    phone: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
+    phone: optionalPhoneSchema,
   }).strict()
 });
 
@@ -19,7 +29,7 @@ export const updateAdminProfileSchema = z.object({
     lastName: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
     username: z.string().min(3, { message: "errors.validations.auth.username_short" }).optional(),
     email: z.string().email({ message: "errors.validations.common.invalid_email" }).optional(),
-    phone: z.string().min(1, { message: "errors.validations.common.required" }).optional(),
+    phone: optionalPhoneSchema,
   }).strict()
 });
 

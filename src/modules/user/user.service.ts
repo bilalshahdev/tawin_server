@@ -99,7 +99,9 @@ export const getAllUsersService = async (query: any) => {
             $or: [
                 { firstName: searchRegex },
                 { lastName: searchRegex },
-                { email: searchRegex }
+                { email: searchRegex },
+                { phone: searchRegex },
+                { username: searchRegex }
             ]
         };
     }
