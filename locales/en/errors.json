@@ -23,6 +23,10 @@
     "admin_deletion_prohibited": "Admin accounts cannot be deleted.",
     "admin_cannot_be_deleted": "Admin accounts cannot be deleted.",
     "cannot_delete_self": "You cannot delete your own account.",
+    "sms_not_configured": "SMS service is not configured correctly.",
+    "sms_auth_failed": "SMS service authentication failed. Please check the SMS provider credentials.",
+    "sms_delivery_failed": "SMS delivery failed. Please check the phone number format or SMS provider settings.",
+    "email_delivery_failed": "Email delivery failed. Please check the mail service settings.",
 
     "address_not_found": "No address found with those details.",
     "already_applied": "You have already applied for the construction basket.",

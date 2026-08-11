@@ -20,6 +20,8 @@ const envSchema = z.object({
     RASAEL_PASSWORD: z.string().optional(),
     RASAEL_DEFAULT_EMAIL: z.string().optional(),
     RASAEL_DEFAULT_LANG: z.enum(['en', 'ar', 'ku']).default('en'),
+    RASAEL_PHONE_COUNTRY_CODE: z.string().default('964'),
+    RASAEL_PHONE_FORMAT: z.enum(['e164', 'no_plus', 'local']).default('no_plus'),
     BASKET_CARD_ENCRYPTION_KEY: z.string().optional(),
 });
 
@@ -54,6 +56,8 @@ export const config = {
     rasaelPassword: process.env.RASAEL_PASSWORD || '',
     rasaelDefaultEmail: process.env.RASAEL_DEFAULT_EMAIL || '',
     rasaelDefaultLang: (process.env.RASAEL_DEFAULT_LANG || 'en') as 'en' | 'ar' | 'ku',
+    rasaelPhoneCountryCode: process.env.RASAEL_PHONE_COUNTRY_CODE || '964',
+    rasaelPhoneFormat: (process.env.RASAEL_PHONE_FORMAT || 'no_plus') as 'e164' | 'no_plus' | 'local',
     cardEncryptionKey: process.env.BASKET_CARD_ENCRYPTION_KEY || '',
 };
 

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { AUTH_CONSTANTS, STATUS_CODE } from "../../config/constants";
 import { sendEmail } from "../../services/email.service";
-import { isSmsConfigured, sendOtpSms } from "../../services/sms.service";
+import { isSmsConfigured, sendOtpSms, SmsProviderError } from "../../services/sms.service";
 import { createStaffToken, createToken } from "../../services/jwt.service";
 import { ApiError } from "../../utils/apiError";
 import { User } from "../user/user.model";
@@ -111,6 +111,14 @@ export const register = async (
   } catch (error) {
     await rollbackUser(user._id);
     if (error instanceof ApiError) throw error;
+    if (error instanceof SmsProviderError) {
+      const message = error.reason === "auth"
+        ? "errors.sms_auth_failed"
+        : error.reason === "config"
+          ? "errors.sms_not_configured"
+          : "errors.sms_delivery_failed";
+      throw new ApiError(STATUS_CODE.BAD_REQUEST, message);
+    }
     throw new ApiError(
       STATUS_CODE.BAD_REQUEST,
       verificationChannel === "phone" ? "errors.sms_delivery_failed" : "errors.email_delivery_failed",
