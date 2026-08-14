@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { normalizePhone } from "../../utils/normalizePhone";
+import { IRAQI_PHONE_PATTERN, normalizePhone } from "../../utils/normalizePhone";
 
 const emptyStringToUndefined = (value: unknown) => (
     typeof value === "string" && value.trim() === "" ? undefined : value
@@ -7,7 +7,9 @@ const emptyStringToUndefined = (value: unknown) => (
 
 const optionalPhoneSchema = z.preprocess(
     (value) => normalizePhone(emptyStringToUndefined(value) as string | undefined),
-    z.string().optional()
+    z.string()
+        .regex(IRAQI_PHONE_PATTERN, { message: "errors.validations.auth.iraq_phone_format" })
+        .optional()
 );
 
 // Profile updates explicitly do NOT accept `role`, `isVerified`, `password`, or `_id`.

@@ -83,7 +83,8 @@
         "auth": {
             "username_short": "Username must be at least 3 characters.",
             "password_too_weak": "Password must be at least 8 characters.",
-            "otp_length": "OTP must be exactly 6 characters."
+            "otp_length": "OTP must be exactly 6 characters.",
+            "iraq_phone_format": "Use format 0096477XXXXXXXX or 0096478XXXXXXXX."
         },
 
         "category": {
