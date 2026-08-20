@@ -21,7 +21,7 @@ const digitMap: Record<string, string> = {
     "\u06F9": "9",
 };
 
-export const IRAQI_PHONE_PATTERN = /^00964(77|78)\d{8}$/;
+export const IRAQI_PHONE_PATTERN = /^009647\d{9}$/;
 
 export const normalizePhone = (phone?: unknown) => {
     if (typeof phone !== "string") return undefined;

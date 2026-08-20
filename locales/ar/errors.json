@@ -67,7 +67,7 @@
                                      "username_short":  "يجب أن يكون اسم المستخدم 3 أحرف على الأقل.",
                                      "password_too_weak":  "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
                                      "otp_length":  "يجب أن يتكون رمز التحقق من 6 أحرف بالضبط.",
-                                     "iraq_phone_format":  "Use format 0096477XXXXXXXX or 0096478XXXXXXXX."
+                                     "iraq_phone_format":  "Use format 009647XXXXXXXXX."
                                  },
                         "category":  {
                                          "invalid_hierarchy":  "يجب أن تشير الفئة الفرعية إلى فئة أساسية."
