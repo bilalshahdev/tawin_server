@@ -6,6 +6,7 @@ export interface LocalizedString {
 }
 
 export interface IProduct extends Omit<Document, 'isNew'> {
+    productTag?: string;
     title: LocalizedString;
     slug: string;
     category: Types.ObjectId;
@@ -18,6 +19,8 @@ export interface IProduct extends Omit<Document, 'isNew'> {
     remainingPieces: number;
     isNewArrival: boolean;
     isFeatured: boolean;
+    isArchived: boolean;
+    archivedAt?: Date | null;
     discount: number;
     rating: number;
     reviewCount: number;

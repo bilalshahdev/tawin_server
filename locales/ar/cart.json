@@ -4,5 +4,6 @@
     "item_added": "تمت إضافة المنتج إلى السلة بنجاح.",
     "item_removed": "تمت إزالة المنتج من السلة بنجاح.",
     "quantity_updated": "تم تحديث كمية المنتج بنجاح.",
-    "cleared": "تم تفريغ سلة التسوق بنجاح."
+    "cleared": "تم تفريغ سلة التسوق بنجاح.",
+    "quotation_generated": "Quotation generated successfully."
 }

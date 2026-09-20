@@ -21,6 +21,27 @@ const toBoolean = z.preprocess((val) => {
     return val;
 }, z.unknown());
 
+const importProductRowSchema = z.object({
+    _id: z.string().regex(objectIdRegex).optional(),
+    productId: z.string().regex(objectIdRegex).optional(),
+    productTag: z.string().trim().min(1).optional(),
+    titleEn: z.string().trim().optional(),
+    titleAr: z.string().trim().optional(),
+    descriptionEn: z.string().trim().optional(),
+    descriptionAr: z.string().trim().optional(),
+    category: z.string().trim().optional(),
+    categoryId: z.string().regex(objectIdRegex).optional(),
+    price: z.union([z.string(), z.number()]).optional(),
+    originalPrice: z.union([z.string(), z.number()]).optional(),
+    discount: z.union([z.string(), z.number()]).optional(),
+    remainingPieces: z.union([z.string(), z.number()]).optional(),
+    variant: z.string().trim().optional(),
+    isNewArrival: z.union([z.string(), z.boolean()]).optional(),
+    isFeatured: z.union([z.string(), z.boolean()]).optional(),
+    photo: z.string().trim().optional(),
+    images: z.union([z.string(), z.array(z.string())]).optional(),
+}).passthrough();
+
 /**
  * Schemas
  */
@@ -30,6 +51,7 @@ const toBoolean = z.preprocess((val) => {
 // `.strict()` enforces the whitelist.
 export const createProductSchema = z.object({
     body: z.object({
+        productTag: z.string().trim().min(1).optional(),
         title: localizedSchema(),
         description: localizedSchema().optional(),
         category: z.string().regex(objectIdRegex, "invalid_id"),
@@ -45,6 +67,7 @@ export const createProductSchema = z.object({
 
 export const updateProductSchema = z.object({
     body: z.object({
+        productTag: z.string().trim().min(1).optional(),
         title: localizedSchema().partial().optional(),
         description: localizedSchema().partial().optional(),
         category: z.string().regex(objectIdRegex).optional(),
@@ -57,8 +80,14 @@ export const updateProductSchema = z.object({
         remainingPieces: toNumber.pipe(z.number().min(0)).optional(),
         isNewArrival: toBoolean.pipe(z.boolean()).optional(),
         isFeatured: toBoolean.pipe(z.boolean()).optional(),
-        
+        isArchived: toBoolean.pipe(z.boolean()).optional(),
     }).strict().refine((data) => Object.keys(data).length > 0, { message: "empty_update" }),
+});
+
+export const importProductsSchema = z.object({
+    body: z.object({
+        products: z.array(importProductRowSchema).min(1),
+    }).strict(),
 });
 
 export const updateStockSchema = z.object({

@@ -12,7 +12,7 @@ export const getAllCarts = async (query: any) => {
     const { page, limit, skip } = getPaginationOptions(query);
     const [carts, totalDocs] = await Promise.all([
         Cart.find()
-            .populate({ path: 'user', select: 'name email' })
+            .populate({ path: 'user', select: 'name email phone' })
             .populate({ path: 'items.product' })
             .limit(limit)
             .skip(skip)
@@ -35,25 +35,22 @@ export const getMyCart = async (userId: string) => {
 
     if (!cart) return { items: [], total: 0 };
 
-    // SYNC: Remove deleted products and cap quantity to current stock
     let isModified = false;
     const validItems = cart.items.filter(item => {
         const product = item.product as any;
 
-        // 1. If product no longer exists in DB, remove it from cart
-        if (!product) {
+        if (!product || product.isArchived) {
             isModified = true;
             return false;
         }
 
-        // 2. If cart quantity exceeds current stock, cap it at available stock
         const stock = product.remainingPieces || 0;
         if (item.quantity > stock) {
             item.quantity = stock;
             isModified = true;
         }
 
-        return true;
+        return item.quantity > 0;
     });
 
     if (isModified) {
@@ -68,10 +65,9 @@ export const getMyCart = async (userId: string) => {
  * Add item to cart
  */
 export const addToCart = async (userId: string, productId: string, quantity: number) => {
-    const product = await Product.findById(productId);
+    const product = await Product.findOne({ _id: productId, isArchived: { $ne: true } });
     if (!product) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.product_not_available");
 
-    // Check if item is in stock at all
     const stock = product.remainingPieces || 0;
     if (stock <= 0) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.out_of_stock");
 
@@ -81,12 +77,10 @@ export const addToCart = async (userId: string, productId: string, quantity: num
     const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
 
     if (itemIndex > -1) {
-        // Update existing item
         const newTotal = cart.items[itemIndex].quantity + quantity;
         if (newTotal > stock) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.insufficient_stock");
         cart.items[itemIndex].quantity = newTotal;
     } else {
-        // Add new item
         if (quantity > stock) throw new ApiError(STATUS_CODE.BAD_REQUEST, "errors.insufficient_stock");
         cart.items.push({ product: new Types.ObjectId(productId), quantity });
     }
@@ -100,7 +94,7 @@ export const addToCart = async (userId: string, productId: string, quantity: num
 export const updateQuantity = async (userId: string, productId: string, quantity: number) => {
     const [cart, product] = await Promise.all([
         Cart.findOne({ user: userId }),
-        Product.findById(productId)
+        Product.findOne({ _id: productId, isArchived: { $ne: true } })
     ]);
 
     if (!cart) throw new ApiError(STATUS_CODE.NOT_FOUND, "errors.cart_not_found");
@@ -114,6 +108,39 @@ export const updateQuantity = async (userId: string, productId: string, quantity
 
     cart.items[itemIndex].quantity = quantity;
     return await cart.save();
+};
+
+export const generateQuotation = async (userId: string) => {
+    const cart: any = await getMyCart(userId);
+    const items = (cart?.items || [])
+        .filter((item: any) => item.product)
+        .map((item: any) => {
+            const product = item.product;
+            const unitPrice = product.price || 0;
+            const subtotal = unitPrice * item.quantity;
+            return {
+                product: product._id,
+                productTag: product.productTag,
+                title: product.title,
+                quantity: item.quantity,
+                unitPrice,
+                subtotal,
+            };
+        });
+
+    const totalAmount = items.reduce((sum: number, item: any) => sum + item.subtotal, 0);
+    const generatedAt = new Date();
+    const expiresAt = new Date(generatedAt.getTime() + 1000 * 60 * 60 * 24 * 7);
+    const quotationNumber = "QT-" + generatedAt.getFullYear() + String(generatedAt.getMonth() + 1).padStart(2, "0") + String(generatedAt.getDate()).padStart(2, "0") + "-" + String(Date.now()).slice(-6);
+
+    return {
+        quotationNumber,
+        generatedAt,
+        expiresAt,
+        items,
+        totalAmount,
+        currencyNote: "Final delivery charges or discounts may be applied during checkout.",
+    };
 };
 
 /**

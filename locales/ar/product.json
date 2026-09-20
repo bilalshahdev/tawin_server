@@ -8,5 +8,8 @@
     "exported": "تم تصدير المنتجات بنجاح.",
     "low_stock_retrieved": "تم جلب المنتجات منخفضة المخزون بنجاح.",
     "stock_updated": "تم تحديث المخزون بنجاح.",
-    "reviews_synced": "تم مزامنة تقييمات المنتج وعدد المراجعات بنجاح."
+    "reviews_synced": "تم مزامنة تقييمات المنتج وعدد المراجعات بنجاح.",
+    "imported": "Products imported successfully.",
+    "archived": "Product archived successfully.",
+    "restored": "Product restored successfully."
 }

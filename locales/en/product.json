@@ -8,5 +8,8 @@
     "exported": "Products exported successfully.",
     "low_stock_retrieved": "Low-stock products retrieved successfully.",
     "stock_updated": "Stock updated successfully.",
-    "reviews_synced": "Product ratings and review counts have been successfully synchronized."
+    "reviews_synced": "Product ratings and review counts have been successfully synchronized.",
+    "imported": "Products imported successfully.",
+    "archived": "Product archived successfully.",
+    "restored": "Product restored successfully."
 }

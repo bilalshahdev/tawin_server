@@ -8,6 +8,7 @@ const LocalizedSchema = new Schema({
 }, { _id: false });
 
 const productSchema = new Schema<IProduct>({
+    productTag: { type: String, trim: true, unique: true, sparse: true },
     title: { type: LocalizedSchema, required: true },
     slug: { type: String, unique: true },
     category: {
@@ -24,6 +25,8 @@ const productSchema = new Schema<IProduct>({
     remainingPieces: { type: Number, default: 0 },
     isNewArrival: { type: Boolean, default: true },
     isFeatured: { type: Boolean, default: false },
+    isArchived: { type: Boolean, default: false, index: true },
+    archivedAt: { type: Date, default: null },
     discount: { type: Number, default: 0 },
     rating: { type: Number, default: 0, min: 0, max: 5 },
     reviewCount: { type: Number, default: 0 },

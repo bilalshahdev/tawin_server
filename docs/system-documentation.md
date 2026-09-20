@@ -595,3 +595,46 @@ Tawin Server is a well-structured, feature-rich e-commerce backend API that prov
 The modular architecture allows for easy maintenance and scalability, while the comprehensive documentation and logging facilitate development and operations. The system is production-ready with proper configuration management, process monitoring, and security considerations.
 
 For any development team taking over this project, the documentation provides a complete understanding of the system architecture, data flows, and operational procedures. The codebase follows TypeScript best practices and implements modern web development standards, making it maintainable and extensible for future requirements.
+
+---
+
+## App Integration Notes - Wishlist, Product Import, Archive, Quotation
+
+### Wishlist / Favorites
+
+Wishlist is handled as a logged-in user's saved products list. The mobile app should send the customer bearer token with each request.
+
+- GET /api/favorite - returns the logged-in user wishlist products.
+- POST /api/favorite - toggles a product in/out of wishlist.
+
+Request body for toggle:
+
+```json
+{
+  "productId": "PRODUCT_OBJECT_ID"
+}
+```
+
+Expected app behavior: when the user taps the favorite/heart button, call POST /api/favorite. The API returns isAdded: true when the item is added and isAdded: false when it is removed. Archived products are not returned or added to wishlist.
+
+### Product Import / Bulk Update
+
+- POST /api/products/import - admin only. Creates or updates products in bulk.
+
+Products are matched by productId first, then by productTag. If neither matches an existing product, a new product is created. For new products, titleEn, category or categoryId, and price are required.
+
+Useful CSV/import columns: productId, productTag, titleEn, titleAr, descriptionEn, descriptionAr, categoryId, category, price, originalPrice, discount, remainingPieces, variant, isNewArrival, isFeatured, photo, images.
+
+### Product Archive
+
+Products are archived instead of being physically deleted from the database, so old orders/history remain safe.
+
+- PATCH /api/products/:id/archive - hides a product from customer catalog/cart.
+- PATCH /api/products/:id/restore - restores archived product.
+- GET /api/products?archived=true - admin can list archived products.
+
+### Quotation / Proforma
+
+- GET /api/cart/quotation - generates a pre-checkout quotation from the logged-in user current cart.
+
+The response includes quotation number, generated date, expiry date, line items, and total amount. It does not place an order and does not reduce stock.

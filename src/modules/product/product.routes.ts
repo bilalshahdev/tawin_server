@@ -140,6 +140,38 @@ router.get("/category/:categoryId", productController.getByCategory);
  */
 router.get("/slug/:slug", productController.getBySlug);
 
+/**
+ * @swagger
+ * /products/import:
+ *   post:
+ *     summary: Bulk import or update products by productId/productTag (Admin Only)
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - products
+ *             properties:
+ *               products:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *     responses:
+ *       200:
+ *         description: Import summary with created, updated, and failed rows
+ */
+router.post(
+    "/import",
+    authMiddleware,
+    authorize("admin"),
+    validate(schemas.importProductsSchema),
+    productController.importProducts
+);
 
 /**
  * @swagger
@@ -321,6 +353,44 @@ router.patch(
 );
 
 
+
+/**
+ * @swagger
+ * /products/{id}/archive:
+ *   patch:
+ *     summary: Archive product without deleting history (Admin Only)
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Product archived
+ */
+router.patch(
+    "/:id/archive",
+    authMiddleware,
+    authorize("admin"),
+    productController.archive
+);
+
+/**
+ * @swagger
+ * /products/{id}/restore:
+ *   patch:
+ *     summary: Restore archived product (Admin Only)
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Product restored
+ */
+router.patch(
+    "/:id/restore",
+    authMiddleware,
+    authorize("admin"),
+    productController.restore
+);
 
 /**
  * @swagger

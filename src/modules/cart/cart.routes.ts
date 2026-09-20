@@ -31,6 +31,20 @@ router.get("/all", authorize("admin"), cartController.getAllCarts);
 
 /**
  * @swagger
+ * /cart/quotation:
+ *   get:
+ *     summary: Generate pre-checkout quotation/proforma from my cart
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Quotation generated
+ */
+router.get("/quotation", cartController.getQuotation);
+
+/**
+ * @swagger
  * /cart:
  *   get:
  *     summary: View my cart
